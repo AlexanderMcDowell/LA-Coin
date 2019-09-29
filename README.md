@@ -19,4 +19,4 @@ transaction.then(res => {
 })
 ```
 
-If the api returns `status: success` then both parties are debited and credited accordingly
+If the api returns `status: success` then both parties have been debited and credited accordingly
