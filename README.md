@@ -12,9 +12,12 @@ var transaction = firebase.transfer({
 })
 ```
 
-You can view the response from the API by using:
+You can view the response from the API:
 ```typescript
 transaction.then(res => {
   console.log(res)
- })
+})
 ```
+
+> Both parties are debited and credited accordingly
+> The API checks to make sure the user's balance is greater than the transaction amount
