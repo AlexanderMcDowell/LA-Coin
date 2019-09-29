@@ -19,5 +19,6 @@ transaction.then(res => {
 })
 ```
 
-> Both parties are debited and credited accordingly
-> The API checks to make sure the user's balance is greater than the transaction amount
+Both parties are debited and credited accordingly
+
+The API checks to make sure the user's balance is greater than the transaction amount
