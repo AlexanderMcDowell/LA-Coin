@@ -1,29 +1,13 @@
 # wuffee
 
-## Project setup
-```
-npm install
-```
+### Transaction API
+> A fast and secure wuffee transaction API
 
-### Compiles and hot-reloads for development
+```typescript
+var transaction = firebase.transfer({
+  fromId: "39ahadfw9feiwfewf",
+  toId: "183jrihu9fuewh9ud,
+  amount: 50,
+  description: "Thanks for the merch"
+})
 ```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
