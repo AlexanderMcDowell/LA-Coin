@@ -22,4 +22,4 @@ transaction.then(res => {
 #### Status Codes
 `status: success` Both parties have been debited and credited accordingly
 
-`status: failure` Bad wallet adress or low balance
+`status: failure` Bad wallet adress
