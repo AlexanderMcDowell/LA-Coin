@@ -1,0 +1,46 @@
+<template>
+	<div class="ion-page">
+		<ion-header>
+			<ion-toolbar>
+				<ion-title>Login</ion-title>
+			</ion-toolbar>
+		</ion-header>
+		<ion-content class="ion-padding">
+			<form @submit="login">
+				<ion-item>
+					<ion-label position="floating">Email</ion-label>
+					<ion-input :value="email" @input="email = $event.target.value" type="email" name="email">
+					</ion-input>
+				</ion-item>
+				<ion-item>
+					<ion-label position="floating">Password</ion-label>
+					<ion-input :value="password" @input="password = $event.target.value" type="password"
+						name="password"></ion-input>
+				</ion-item>
+				<ion-button type="submit" expand="block">Login</ion-button>
+			</form>
+		</ion-content>
+	</div>
+</template>
+
+<script lang="ts">
+import Vue from 'vue'
+import Component from 'vue-class-component'
+import firebase from '@/firebase.config'
+
+@Component
+export default class Login extends Vue {
+	email: string = ""
+	password: string = ""
+
+	login(e: Event) {
+		firebase.auth.signInWithEmailAndPassword(this.email, this.password).then(user => {
+			this.$router.push('/')
+		})
+		e.preventDefault();
+	}
+}
+</script>
+
+<style scoped>
+</style>
