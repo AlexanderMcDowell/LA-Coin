@@ -24,4 +24,4 @@ transaction.then(res => {
 
 `status: tx_failure` Bad wallet adress
 
-`status: tx_funds` User does not have enough wuffee in their account
+`status: tx_funds` User does not have enough wuffee to meet the transaction
