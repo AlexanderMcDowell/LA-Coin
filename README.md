@@ -20,4 +20,4 @@ transaction.then(res => {
 ```
 
 #### Status Codes
-`status: success` > both parties have been debited and credited accordingly
+`status: success` --> both parties have been debited and credited accordingly
