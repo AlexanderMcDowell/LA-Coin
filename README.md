@@ -5,8 +5,8 @@
 
 ```typescript
 firebase.transfer({
-  fromId: "wallet-1-adress",
-  toId: "wallet-2-adress",
+  fromId: "48wf9ahsfiudsdf",
+  toId: "219rew9fhdufsfsw",
   amount: 50,
   description: "Thanks for the merch"
 })
