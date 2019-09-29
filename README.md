@@ -20,8 +20,8 @@ transaction.then(res => {
 ```
 
 #### Status Codes
-`status: tx_success` Both parties have been debited and credited accordingly
+`status: wfe_success` Both parties have been debited and credited accordingly
 
-`status: tx_failure` Bad wallet adress
+`status: wfe_failure` Bad wallet adress
 
-`status: tx_funds` User does not have enough wuffee for the transaction to proceed
+`status: wfe_funds` User does not have enough wuffee for the transaction to proceed
