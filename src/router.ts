@@ -25,11 +25,6 @@ export default new IonicVueRouter({
       path: '/account',
       name: 'account',
       component: () => import('./views/Account.vue')
-    },
-    {
-      path: '/transactions',
-      name: 'transactions',
-      component: () => import('./views/Transactions.vue')
     }
   ]
 })
