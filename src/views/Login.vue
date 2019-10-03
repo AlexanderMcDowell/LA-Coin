@@ -35,7 +35,7 @@ export default class Login extends Vue {
 
 	login(e: Event) {
 		firebase.auth.signInWithEmailAndPassword(this.email, this.password).then(user => {
-			this.$router.push('/')
+			this.$router.push('/account')
 		})
 		e.preventDefault();
 	}
