@@ -45,7 +45,7 @@
 			signup(event) {
 				this.$firebase.auth.createUserWithEmailAndPassword(this.email, this.password).then((user) => {
                     user.user.updateProfile({displayName: this.name});
-					this.$router.push('/')
+					this.$router.push('/account')
 				})
 				event.preventDefault();
             },
