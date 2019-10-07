@@ -1,66 +1,71 @@
 <template>
-    <div class="ion-page">
-        <ion-header>
-            <ion-toolbar>
-                <ion-title>Home</ion-title>
-            </ion-toolbar>
-        </ion-header>
-        <ion-content class="ion-padding">
-            <ion-card>
-                <ion-card-header>
-                    <ion-card-subtitle>Your Account</ion-card-subtitle>
-                    <ion-card-title>Welcome back, <br>{{ name }}.</ion-card-title>
-                </ion-card-header>
-                <ion-card-content>
-                    <router-link to="/login">Login</router-link>
-                </ion-card-content>
-            </ion-card>
-            <ion-card>
-                <ion-card-header>
-                    <ion-card-subtitle>Your Account</ion-card-subtitle>
-                    <ion-card-title>${{ balance }}</ion-card-title>
-                </ion-card-header>
-            </ion-card>
-            <Transactions />
-            <QRModal />
-        </ion-content>
-    </div>
+  <div class="ion-page">
+    <ion-header>
+      <ion-toolbar>
+        <Navbar />
+        <ion-title>Account</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content class="ion-padding">
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            Welcome back,
+            <br />
+            {{ name }}.
+          </ion-card-title>
+        </ion-card-header>
+      </ion-card>
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>Your Balance</ion-card-subtitle>
+          <ion-card-title>${{ balance }}</ion-card-title>
+        </ion-card-header>
+      </ion-card>
+      <Transactions />
+      <Graph />
+      <QRModal />
+    </ion-content>
+  </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import firebase from '@/firebase.config'
+import Vue from "vue";
+import Component from "vue-class-component";
+import firebase from "@/firebase.config";
 
-import QRModal from '@/components/QRModal/QRModal.vue'
-import Transactions from '@/components/Transactions.vue'
+import QRModal from "@/components/QRModal/QRModal.vue";
+import Transactions from "@/components/Transactions.vue";
+import Graph from "@/components/Graph.vue";
+import Navbar from "@/components/Navbar.vue";
 
 @Component({
-    components: {
-        QRModal,
-        Transactions,
-    }
+  components: {
+    QRModal,
+    Transactions,
+    Graph,
+    Navbar
+  }
 })
-export default class Home extends Vue {
-    name: string = ""
-    balance: string = ""
+export default class Account extends Vue {
+  name: string = "";
+  balance: string = "";
 
-    getBalance() {
-        var userId = firebase.auth.currentUser.uid
-        var user = firebase.usersCollection.doc(userId)
+  getBalance() {
+    var userId = firebase.auth.currentUser.uid;
+    var user = firebase.usersCollection.doc(userId);
 
-        user.get().then((doc) => {
-            this.balance = doc.data().balance
-        })
-    }
+    user.get().then(doc => {
+      this.balance = doc.data().balance;
+    });
+  }
 
-    created() {
-        this.name = firebase.auth.currentUser.displayName
-        this.getBalance()
-    }
+  created() {
+    this.name = firebase.auth.currentUser.displayName;
+    this.getBalance();
+  }
 }
 </script>
 
 <style scoped>
-
 </style>

@@ -25,6 +25,20 @@ export default new IonicVueRouter({
       path: '/account',
       name: 'account',
       component: () => import('./views/Account.vue')
+    },
+    {
+      path: '/people',
+      name: 'people',
+      component: () => import('./views/People.vue')
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('./views/Profile.vue')
+    },
+    {path: '/events',
+      name: 'events',
+      component: () => import('./views/Events.vue')
     }
   ]
 })

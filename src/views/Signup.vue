@@ -2,7 +2,7 @@
 	<div class="ion-page">
 		<ion-header>
 			<ion-toolbar>
-				<ion-title>Login</ion-title>
+				<ion-title>Sign Up</ion-title>
 			</ion-toolbar>
 		</ion-header>
 		<ion-content class="ion-padding">
@@ -22,16 +22,19 @@
 					<ion-input :value="password" @input="password = $event.target.value" type="password"
 						name="password"></ion-input>
 				</ion-item>
-				<ion-button type="submit" expand="block">Continue</ion-button>
-				<ion-button expand="block">Sign up with Google</ion-button>
+				<ion-button color="medium" type="submit" expand="block">Continue</ion-button>
+				<ion-button color="medium" expand="block">Sign up with Google</ion-button>
+				<ion-button color="medium" expand="block" fill="outline" onclick="location.href='/#/'">Cancel</ion-button>
 			</form>
 		</ion-content>
 	</div>
 </template>
 
 <script>
+	import firebase from '@/firebase.config'
+
 	export default {
-		name: "login",
+		name: "signup",
 
 		data() {
 			return {
@@ -44,9 +47,18 @@
 		methods: {
 			signup(event) {
 				this.$firebase.auth.createUserWithEmailAndPassword(this.email, this.password).then((user) => {
-                    user.user.updateProfile({displayName: this.name});
-					this.$router.push('/')
+					user.user.updateProfile({displayName: this.name});
+
+					var user = firebase.usersCollection.doc(user.user.uid)
+					user.set({
+						name: this.name
+					})
+
+					this.$router.push('/account')
 				})
+
+
+
 				event.preventDefault();
             },
             
@@ -58,4 +70,9 @@
 </script>
 
 <style scoped>
+@media screen and (orientation:landscape) {
+	ion-button {
+		display: inline-block;
+	}
+}
 </style>
