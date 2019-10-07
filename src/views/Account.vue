@@ -38,7 +38,7 @@ import Transactions from '@/components/Transactions.vue'
 @Component({
     components: {
         QRModal,
-        Transactions
+        Transactions,
     }
 })
 export default class Home extends Vue {
