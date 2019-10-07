@@ -2,7 +2,8 @@
   <div class="ion-page">
     <ion-header>
       <ion-toolbar>
-        <ion-title>Your Account</ion-title>
+        <Navbar />
+        <ion-title>Account</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
@@ -36,12 +37,14 @@ import firebase from "@/firebase.config";
 import QRModal from "@/components/QRModal/QRModal.vue";
 import Transactions from "@/components/Transactions.vue";
 import Graph from "@/components/Graph.vue";
+import Navbar from "@/components/Navbar.vue";
 
 @Component({
   components: {
     QRModal,
     Transactions,
-    Graph
+    Graph,
+    Navbar
   }
 })
 export default class Account extends Vue {
