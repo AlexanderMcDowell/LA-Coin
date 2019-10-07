@@ -17,7 +17,8 @@
 					<ion-input :value="password" @input="password = $event.target.value" type="password"
 						name="password"></ion-input>
 				</ion-item>
-				<ion-button type="submit" expand="block">Login</ion-button>
+				<ion-button color="medium" type="submit" expand="block">Login</ion-button>
+				<ion-button color="medium" expand="block" fill="outline" onclick="location.href='/#/'">Cancel</ion-button>
 			</form>
 		</ion-content>
 	</div>
@@ -43,4 +44,9 @@ export default class Login extends Vue {
 </script>
 
 <style scoped>
+@media screen and (orientation:landscape) {
+	ion-button {
+		display: inline-block;
+	}
+}
 </style>
