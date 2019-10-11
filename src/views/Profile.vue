@@ -19,8 +19,24 @@
             <div class="info-block">
                 <h1 id="balance">💰420,000</h1>
                 <span class="vertical-line"></span>
-                User Since: 00/00/00 <br>
-                Bio: This is your biography
+                <div id="info-content">
+                <b>About</b><br>
+                <i>I like to take long walks on the beach. Do you wanna be my friend?</i>
+                <br><br><b>User Since</b><br>
+                <i>00/00/00</i>
+                </div>
+            </div>
+            <br>
+
+            <!-- Friends List -->
+            <div class="info-block"
+                style="
+                    background: rgb(48,140,53);
+                    background: linear-gradient(135deg, rgba(48,140,53,1) 0%, rgba(55,143,88,1) 9%, rgba(39,221,115,1) 92%);"
+            >
+                You have no friends
+                <br>
+                <br>
             </div>
         </ion-content>
     </div>
@@ -95,6 +111,17 @@ export default class Profile extends Vue {
         font-family: 'Roboto Slab', serif;
         color: rgb(243, 229, 229);
         text-shadow: 0px 0.01em 0.2em rgba(29, 28, 28, 0.103);
+    }
+
+    #info-content {
+        padding-left: 2em;
+        padding-top: 0.5em;
+        padding-bottom: 0.5em;
+        border: center;
+        float: left;
+        font-size: 1em;
+        font-family: 'Roboto Slab', serif;
+        color: rgb(245, 246, 248);
     }
 
     .rank {
