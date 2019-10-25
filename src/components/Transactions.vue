@@ -40,4 +40,10 @@
 </script>
 
 <style scoped>
+ion-card {
+    padding-left: 0;
+    margin-left:10%;
+    width: 80%;
+    height:auto;
+}
 </style>
