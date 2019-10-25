@@ -12,18 +12,18 @@
             <div id="profile">
                 <!-- Change this image with the actual user icon -->
                 <img id="profile-icon" src="https://www.chccw.org/wp-content/uploads/profile-icon-IMG-2-300x300.png">
-                <h1 id="profile-username"><span class="rank"><strong>RANK</strong></span> noobmaster69</h1>
+                <h1 id="profile-username"><span class="rank"><strong>RANK</strong></span>{{ UserID.name }}</h1>
             </div>
 
             <!-- Profile Overview -->
             <div class="info-block">
-                <h1 id="balance">💰420,000</h1>
+                <h1 id="balance">💰{{ UserID.balance }}.00</h1>
                 <span class="vertical-line"></span>
                 <div id="info-content">
-                <b>About</b><br>
-                <i>I like to take long walks on the beach. Do you wanna be my friend?</i>
+                <b>Bio:</b><br>
+                <i>{{ UserID.bio }}</i>
                 <br><br><b>User Since</b><br>
-                <i>00/00/00</i>
+                <i>{{ UserID.sign_on_date }}</i>
                 </div>
             </div>
             <br>
@@ -34,7 +34,7 @@
                     background: rgb(48,140,53);
                     background: linear-gradient(135deg, rgba(48,140,53,1) 0%, rgba(55,143,88,1) 9%, rgba(39,221,115,1) 92%);"
             >
-                You have no friends
+                No Friends Yet!
                 <br>
                 <br>
             </div>
@@ -47,19 +47,21 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import firebase from '@/firebase.config'
 import Navbar from "@/components/Navbar.vue";
-
 @Component({
   components: {
     Navbar
   }
 })
 export default class Profile extends Vue {
+    created() {
+        this.UserID = this.$route.params.UserID;
+        console.log(this.UserID)
+    }
 }
 </script>
 
 <style scoped>
     @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
-
     #profile-icon {
         width: 7.5em;
         height: 7.5em;
@@ -70,7 +72,6 @@ export default class Profile extends Vue {
         margin-right: inherit;
         box-shadow: 0px 0.25em 0.25em #16161611;
     }
-
     #profile-username {
         display: inherit;
         margin-left: inherit;
@@ -78,9 +79,7 @@ export default class Profile extends Vue {
         text-align: center;
         vertical-align: top;
         font-family: 'Roboto Slab', serif;
-
     }
-
     #profile {
         padding-top: 2em;
         top: auto;
@@ -88,7 +87,6 @@ export default class Profile extends Vue {
         margin-left: auto;
         margin-right: auto;
     }
-
     .info-block {
         display: block;
         margin-left: auto;
@@ -100,7 +98,6 @@ export default class Profile extends Vue {
         border-radius: 1em;
         box-shadow: 0px 1em 2em #16161633;
     }
-
     #balance {
         padding-left: 0.25em;
         padding-top: 0.5em;
@@ -112,7 +109,6 @@ export default class Profile extends Vue {
         color: rgb(243, 229, 229);
         text-shadow: 0px 0.01em 0.2em rgba(29, 28, 28, 0.103);
     }
-
     #info-content {
         padding-left: 2em;
         padding-top: 0.5em;
@@ -123,7 +119,6 @@ export default class Profile extends Vue {
         font-family: 'Roboto Slab', serif;
         color: rgb(245, 246, 248);
     }
-
     .rank {
         text-align: inherit;
         background-color: blueviolet;
@@ -134,7 +129,6 @@ export default class Profile extends Vue {
         padding: 0.25em;
         height: 100%;
     }
-
     .vertical-line {
         background-color: rgba(151, 146, 146, 0.267);
         width: 0.1em;
