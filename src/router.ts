@@ -32,13 +32,17 @@ export default new IonicVueRouter({
       component: () => import('./views/People.vue')
     },
     {
-      path: '/profile',
+      path: '/profile/:UserID',
       name: 'profile',
       component: () => import('./views/Profile.vue')
     },
     {path: '/events',
       name: 'events',
       component: () => import('./views/Events.vue')
+    },
+    {path: '/editprofile',
+      name: 'editprofile',
+      component: () => import('./views/EditProfile.vue')
     }
   ]
 })
