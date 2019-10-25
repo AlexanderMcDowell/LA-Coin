@@ -22,57 +22,59 @@
 					<ion-input :value="password" @input="password = $event.target.value" type="password"
 						name="password"></ion-input>
 				</ion-item>
-				<ion-button color="medium" type="submit" expand="block">Continue</ion-button>
-				<ion-button color="medium" expand="block">Sign up with Google</ion-button>
+				<ion-button color="dark" type="submit" expand="block">Continue</ion-button>
+				<ion-button color="dark" expand="block">Sign up with Google</ion-button>
 				<ion-button color="medium" expand="block" fill="outline" onclick="location.href='/#/'">Cancel</ion-button>
 			</form>
 		</ion-content>
 	</div>
 </template>
 
-<script>
+<script lang="ts">
+	import Vue from 'vue'
+	import Component from 'vue-class-component'
 	import firebase from '@/firebase.config'
-
-	export default {
-		name: "signup",
-
-		data() {
-			return {
-                name: "",
-				email: "",
-				password: ""
-			};
-		},
-
-		methods: {
-			signup(event) {
-				this.$firebase.auth.createUserWithEmailAndPassword(this.email, this.password).then((user) => {
-					user.user.updateProfile({displayName: this.name});
-
-					var user = firebase.usersCollection.doc(user.user.uid)
-					user.set({
-						name: this.name
-					})
-
-					this.$router.push('/account')
+	import Navbar from "@/components/Navbar.vue";
+	​
+	@Component
+	export default class Signup extends Vue {
+	​
+		name: string = ""
+		email: string = ""
+		password: string = ""
+		balance: number = 0
+		bio: string = "Bio Here!"
+				
+		signup(e: Event) {
+			firebase.auth.createUserWithEmailAndPassword(this.email, this.password).then((user) => {
+				var today = new Date();
+				var dd = String(today.getDate()).padStart(2, '0');
+				var mm = String(today.getMonth() + 1).padStart(2, '0');
+				var yyyy = today.getFullYear();
+				var sign_on_date = mm + '/' + dd + '/' + yyyy;
+				
+				var userDoc = firebase.usersCollection.doc(user.user.uid)
+				
+				user.user.updateProfile({
+					displayName: this.name
+				});
+	​
+				userDoc.set({
+					name: this.name,
+					balance: this.balance,
+					sign_on_date: sign_on_date,
+					bio: this.bio,
 				})
-
-
-
-				event.preventDefault();
-            },
-            
-            googleSignup() {
-
-            }
+	​
+				this.$router.push('/account')
+			})
+			e.preventDefault();
 		}
-	};
+			
+		googleSignup() {
+		}
+	}
 </script>
 
 <style scoped>
-@media screen and (orientation:landscape) {
-	ion-button {
-		display: inline-block;
-	}
-}
 </style>
