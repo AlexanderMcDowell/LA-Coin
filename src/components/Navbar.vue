@@ -1,9 +1,11 @@
+<!--script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script-->
 <template>
     <ion-buttons slot="secondary">
         <ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='/#/account'">Account</ion-button>
         <ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='/#/people'">People</ion-button>
         <ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='/#/events'">Events</ion-button>
-        <ion-button color="primary" shape="round" fill="outline">Settings</ion-button>
+        <!--ion-icon type="button" @click="location.href='/#/notifications'" name="notifications"></ion-icon-->
+        <ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='/#/editprofile'">Settings</ion-button>
     </ion-buttons>
 </template>
 
