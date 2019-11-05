@@ -2,15 +2,15 @@
   <div class="ion-page">
 	  <ion-header>
       <ion-toolbar>
-        <Navbar />
-        <ion-title>Welcome!</ion-title>
+		<ion-title>Welcome!</ion-title>
+		<Navbar />
       </ion-toolbar>
     </ion-header>
 		<ion-content class="ion-padding">
-			<div class="logo-set">
-				<h1>LaCoin</h1>
-				<div class="logo-img"><img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"/></div>
-				<div class="info-p"><h2>Greed is Good. <br> Get Started Below</h2></div>
+			<div id="home-container">
+				<h1>LACoin</h1>
+				<img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"/>
+				<h2>Greed is Good. <br> Get Started Below</h2>
 			</div>
 		</ion-content>
 		<ion-footer class="ion-padding">
@@ -37,17 +37,44 @@ export default class Home extends Vue{
 }
 </script>
 
-<style scoped>
+<style>
+#navbar {
+	display: flex;
+}
+ion-title {
+	font-size: 6vw;
+	padding: 0;
+	margin-left: 2.5vw;
+}
+</style>
 
+<style scoped>
+@import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+ion-content {
+  font-family: 'Roboto Slab', serif;
+}
+ion-title {
+	font-family: 'Roboto', serif;
+}
 ion-footer {
 	--padding-top: 0;
 	--padding-bottom: 0;
 }
-.logo-set {
+#home-container {
 	margin:0;
 }
-.logo-img img {
-	margin-top: 20vh;
+#home-container h1 {
+	margin: 0;
+	margin-bottom: 20vh;
+	padding: 0;
+	font-style: italic;
+	font-size: 6vh;
+	font-weight: bold;
+	text-align: center;
+	}
+#home-container img {
+	margin-top: 0;
 	border: 2px solid;
 	border-radius: 50%;
 	border-color: navy;
@@ -58,16 +85,8 @@ ion-footer {
 	/* bring your own prefixes */
 	transform: translate(-50%, -50%);
 }
-h1 {
-	margin: 0;
-	padding: 0;
-	font-style: italic;
-	font-size: 6vh;
-	font-weight: bold;
-	text-align: center;
-	}
-.info-p h2 {
-		padding-top: 90%;
+#home-container h2 {
+		margin-top: 40vh;
 		color: gray;
 		text-align: center;
 		font-size: 3vh;
