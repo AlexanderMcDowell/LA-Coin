@@ -2,8 +2,9 @@
 	<div class="ion-page">
 		<ion-header>
 			<ion-toolbar>
-				<ion-title>Login</ion-title>
-			</ion-toolbar>
+            <ion-title>Login</ion-title>
+            <Navbar />
+            </ion-toolbar>
 		</ion-header>
 		<ion-content class="ion-padding">
 			<form @submit="login">
@@ -44,6 +45,10 @@ export default class Login extends Vue {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
+ion-content {
+  font-family: 'Roboto Slab', serif;
+}
 @media screen and (orientation:landscape) {
 	ion-button {
 		display: inline-block;
