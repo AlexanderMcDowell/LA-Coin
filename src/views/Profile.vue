@@ -2,8 +2,8 @@
 	<div class="ion-page">
         <ion-header>
             <ion-toolbar>
-                <Navbar />
                 <ion-title>Profile</ion-title>
+                <Navbar />
             </ion-toolbar>
         </ion-header>
 
@@ -12,32 +12,41 @@
             <div id="profile">
                 <!-- Change this image with the actual user icon -->
                 <img id="profile-icon" src="https://www.chccw.org/wp-content/uploads/profile-icon-IMG-2-300x300.png">
-                <h1 id="profile-username"><span class="rank"><strong>RANK</strong></span>{{ UserID.name }}</h1>
+                <h1 id="profile-username"><span class="rank"><strong>RANK</strong></span>{{ UserData.data.name }}</h1>
             </div>
 
             <!-- Profile Overview -->
             <div class="info-block">
-                <h1 id="balance">💰{{ UserID.balance }}.00</h1>
+                <h1 id="balance">💰 {{ UserData.data.balance }}.00</h1>
                 <span class="vertical-line"></span>
                 <div id="info-content">
                 <b>Bio:</b><br>
-                <i>{{ UserID.bio }}</i>
+                <i>{{ UserData.data.bio }}</i>
                 <br><br><b>User Since</b><br>
-                <i>{{ UserID.sign_on_date }}</i>
+                <i>{{ UserData.data.sign_on_date }}</i>
                 </div>
             </div>
             <br>
 
             <!-- Friends List -->
-            <div class="info-block"
+            <div v-if="UserData.data.friends.length == 0" class="info-block"
                 style="
                     background: rgb(48,140,53);
-                    background: linear-gradient(135deg, rgba(48,140,53,1) 0%, rgba(55,143,88,1) 9%, rgba(39,221,115,1) 92%);"
-            >
+                    background: linear-gradient(135deg, rgba(48,140,53,1) 0%, rgba(55,143,88,1) 9%, rgba(39,221,115,1) 92%);">
                 No Friends Yet!
                 <br>
                 <br>
             </div>
+            <div v-else class="info-block"
+                style="
+                    background: rgb(48,140,53);
+                    background: linear-gradient(135deg, rgba(48,140,53,1) 0%, rgba(55,143,88,1) 9%, rgba(39,221,115,1) 92%);">
+                <ion-label v-for="friend in UserData.data.friends">
+                    <h6>{{friend}}</h6>
+                </ion-label>
+            </div>
+            <ion-button id="friend" @click="friend(UserData.data.name)" v-if="UserData.data.name != name && UserData.data.friends.includes(name) == false">Friend?</ion-button>
+            <ion-button id="transfer" v-if="UserData.data.name != name">Transfer</ion-button>
         </ion-content>
     </div>
 </template>
@@ -53,15 +62,44 @@ import Navbar from "@/components/Navbar.vue";
   }
 })
 export default class Profile extends Vue {
+    UserData: {};
+    name: string = "";
+    friends: string[] = [];
+
+    getUserInfo() {
+    var userId = firebase.auth.currentUser.uid;
+    var user = firebase.usersCollection.doc(userId);
+    user.get().then(doc => {
+        this.name = doc.data().name;
+      });
+    }
+
+    friend(e: Event, name:string) {
+        var userId = firebase.auth.currentUser.uid;
+        var user = firebase.usersCollection.doc(userId);
+        user.get().then(doc => {
+            this.friends = doc.data().friends;
+        });
+        this.friends.push(name)
+        user.update({
+            friends: this.friends
+        });
+        e.preventDefault();
+    }
+
     created() {
-        this.UserID = this.$route.params.UserID;
-        console.log(this.UserID)
+        this.getUserInfo();
+        this.UserData = this.$route.params;
+        console.log(this.UserData)
     }
 }
 </script>
 
 <style scoped>
     @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
+    ion-content {
+        font-family: 'Roboto Slab', serif;
+    }
     #profile-icon {
         width: 7.5em;
         height: 7.5em;
@@ -78,7 +116,7 @@ export default class Profile extends Vue {
         margin-right: inherit;
         text-align: center;
         vertical-align: top;
-        font-family: 'Roboto Slab', serif;
+        /*font-family: 'Roboto Slab', serif;*/
     }
     #profile {
         padding-top: 2em;
@@ -105,7 +143,7 @@ export default class Profile extends Vue {
         border: center;
         float: left;
         font-size: 3em;
-        font-family: 'Roboto Slab', serif;
+        /*font-family: 'Roboto Slab', serif;*/
         color: rgb(243, 229, 229);
         text-shadow: 0px 0.01em 0.2em rgba(29, 28, 28, 0.103);
     }
@@ -116,7 +154,7 @@ export default class Profile extends Vue {
         border: center;
         float: left;
         font-size: 1em;
-        font-family: 'Roboto Slab', serif;
+        /*font-family: 'Roboto Slab', serif;*/
         color: rgb(245, 246, 248);
     }
     .rank {
