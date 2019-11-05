@@ -32,7 +32,7 @@ export default new IonicVueRouter({
       component: () => import('./views/People.vue')
     },
     {
-      path: '/profile/:UserID',
+      path: '/profile/:person',
       name: 'profile',
       component: () => import('./views/Profile.vue')
     },
@@ -43,6 +43,10 @@ export default new IonicVueRouter({
     {path: '/editprofile',
       name: 'editprofile',
       component: () => import('./views/EditProfile.vue')
+    },
+    {path: '/notifications',
+      name: 'notifications',
+      component: () => import('./views/Notifications.vue')
     }
   ]
 })
