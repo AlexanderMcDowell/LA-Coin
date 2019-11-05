@@ -1,32 +1,32 @@
 <template>
 	<div class="ion-page">
-        <ion-header>
+    <ion-header>
       <ion-toolbar>
-        <Navbar />
         <ion-title>People</ion-title>
+        <Navbar />
       </ion-toolbar>
     </ion-header>
 		<ion-content class="ion-padding">
-            <ion-list>
-                  <ion-card class="user-profile" v-for="person in people" v-bind:key="person">
-                    <ion-card-header>
-                      <router-link :to="{name: 'profile', params: { UserID: {balance: person.balance, name: person.name, bio: person.bio, sign_on_date: person.sign_on_date}}}">
-                        <ion-card-title>{{ person.name }}</ion-card-title>
-                      </router-link>
-                    </ion-card-header>
-                    <ion-card-content>
-                      <div class="basic-info">
-                        <img class="profile-icon" src="https://www.chccw.org/wp-content/uploads/profile-icon-IMG-2-300x300.png">
-                        <p>Has: {{ person.balance }} LACoin </p>
-                      </div>
-                      <div class="bio">
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>
-                      </div>
-                    </ion-card-content>
-                </ion-card>
-            </ion-list>
+      <ion-list>
+        <ion-card class="info-card" v-for="person in people" v-bind:key="person">
+          <ion-card-header>
+            <router-link :to="{name: 'profile', params: person}">
+              <ion-card-title>{{ person.data.name }}</ion-card-title>
+            </router-link>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="basic-info">
+              <img class="profile-icon" v-bind:src="person.data.profile_photo">
+              <p>{{ person.data.balance }} LACoin </p>
+            </div>
+            <div class="card-description">
+              <p>{{ person.data.bio }}</p>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-list>
 		</ion-content>
-    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -52,7 +52,7 @@ export default class People extends Vue {
 
         users.get().then(snapshot => {
             snapshot.forEach(doc => {
-                this.people.push({name:doc.data().name, balance:doc.data().balance, sign_on_date: doc.data().sign_on_date, bio: doc.data().bio})
+                this.people.push({id: doc.id, data: doc.data()})
             })
         })
     }
@@ -60,10 +60,15 @@ export default class People extends Vue {
 </script>
 
 <style scoped>
-.user-profile {
+@import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
+ion-content {
+  font-family: 'Roboto Slab', serif;
+}
+.info-card {
     display: inline-block;
-    width: 75%;
-    height: 40%;
+    width: 75vw;
+    height: 43.42vw;
+    background-image: linear-gradient(to bottom right, rgb(233, 249, 255), rgb(238, 236, 255));
   }
 ion-card-content{
     margin-left:-2%;
@@ -74,7 +79,7 @@ ion-card-header {
       color: black;
   }
 .profile-icon {
-  width: 7.5em;
+  width: 20vw;
   height: auto;
   background-color: aquamarine;
   border-radius:50%;
@@ -87,7 +92,14 @@ ion-card-header {
   width: 100%;
   height: auto;
 }
-.user-profile a {
+.card-description {
+  width: 100vw;
+  height: 20vw;
+  padding-left: 2.5vw;
+  padding-right: 1vw;
+  overflow: auto;
+}
+.info-card a {
   text-decoration: none;
 }
 </style>
