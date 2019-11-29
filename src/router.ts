@@ -43,10 +43,6 @@ export default new IonicVueRouter({
     {path: '/editprofile',
       name: 'editprofile',
       component: () => import('./views/EditProfile.vue')
-    },
-    {path: '/notifications',
-      name: 'notifications',
-      component: () => import('./views/Notifications.vue')
     }
   ]
 })
