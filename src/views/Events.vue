@@ -89,6 +89,7 @@ export default class Events extends Vue {
     created() {
       this.confirmId = firebase.auth.currentUser.uid;
       this.getUsers();
+      this.getDate();
       this.getEvents();
       this.getUserTickets();
     }
