@@ -3,14 +3,13 @@
     <ion-header>
       <ion-toolbar>
         <ion-title>Settings</ion-title>
-        <Navbar />
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
       <ion-card id="profile-photo-change" v-if="change_photo == true">
         <ion-card-header @click="set_change_photo(false)">Photos ❌</ion-card-header>
         <ion-card-content>
-          <div v-for="link in profileLinks">
+          <div v-for="link in profileLinks" v-bind:key="link">
             <img id="image-choice" v-bind:src="link" @click="setNewPhoto(link)">
           </div>
         </ion-card-content>
@@ -24,10 +23,18 @@
           <ion-label position="floating">Description</ion-label>
 					<ion-input :value="new_bio" @input="new_bio = $event.target.value" type="text" name="new_bio" placeholder="Enter a brief description (50 Character Max)" maxlength=50>
 					</ion-input>
+          <ion-label position="floating">Balance Graph Data Points</ion-label>
+          <ion-input :value="graphSpec" @input="graphSpec = $event.target.value" type="text" name="graphSpec" placeholder="Data points in Balance Record? (Default 10)" maxlength=50>
+					</ion-input>
 				</ion-item>
         <ion-button color="dark" type="submit" expand="block">Continue</ion-button>
 			</form>
     </ion-content>
+    <ion-footer>
+      <ion-toolbar>
+        <Navbar />
+      </ion-toolbar>
+    </ion-footer>
   </div>
 </template>
 
@@ -43,22 +50,24 @@ import Navbar from "@/components/Navbar.vue";
   }
 })
 export default class EditProfile extends Vue {
-  old_name: string = ""
-  new_name: string = ""
+  old_name: string = "";
+  new_name: string = "";
 
-  old_bio: string = ""
-  new_bio: string = ""
+  old_bio: string = "";
+  new_bio: string = "";
 
-  old_profile_photo: string = ""
-  new_profile_photo: string = ""
+  graphSpec: number;
 
-  change_photo: boolean = false
+  old_profile_photo: string = "";
+  new_profile_photo: string = "";
+
+  change_photo: boolean = false;
 
   profileLinks: string[] = ["https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileOne.jpg?alt=media&token=d0e7524d-9e7b-43e5-b4ca-e0150a8a0544",
-                            "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileTwo.jpg?alt=media&token=f58c01a6-68dc-42ad-9a2f-f7da1aafa3a5",
-                            "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileThree.jpg?alt=media&token=967d4034-126d-44d1-b604-29930fe14e6d",
-                            "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileFour.jpg?alt=media&token=102b0ce2-69f0-4bd8-ac3f-ce15479277c1"
-  ]
+                "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileTwo.jpg?alt=media&token=f58c01a6-68dc-42ad-9a2f-f7da1aafa3a5",
+                "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileThree.jpg?alt=media&token=967d4034-126d-44d1-b604-29930fe14e6d",
+                "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileFour.jpg?alt=media&token=102b0ce2-69f0-4bd8-ac3f-ce15479277c1"
+                ]
 
   created() {
     this.getUserInfo()
@@ -81,19 +90,25 @@ export default class EditProfile extends Vue {
   change_profile(e: Event) {
     var userId = firebase.auth.currentUser.uid;
     var user = firebase.usersCollection.doc(userId);
-    if (this.new_name.length > 1 && this.new_bio.length > 1) {
+    if (this.new_name.length > 0) {
       user.update({
-        name: this.new_name,
+        name: this.new_name
+      });
+    }
+    if (this.new_bio.length > 0) {
+      user.update({
         bio: this.new_bio
       });
-      this.$router.push('/account')
-      e.preventDefault();
     }
-    else {
-      this.$router.push('/account')
-      e.preventDefault();
+    if (this.graphSpec > 0) {
+      user.update({
+        graphSpec: this.graphSpec
+      });
     }
+    this.$router.push('/account')
+    e.preventDefault();
   }
+
   setNewPhoto(link: string) {
     var userId = firebase.auth.currentUser.uid;
     var user = firebase.usersCollection.doc(userId);
@@ -110,6 +125,9 @@ export default class EditProfile extends Vue {
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
+ion-title {
+  margin-left: 0;
+}
 ion-content {
   font-family: 'Roboto Slab', serif;
 }
@@ -117,6 +135,12 @@ ion-card-header {
   text-transform: uppercase;
   color: black;
   text-align: center;
+}
+ion-footer {
+  background-color: rgb(250, 250, 250);
+}
+ion-toolbar {
+  background-color: rgb(250, 250, 250);
 }
 #current-profile-photo, #image-choice {
   border: 2px solid;
