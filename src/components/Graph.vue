@@ -5,7 +5,21 @@
         </ion-card-header>
             <ion-card-content>
                 <area-chart :data="chartData" height="75vw"></area-chart>
-            </ion-card-content>
+                <ion-list id="transaction-container" v-if="transactionsDoc.length > 0">
+                    <ion-item v-for="transaction in transactionsDoc" v-bind:key="transaction">
+                        <ion-label v-if="transaction.amount > 0" color="success">
+                            +{{ transaction.amount }}
+                        </ion-label>
+                        <ion-label v-else color="danger">
+                            {{ transaction.amount }}
+                        </ion-label>
+                            {{ transaction.description }}
+                    </ion-item>
+                </ion-list>
+                <ion-item v-if="transactionsDoc.length == 0">
+                    <ion-label>No Transactions Yet!</ion-label>
+                </ion-item>
+        </ion-card-content>
     </ion-card>
 </template>
 
@@ -19,17 +33,23 @@
 
     @Component
     export default class Graph extends Vue {
-        chartData: object[] = []
-        balance: any
+        chartData: object[] = [];
+        transactionsDoc: object[] = [];
+        graphSpec: number = 10;
 
         created() {
+            console.log(this.transactionsDoc)
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
             user.get().then(doc => {
+                this.transactionsDoc = doc.data().transactions;
+                this.graphSpec = doc.data().graphSpec;
                 //console.log(doc.data().transactions[0])
-                this.balance = doc.data().balance;
-                var compiledBalance = this.balance;
-                for (var i = 0; i < doc.data().transactions.length; i++) {
+                var compiledBalance = 0;
+                if (this.graphSpec >= doc.data().transactions.length) {
+                    this.graphSpec = doc.data().transactions.length;
+                }
+                for (var i = 0; i < this.graphSpec; i++) {
                     var transaction = doc.data().transactions[i];
                     var date = transaction.date
                     var amount = transaction.amount
@@ -62,6 +82,7 @@
 <style scoped>
 #graph-container {
     height: 100vw;
+    overflow: auto;
 }
 area-chart {
     margin: 0;
