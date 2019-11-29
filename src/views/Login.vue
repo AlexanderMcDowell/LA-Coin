@@ -3,7 +3,6 @@
 		<ion-header>
 			<ion-toolbar>
             <ion-title>Login</ion-title>
-            <Navbar />
             </ion-toolbar>
 		</ion-header>
 		<ion-content class="ion-padding">
@@ -31,13 +30,14 @@ import Component from 'vue-class-component'
 import firebase from '@/firebase.config'
 
 @Component
+
 export default class Login extends Vue {
-	email: string = ""
-	password: string = ""
+	email: string = "";
+	password: string = "";
 
 	login(e: Event) {
 		firebase.auth.signInWithEmailAndPassword(this.email, this.password).then(user => {
-			this.$router.push('/account')
+			this.$router.push('/account');
 		})
 		e.preventDefault();
 	}
@@ -46,6 +46,9 @@ export default class Login extends Vue {
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
+ion-title {
+  margin-left: 0;
+}
 ion-content {
   font-family: 'Roboto Slab', serif;
 }
