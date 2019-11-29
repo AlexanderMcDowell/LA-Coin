@@ -3,10 +3,11 @@
 	  <ion-header>
       <ion-toolbar>
 		<ion-title>Welcome!</ion-title>
-		<Navbar />
       </ion-toolbar>
     </ion-header>
 		<ion-content class="ion-padding">
+
+			<!-- Welcome icon and description -->
 			<div id="home-container">
 				<h1>LACoin</h1>
 				<img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"/>
@@ -51,6 +52,9 @@ ion-title {
 <style scoped>
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
 @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+ion-title {
+  margin-left: 0;
+}
 ion-content {
   font-family: 'Roboto Slab', serif;
 }
@@ -60,6 +64,12 @@ ion-title {
 ion-footer {
 	--padding-top: 0;
 	--padding-bottom: 0;
+}
+ion-footer {
+  background-color: rgb(250, 250, 250);
+}
+ion-toolbar {
+  background-color: rgb(250, 250, 250);
 }
 #home-container {
 	margin:0;
