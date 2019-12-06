@@ -24,7 +24,7 @@
 						name="password"></ion-input>
 				</ion-item>
 				<ion-button color="dark" type="submit" expand="block">Continue</ion-button>
-				<ion-button color="dark" expand="block">Sign up with Google</ion-button>
+				<!--ion-button color="dark" expand="block">Sign up with Google</ion-button-->
 				<ion-button color="medium" expand="block" fill="outline" onclick="location.href='/#/'">Cancel</ion-button>
 			</form>
 		</ion-content>
@@ -102,8 +102,8 @@
 					bio: this.bio,
 					profile_photo: profileChoices[Math.floor(Math.random()*profileChoices.length)],
 					event_tickets: this.event_tickets,
-					unreadNotif: [{date:this.todayDate, type:'welcome_message', sentfrom:'admin', description:"Welcome to LaCoin!"}],
-					transactions: [{date:this.todayDate, amount:250, description:"Welcome to LaCoin!", sender_id: 'admin'}],
+					unreadNotif: [{date:this.todayDate, type:'welcome_message', sentfrom:'admin', description:"Welcome to Ateos!"}],
+					transactions: [{date:this.todayDate, amount:250, description:"Welcome to Ateos!", sender_id: 'admin'}],
 					//balance: this.balance,
 					friends: this.friends,
 					graphSpec: this.graphSpec
@@ -126,7 +126,11 @@
 <style scoped>
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
 ion-title {
+  text-align: center;
   margin-left: 0;
+  font-weight: bold;
+  color: rgb(27, 27, 27);
+  font-size: 7.5vw;
 }
 ion-content {
   font-family: 'Roboto Slab', serif;
