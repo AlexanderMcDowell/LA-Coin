@@ -9,9 +9,10 @@
 
 			<!-- Welcome icon and description -->
 			<div id="home-container">
-				<h1>LACoin</h1>
+				<h1>Ateos</h1>
+				<h2>Cryptocurrency for Los Altos Eagles</h2>
 				<img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"/>
-				<h2>Greed is Good. <br> Get Started Below</h2>
+				<h3>Greed is good. <br> Get Started Below</h3>
 			</div>
 		</ion-content>
 		<ion-footer class="ion-padding">
@@ -53,7 +54,11 @@ ion-title {
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
 @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
 ion-title {
-  margin-left: 0;
+  text-align: center;
+	margin-left: 0;
+  font-weight: bold;
+  color: rgb(27, 27, 27);
+  font-size: 7.5vw;
 }
 ion-content {
   font-family: 'Roboto Slab', serif;
@@ -76,12 +81,19 @@ ion-toolbar {
 }
 #home-container h1 {
 	margin: 0;
-	margin-bottom: 20vh;
 	padding: 0;
 	font-style: italic;
 	font-size: 6vh;
 	font-weight: bold;
 	text-align: center;
+	}
+	#home-container h2 {
+		margin-bottom: 20vh;
+		padding: 0;
+		color: gray;
+		text-align: center;
+		font-size: 2.5vh;
+		font-style: italic;
 	}
 #home-container img {
 	margin-top: 0;
@@ -95,7 +107,7 @@ ion-toolbar {
 	/* bring your own prefixes */
 	transform: translate(-50%, -50%);
 }
-#home-container h2 {
+#home-container h3 {
 		margin-top: 40vh;
 		color: gray;
 		text-align: center;
