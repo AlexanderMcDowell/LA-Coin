@@ -24,30 +24,22 @@
                         <i>{{ UserData.data.sign_on_date }}</i>
                     </div>
                 </div>
+                <!-- Friends List, if no friends -->
+                <div id="friend-list" v-if="UserData.data.friends.length == 0">
+                    <ion-label>
+                        No Friends Yet!
+                    </ion-label>
+                </div>
+
+                <!-- Friends List -->
+                <div id="friend-list" v-else>
+                    <ion-label v-for="friend in UserData.data.friends" v-bind:key="friend">
+                        <h6>{{friend}}</h6>
+                    </ion-label>
+                </div>
             </div>
             <br>
 
-            <!-- Friends List, if no friends -->
-            <div id="friend-list" v-if="UserData.data.friends.length == 0" class="info-block"
-                style="
-                    color: white;
-                    background: rgb(48,140,53);
-                    background: linear-gradient(135deg, rgba(48,140,53,1) 0%, rgba(55,143,88,1) 9%, rgba(39,221,115,1) 92%);">
-                No Friends Yet!
-                <br>
-                <br>
-            </div>
-
-            <!-- Friends List -->
-            <div v-else class="info-block"
-                style="
-                    color: white;
-                    background: rgb(48,140,53);
-                    background: linear-gradient(135deg, rgba(48,140,53,1) 0%, rgba(55,143,88,1) 9%, rgba(39,221,115,1) 92%);">
-                <ion-label id="friend-list" v-for="friend in UserData.data.friends" v-bind:key="friend">
-                    <h6>{{friend}}</h6>
-                </ion-label>
-            </div>
             <div id="profile-buttons">
                     <!-- Friend Button -->
                     <ion-button id="friend" color="medium" fill="solid" @click="friend(UserData.id)" v-if="UserData.data.name != name && UserData.data.friends.includes(name) == false">Friend?</ion-button>
@@ -87,17 +79,19 @@ import Navbar from "@/components/Navbar.vue";
 })
 
 export default class Profile extends Vue {
-    UserData: {};
+    UserData: any = {};
     name: string = "";
     friends: string[] = [];
 
-    unreadNotif: object[] = [];
-    recipient_unreadNotif: object[] = [];
+    unreadNotif: Array<any> = [];
+    recipient_unreadNotif: Array<any> = []; // hah got eem
     
     todayDate: string = "";
 
     transfer_amount: number = 0;
     transfer_description: string = "";
+
+    user_friends_placeholder: string[] = [];
 
     created() {
         this.UserData = this.$route.params;
@@ -111,15 +105,14 @@ export default class Profile extends Vue {
     }
 
     getProfileFriends(friend_ids: string[]){
-        var newFriendList = [];
         for (var i=0;i<friend_ids.length;i++) {
             var friend_id = friend_ids[i]
             var friend_user = firebase.usersCollection.doc(friend_id);
             friend_user.get().then(doc => {
-                newFriendList.push(doc.data().name);
+                this.user_friends_placeholder.push(doc.data().name);
             });
         }
-        return newFriendList
+        return this.user_friends_placeholder
     }
 
     getDate() {
@@ -131,27 +124,29 @@ export default class Profile extends Vue {
 	}
 
     getUserInfo() {
-    // Set up Firebase User calling
-    var userId = firebase.auth.currentUser.uid;
-    var user = firebase.usersCollection.doc(userId);
+        // Set up Firebase User calling
+        var userId = firebase.auth.currentUser.uid;
+        var user = firebase.usersCollection.doc(userId);
 
-    var recipient_user = firebase.usersCollection.doc(this.UserData.id);
+        var recipient_user = firebase.usersCollection.doc(this.UserData.id);
 
-    user.get().then(doc => {
-        this.name = doc.data().name;
-        this.friends = doc.data().friends;
-        this.unreadNotif = doc.data().unreadNotif;
-      });
+        user.get().then(doc => {
+            this.name = doc.data().name;
+            this.friends = doc.data().friends;
+            this.unreadNotif = doc.data().unreadNotif;
+        });
 
-    recipient_user.get().then(doc => {
-        this.recipient_unreadNotif = doc.data().unreadNotif;
-      });
+        recipient_user.get().then(doc => {
+            this.recipient_unreadNotif = doc.data().unreadNotif;
+        });
     }
 
     //Make sure request has not previously been sent
-    check_friend_req(req: object[], userId: string, req_type: string) {
-        for (var i = 0; i < req.length; i++) {
-          var notif = req[i];
+    check_friend_req(userId: string, req_type: string) {
+        console.log(this.recipient_unreadNotif.length)
+        for (var i = 0; i < this.recipient_unreadNotif.length; i++) {
+          var notif = this.recipient_unreadNotif[i];
+          console.log(notif)
           if (notif.sentfrom == userId && notif.type == req_type) {
               return false;
           }
@@ -201,12 +196,10 @@ export default class Profile extends Vue {
 
         var req_type = 'friend';
 
-        if (this.check_friend_req(this.unreadNotif, userId, req_type) == false) {
-            return false;
+        if (this.check_friend_req(userId, req_type) == true) {
+            // Send the notification
+            this.send_req(req_type, userId, recipient_id);
         }
-
-        // Send the notification
-        this.send_req(req_type, userId, recipient_id);
         this.$router.push('/people');
     }
 
@@ -227,7 +220,11 @@ export default class Profile extends Vue {
 <style scoped>
     @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
     ion-title {
+        text-align: center;
         margin-left: 0;
+        font-weight: bold;
+        color: rgb(27, 27, 27);
+        font-size: 7.5vw;
     }
     ion-content {
         font-family: 'Roboto Slab', serif;
@@ -279,7 +276,6 @@ export default class Profile extends Vue {
         background: linear-gradient(347deg, rgba(67,76,170,1) 0%, rgba(93,110,201,1) 9%, rgba(0,212,255,1) 92%);
         border-radius: 1em;
         box-shadow: 0px 1em 2em #16161633;
-        padding-bottom: 60vw;
     }
     #balance {
         position:absolute;
@@ -295,7 +291,6 @@ export default class Profile extends Vue {
         text-shadow: 0px 0.01em 0.2em rgba(29, 28, 28, 0.103);
     }
     #info-content {
-        float: left;
         position:absolute;
         margin-top: 10vw;
         width: 65vw;
@@ -320,12 +315,18 @@ export default class Profile extends Vue {
         float: left;
     }
     #friend-list {
-        padding-top: 1em;
-        padding-left: 2em;
+        text-overflow: auto;
+        color: white;
+        margin-top: 10vw;
+        border-left: solid 2px white;
+        float:right;
+        width: 35vw;
+        padding-bottom: calc(60vw - 4em);
+        margin-bottom: 2em;
     }
-    #friend-list h6 {
-        padding-left: 2em;
-        padding-bottom: 1em;
+    #friend-list {
+        padding-top: 1em;
+        padding-left: 1em;
     }
     #friend, #transfer {
         margin-top: 5vw;
