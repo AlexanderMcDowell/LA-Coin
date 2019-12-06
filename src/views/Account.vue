@@ -7,7 +7,6 @@
     </ion-header>
     <ion-content class="ion-padding">
       <h1>Welcome Back!</h1>
-      <InvestCard v-if="invested_today == false" />
       <ion-card class="profile-card">
         <ion-card-header>
           <!--router-link :to="{name: 'profile', params: { UserID: {balance: balance, name: name, bio: bio, sign_on_date: sign_on_date}}}"-->
@@ -27,6 +26,9 @@
               <p>User Since {{ sign_on_date }}!</p>
             </div>
             <h2 id="balance-label"> 💰 {{balance}}.00</h2>
+          </div>
+          <div id="invest-button-modal">
+            <InvestCard v-if="invested_today == false" />
           </div>
         </ion-card-content>
       </ion-card>
@@ -79,10 +81,9 @@ export default class Account extends Vue {
     this.getInfo();
   }
 
-  verify_invest(transactions: object[]) {
+  verify_invest(transactions: Array<any>) {
     console.log('verifying')
     console.log(transactions.length)
-    transactions = transactions.reverse()
     //Check to see if transaction based on gamble already made
     for (var i = 0; i < transactions.length; i++) {
       var transaction = transactions[i];
@@ -112,7 +113,7 @@ export default class Account extends Vue {
     var user = firebase.usersCollection.doc(userId);
 
     user.get().then(doc => {
-      console.log(doc.data())
+      //console.log(doc.data())
       this.name = doc.data().name;
       this.transactions = doc.data().transactions;
       this.sign_on_date = doc.data().sign_on_date;
@@ -122,13 +123,13 @@ export default class Account extends Vue {
     });
   }
 
-  getBalance(transactionDoc: object[]) {
+  getBalance(transactionDoc: Array<any>) {
     var startBalance = 0;
     console.log('transactions: ' + transactionDoc)
 		for (var i = 0; i < transactionDoc.length; i++) {
       var transaction = transactionDoc[i];
       console.log('Balance')
-      console.log(transaction)
+      //console.log(transaction)
 			startBalance = startBalance + transaction.amount;
     }
     return startBalance;
@@ -152,8 +153,13 @@ export default class Account extends Vue {
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap');
 ion-title {
+  text-align: center;
   margin-left: 0;
+  font-weight: bold;
+  color: rgb(27, 27, 27);
+  font-size: 7.5vw;
 }
 ion-content{
   font-family: 'Roboto', serif;
@@ -167,9 +173,9 @@ body {
   /*background-image: linear-gradient(to bottom right, skyblue, violet);*/
   /*background-image: linear-gradient(to bottom right, orange, crimson); //In the Red*/
   background:
-      linear-gradient(217deg, rgba(97, 255, 255, 0.8), rgba(0, 81, 255, 0) 70.71%),
-      linear-gradient(127deg, rgba(0, 140, 255, 0.8), rgba(0, 255, 157, 0) 70.71%),
-      linear-gradient(336deg, rgba(197, 0, 236, 0.8), rgba(0,0,255,0) 70.71%);
+      linear-gradient(217deg, rgba(97, 255, 215, 0.8), rgba(0, 81, 255, 0) 70.71%),
+      linear-gradient(127deg, rgba(101, 206, 255, 0.8), rgba(0, 255, 157, 0) 70.71%),
+      linear-gradient(336deg, rgba(250, 136, 244, 0.8), rgba(0,0,255,0) 70.71%);
 }
 ion-card {
   width: 95%;
@@ -225,13 +231,19 @@ margin-top: -5vw;
 }
 #balance-label {
   margin-top: -2.5vw;
-  margin-left: -7.5vw;
+  margin-left: -3vw;
   font-size: 9vw;
   overflow: hidden;
 }
 #balance-label, .icon-div p, ion-card-title {
   font-weight: bold;
   color: white;
+  font-family: 'Source Sans Pro', sans-serif;
+  text-shadow:
+		/*-1px -1px 0 rgb(228, 232, 255),
+		1px -1px 0 rgb(228, 232, 255),*/
+		-1px 1px 0 rgb(194, 199, 228),
+		1px 1px 0 rgb(194, 199, 228);
 }
 .profile-card a {
   text-decoration: none;
@@ -239,6 +251,11 @@ margin-top: -5vw;
 #update-balance {
   text-align: center;
   font-weight: bold;
+}
+#invest-button-modal {
+  position: absolute;
+  left: 48.5vw;
+  top: 7.5vw;
 }
 ion-icon {
   border:2px solid;
