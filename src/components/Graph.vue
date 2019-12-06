@@ -1,12 +1,12 @@
 <template>
     <ion-card id="graph-container">
         <ion-card-header>
-            <ion-card-title>Your LACoin Over Time</ion-card-title>
+            <ion-card-title>Your Balance By Day</ion-card-title>
         </ion-card-header>
             <ion-card-content>
                 <area-chart :data="chartData" height="75vw"></area-chart>
-                <ion-list id="transaction-container" v-if="transactionsDoc.length > 0">
-                    <ion-item v-for="transaction in transactionsDoc" v-bind:key="transaction">
+                <ion-list id="transaction-container" v-if="transactions.length > 0">
+                    <ion-item v-for="transaction in transactions" v-bind:key="transaction">
                         <ion-label v-if="transaction.amount > 0" color="success">
                             +{{ transaction.amount }}
                         </ion-label>
@@ -16,7 +16,7 @@
                             {{ transaction.description }}
                     </ion-item>
                 </ion-list>
-                <ion-item v-if="transactionsDoc.length == 0">
+                <ion-item v-if="transactions.length == 0">
                     <ion-label>No Transactions Yet!</ion-label>
                 </ion-item>
         </ion-card-content>
@@ -25,58 +25,47 @@
 
 <script lang="ts">
     import Vue from 'vue';
-    import Chartkick from 'vue-chartkick';
-    import Chart from 'chart.js';
+    const Chartkick = require('vue-chartkick');
+    const Chart = require('chart.js');
     import Component from "vue-class-component";
     import firebase from "@/firebase.config";
     Vue.use(Chartkick.use(Chart))
 
     @Component
     export default class Graph extends Vue {
+        transactions: object = [];
         chartData: object[] = [];
-        transactionsDoc: object[] = [];
         graphSpec: number = 10;
 
         created() {
-            console.log(this.transactionsDoc)
+            this.graphData();
+        }
+        graphData() {
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
             user.get().then(doc => {
-                this.transactionsDoc = doc.data().transactions;
+                console.log("transactionsdoc " + doc.data().transactions.reverse())
+                this.transactions = doc.data().transactions;
                 this.graphSpec = doc.data().graphSpec;
-                //console.log(doc.data().transactions[0])
-                var compiledBalance = 0;
                 if (this.graphSpec >= doc.data().transactions.length) {
                     this.graphSpec = doc.data().transactions.length;
                 }
-                for (var i = 0; i < this.graphSpec; i++) {
-                    var transaction = doc.data().transactions[i];
-                    var date = transaction.date
-                    var amount = transaction.amount
+
+                //Record chart data
+
+                var compiledBalance = 0;
+                for (var i = 0; i < doc.data().transactions.length; i++) {
+                    var transaction = doc.data().transactions.reverse()[i];
+                    var date = transaction.date;
                     compiledBalance = compiledBalance + transaction.amount;
-                    //console.log(transaction)
+                    console.log(date)
                     this.chartData.push([date, compiledBalance])
                 }
+                console.log("chartdata " + this.chartData)
+                //this.chartData = this.chartData.slice(this.chartData.length-this.graphSpec, this.chartData.length);
             });
-            console.log(this.chartData)
-            /*this.chartData = {'1':'1', '2':'2'}
-            console.log('shift')
-            console.log(this.chartData)*/
         }
     }
-        /* transactionsNum: number[] = []
-        created() {
-            const currentUser = firebase.auth.currentUser.uid;
-            const user = firebase.usersCollection.doc(currentUser);
-            const transactionsDoc = user.collection("transactions");
-            transactionsDoc.get().then(snapshot => {
-                snapshot.forEach(doc => {
-                    this.transactionsNum.push(doc.data().amount);
-                    this.transactionsDate.push(doc.data().date);
-                });
-            });
-        }
-        */
 </script>
 
 <style scoped>
