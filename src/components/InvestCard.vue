@@ -1,5 +1,5 @@
 <template>
-    <button id="cool-invest-button" v-on:click="invest()">Click to invest</button>
+        <button id="cool-invest-button" v-on:click="invest()">Invest?</button>
 </template>
 
 <script lang="ts">
@@ -30,20 +30,22 @@ export default class InvestCard extends Vue {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap');
 #cool-invest-button {
-    border: 2px transparent;
     margin-left: calc(10vw - 16px);
-    width:80vw;
-    height:80vw;
+    width:27.5vw;
+    height:27.5vw;
     padding: 0;
     
-    color: gray;
-    font-size: 10vw;
+    color: white;
+    font-size: 7.5vw;
+    font-weight: bold;
+    font-family: 'Source Sans Pro', sans-serif;
 
+    border: 10px solid;
+    border-color: rgba(121, 117, 173, 0.5);
     border-radius: 50%;
-    background:
-    linear-gradient(217deg, rgba(177, 255, 236, 0.8), rgba(137, 174, 255, 0) 70.71%),
-    linear-gradient(127deg, rgba(202, 208, 255, 0.8), rgba(0, 255, 157, 0) 70.71%),
-    linear-gradient(336deg, rgba(255, 165, 220, 0.8), rgba(0,0,255,0) 70.71%);
+    border-style: groove;
+    background: linear-gradient(217deg, rgb(218, 140, 51), rgb(255, 226, 171) 70.71%);
 }
 </style>
