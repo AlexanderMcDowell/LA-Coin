@@ -126,7 +126,11 @@ export default class EditProfile extends Vue {
 <style scoped>
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
 ion-title {
+  text-align: center;
   margin-left: 0;
+  font-weight: bold;
+  color: rgb(27, 27, 27);
+  font-size: 7.5vw;
 }
 ion-content {
   font-family: 'Roboto Slab', serif;
