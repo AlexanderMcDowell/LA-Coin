@@ -11,7 +11,7 @@
 
       <ion-card id="intro-card">
           <ion-card-header>
-            <ion-card-title>Welcome to the LACoin Community!</ion-card-title>
+            <ion-card-title>Welcome to the Ateos Community!</ion-card-title>
           </ion-card-header>
           <ion-card-content id="content-text">
             <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"/>
@@ -31,7 +31,7 @@
           <ion-card-content>
             <div class="basic-info">
               <img class="profile-icon" v-bind:src="friend.data.profile_photo">
-              <p>{{ friend.data.balance }} LACoin </p>
+              <p>{{ friend.data.balance }} Coin </p>
             </div>
             <div class="card-description">
               <p>{{ friend.data.bio }}</p>
@@ -113,7 +113,7 @@ export default class People extends Vue {
         })
         console.log(this.people)
     }
-    getBalance(transactionDoc: object[]) {
+    getBalance(transactionDoc: Array<any>) {
     var startBalance = 0;
     //console.log(transactionDoc)
 		for (var i = 0; i < transactionDoc.length; i++) {
@@ -130,6 +130,10 @@ export default class People extends Vue {
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
 ion-title {
   margin-left: 0;
+  text-align: center;
+  font-weight: bold;
+  color: rgb(27, 27, 27);
+  font-size: 7.5vw;
 }
 ion-content {
   font-family: 'Roboto Slab', serif;
@@ -139,9 +143,9 @@ ion-content {
     width: 75vw;
     height: 43.42vw;
     background:
-      linear-gradient(217deg, rgba(241, 249, 255, 0.8), rgba(0, 81, 255, 0) 70.71%),
-      linear-gradient(127deg, rgba(196, 196, 196, 0.8), rgba(0, 255, 157, 0) 70.71%),
-      linear-gradient(336deg, rgba(182, 211, 255, 0.8), rgba(0,0,255,0) 70.71%);
+      linear-gradient(217deg, rgba(245, 251, 255, 0.8), rgba(0, 81, 255, 0) 70.71%),
+      linear-gradient(127deg, rgba(226, 226, 226, 0.8), rgba(0, 255, 157, 0) 70.71%),
+      linear-gradient(336deg, rgba(215, 231, 255, 0.8), rgba(0,0,255,0) 70.71%);
 }
 #friend-info-card {
     display: inline-block;
