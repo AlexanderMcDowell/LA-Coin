@@ -10,11 +10,11 @@
                     <h2>{{notification.description}}</h2>
                 </div>
                 <div id="notif-button">
-                    <h2 v-if="notification.sentfrom == 'admin'" @click="removeNotif(notification)">✅</h2>
-                    <h2 v-if="notification.type == 'friend'" @click="approveFriend(notification)">✅</h2>
-                    <h2 v-if="notification.type == 'friend'" @click="denyFriend(notification)">❎</h2>
-                    <h2 v-if="notification.type == 'transfer'" @click="approveTransaction(notification)">✅</h2>
-                    <h2 v-if="notification.type == 'transfer'" @click="denyTransaction(notification)">❎</h2>
+                    <h2 v-if="notification.type != 'friend' && notification.type != 'transfer'" @click="removeNotif(notification)">✖</h2>
+                    <h2 v-if="notification.type == 'friend'" @click="denyFriend(notification)">✖</h2>
+                    <h2 v-if="notification.type == 'friend'" @click="approveFriend(notification)">✔</h2>
+                    <h2 v-if="notification.type == 'transfer'" @click="denyTransaction(notification)">✖</h2>
+                    <h2 v-if="notification.type == 'transfer'" @click="approveTransaction(notification)">✔</h2>
                 </div>
             </ion-item>
 		</ion-card-content>
@@ -38,14 +38,14 @@ import ConfirmModal from "@/components/ConfirmModal.vue";
 export default class Notifications extends Vue {
     balance: number = 0;
 
-    unreadNotif: object[] = [];
-    senduserunreadNotif: object[] = [];
+    unreadNotif: Array<any> = [];
+    senduserunreadNotif: Array<any> = [];
 
     friends: string[] = [];
     senduserfriends: string[] = [];
 
-    transactions: object[] = [];
-    sendusertransactions: object[] = [];
+    transactions: Array<any> = [];
+    sendusertransactions: Array<any> = [];
 
     name: string = "";
     sendusername: string = "";
@@ -53,7 +53,7 @@ export default class Notifications extends Vue {
     todayDate: string = "";
     friend_substring: string = "";
 
-    user_data_list: object[] = [];
+    user_data_list: Array<any> = [];
 
     created() {
         this.getDate();
@@ -92,7 +92,7 @@ export default class Notifications extends Vue {
         })
     }
 
-    getBalance(transactionDoc: object[]) {
+    getBalance(transactionDoc: Array<any>) {
     var startBalance = 0;
     console.log('transactions: ' + transactionDoc)
 		for (var i = 0; i < transactionDoc.length; i++) {
@@ -104,7 +104,7 @@ export default class Notifications extends Vue {
     return startBalance;
   }
 
-    approveFriend(Notification: object) {
+    approveFriend(Notification: any) {
         var userId = firebase.auth.currentUser.uid;
         var user = firebase.usersCollection.doc(userId);
         var senduser = firebase.usersCollection.doc(Notification.sentfrom);
@@ -126,7 +126,7 @@ export default class Notifications extends Vue {
             }
             else if (user_data.id != userId) {
                 //console.log('data ' + user_data)
-                user_data.data.transactions.push({date: this.todayDate,
+                user_data.data.transactions.unshift({date: this.todayDate,
                     amount: Math.round(-2*friend_return/this.user_data_list.length),
                     description: "Some users friended",
                     fromId: "admin", //admin means you take from everyone elses
@@ -163,7 +163,7 @@ export default class Notifications extends Vue {
 
         //Give user 10 la coin
         var userDescription = "Friends with  " + this.sendusername
-        this.transactions.push({date: this.todayDate,
+        this.transactions.unshift({date: this.todayDate,
             amount: friend_return,
             description: userDescription,
             fromId: "admin", //admin means you take from everyone elses
@@ -173,7 +173,7 @@ export default class Notifications extends Vue {
         });
         //Give sender 10 la coin
         var senduserDescription = "Friends with  " + this.name
-       this.sendusertransactions.push({date: this.todayDate,
+       this.sendusertransactions.unshift({date: this.todayDate,
             amount: friend_return,
             description: senduserDescription,
             fromId: "admin", //admin means you take from everyone elses
@@ -190,7 +190,7 @@ export default class Notifications extends Vue {
     denyFriend(Notification: object) {
         this.removeNotif(Notification);
     }
-    approveTransaction(Notification: object) {
+    approveTransaction(Notification: any) {
         var userId = firebase.auth.currentUser.uid;
         var user = firebase.usersCollection.doc(userId);
         
@@ -204,7 +204,7 @@ export default class Notifications extends Vue {
         }
         if (this.balance >= Number(Notification.transfer_amount)) {
             //Take away your account money
-            this.transactions.push({date: this.todayDate,
+            this.transactions.unshift({date: this.todayDate,
                 amount: Number(Notification.transfer_amount)*-1,
                 description: "Exchange",
                 fromId: Notification.sentfrom, //admin means you take from everyone elses
@@ -213,7 +213,7 @@ export default class Notifications extends Vue {
                 transactions: this.transactions
             });
             //give user account money
-        this.sendusertransactions.push({date: this.todayDate,
+        this.sendusertransactions.unshift({date: this.todayDate,
                 amount: Number(Notification.transfer_amount),
                 description: "Exchange",
                 fromId: userId, //admin means you take from everyone elses
@@ -269,5 +269,8 @@ export default class Notifications extends Vue {
     position: absolute;
     left: 60vw;
     width: 10vw;
+}
+#notif-button h2 {
+    margin-right: 2.5vw;
 }
 </style>
