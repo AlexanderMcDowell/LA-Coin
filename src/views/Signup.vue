@@ -25,7 +25,7 @@
 				</ion-item>
 				<ion-button color="dark" type="submit" expand="block">Continue</ion-button>
 				<!--ion-button color="dark" expand="block">Sign up with Google</ion-button-->
-				<ion-button color="medium" expand="block" fill="outline" onclick="location.href='/#/'">Cancel</ion-button>
+				<ion-button color="medium" expand="block" fill="outline" onclick="location.href='#/'">Cancel</ion-button>
 			</form>
 		</ion-content>
 	</div>
@@ -49,8 +49,8 @@
 		bio: string = "Add desciption!";
 		email: string = "";
 		password: string = "";
-		profile_photo: string = "";
-		event_tickets: string[] = [];
+		profilePhoto: string = "";
+		eventTickets: string[] = [];
 		friends: string[] = [];
 		todayDate: string = "";
 		startDate: string = "";
@@ -98,10 +98,10 @@
 				// Set new user fields
 				newUser.set({
 					name: this.name,
-					sign_on_date: this.todayDate,
+					signOnDate: this.todayDate,
 					bio: this.bio,
-					profile_photo: profileChoices[Math.floor(Math.random()*profileChoices.length)],
-					event_tickets: this.event_tickets,
+					profilePhoto: profileChoices[Math.floor(Math.random()*profileChoices.length)],
+					eventTickets: this.eventTickets,
 					unreadNotif: [{date:this.todayDate, type:'welcome_message', sentfrom:'admin', description:"Welcome to Ateos!"}],
 					transactions: [{date:this.todayDate, amount:250, description:"Welcome to Ateos!", sender_id: 'admin'}],
 					//balance: this.balance,
@@ -110,7 +110,7 @@
 				})
 
 				// Send data to new page
-				this.$router.push('/account');
+				this.$router.push('/people');
 			})
 
 			// Cleanup

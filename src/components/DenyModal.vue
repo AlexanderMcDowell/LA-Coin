@@ -1,6 +1,7 @@
 <template>
     <ion-card>
-        <h1>Success!</h1>
+        <h1>DENIED</h1>
+        <h2>Transfer request larger than your balance. Renegotiate Trade.</h2>
         <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"/>
         <ion-button fill="outline" @click="exit()">Exit</ion-button>
     </ion-card>
@@ -9,14 +10,15 @@
 <style scoped>
 ion-card {
     text-align: center;
-    height: 45vh;
+    height: 55vh;
     width: auto;
 }
 h1 {
     text-align: center;
+    color: rgb(180, 0, 0);
 }
 img {
-    margin-top: -10vw;
+    margin-top: 0;
     border: solid 2px;
     border-color: navy;
     border-radius: 50%;
@@ -34,7 +36,7 @@ ion-button {
     import Component from "vue-class-component";
     import firebase from "@/firebase.config";
     @Component
-export default class EventModal extends Vue {
+export default class DenyModal extends Vue {
     imageUrl: string = "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"
     exit() {
         this.$ionic.modalController.dismiss()

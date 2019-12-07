@@ -18,7 +18,7 @@
 						name="password"></ion-input>
 				</ion-item>
 				<ion-button color="dark" type="submit" expand="block">Login</ion-button>
-				<ion-button color="medium" expand="block" fill="outline" onclick="location.href='/#/'">Cancel</ion-button>
+				<ion-button color="medium" expand="block" fill="outline" onclick="location.href='#/'">Cancel</ion-button>
 			</form>
 		</ion-content>
 	</div>

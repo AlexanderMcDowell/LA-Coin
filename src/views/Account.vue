@@ -7,9 +7,10 @@
     </ion-header>
     <ion-content class="ion-padding">
       <h1>Welcome Back!</h1>
+
+      <!--Card with user's name, photo, balance and sign on date-->
       <ion-card class="profile-card">
         <ion-card-header>
-          <!--router-link :to="{name: 'profile', params: { UserID: {balance: balance, name: name, bio: bio, sign_on_date: sign_on_date}}}"-->
           <div id="greeting-div">
             <ion-card-title v-if="name.length < 10">Hello, {{ name }}</ion-card-title>
             <ion-card-title v-else>Hi {{ name }}</ion-card-title>
@@ -17,24 +18,26 @@
           <div id="icons">
             <p>⬜️ ⬜️</p>
           </div>
-          <!--/router-link-->
         </ion-card-header>
         <ion-card-content>
           <div class="top-info">
             <div class="icon-div">
-              <img v-bind:src="profile_photo">
-              <p>User Since {{ sign_on_date }}!</p>
+              <img v-bind:src="profilePhoto">
+              <p>User Since {{ signOnDate }}!</p>
             </div>
             <h2 id="balance-label"> 💰 {{balance}}.00</h2>
           </div>
           <div id="invest-button-modal">
-            <InvestCard v-if="invested_today == false" />
+            <InvestCard v-if="investedToday == false" />
           </div>
         </ion-card-content>
       </ion-card>
+
+      <!--User's balance over time-->
       <Graph />
+
+      <!--User's unread notifications-->
       <Notifications />
-      <!--Transactions /-->
     </ion-content>
     <ion-footer>
       <ion-toolbar>
@@ -43,6 +46,7 @@
     </ion-footer>
   </div>
 </template>
+
 <script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>
 
 <script lang="ts">
@@ -68,36 +72,34 @@ import InvestModal from "@/components/InvestModal.vue";
   }
 })
 export default class Account extends Vue {
+  //User attributes
   name: string = "";
-  sign_on_date: string = "";
-  profile_photo: string = "";
+  signOnDate: string = "";
+  profilePhoto: string = "";
   transactions: object[] = [];
   balance: number = 0;
+  investedToday: boolean = true;
+
   todayDate: string = "";
-  invested_today: boolean = true;
 
   created() {
-    this.getDate();
-    this.getInfo();
+    this.getDate(); //Get today's date
+    this.getInfo(); //Get all user attributes
   }
 
   verify_invest(transactions: Array<any>) {
-    console.log('verifying')
-    console.log(transactions.length)
+
     //Check to see if transaction based on gamble already made
     for (var i = 0; i < transactions.length; i++) {
       var transaction = transactions[i];
 			if (transaction.description == "Investment" && transaction.date == this.todayDate) {
-        this.invested_today = true
-        console.log('confirmed')
-        return this.invested_today
+        this.investedToday = true
+        return this.investedToday
       }
     }​
-    console.log('rejected')
-    this.invested_today = false
-    return this.invested_today
-    
-    // verify date
+
+    this.investedToday = false
+    return this.investedToday
   }
 
   getDate() {
@@ -113,32 +115,31 @@ export default class Account extends Vue {
     var user = firebase.usersCollection.doc(userId);
 
     user.get().then(doc => {
-      //console.log(doc.data())
       this.name = doc.data().name;
       this.transactions = doc.data().transactions;
-      this.sign_on_date = doc.data().sign_on_date;
-      this.profile_photo = doc.data().profile_photo;
+      this.signOnDate = doc.data().signOnDate;
+      this.profilePhoto = doc.data().profilePhoto;
       this.balance = this.getBalance(doc.data().transactions);
-      this.invested_today = this.verify_invest(doc.data().transactions)
+      this.investedToday = this.verify_invest(doc.data().transactions)
     });
   }
 
   getBalance(transactionDoc: Array<any>) {
     var startBalance = 0;
-    console.log('transactions: ' + transactionDoc)
+    // Express balance as a sum of all transactions
 		for (var i = 0; i < transactionDoc.length; i++) {
       var transaction = transactionDoc[i];
-      console.log('Balance')
-      //console.log(transaction)
 			startBalance = startBalance + transaction.amount;
     }
+
     return startBalance;
   }
   invest(e: Event) {
-    if (this.invested_today == true) {
+    if (this.investedToday == true) {
       return false;
     }
 
+    // Open the investing window
     return this.$ionic.modalController
 				.create({
 					component: InvestModal
@@ -199,7 +200,7 @@ ion-card-header {
 ion-card-header #greeting-div {
   /*border: 2px solid;*/
   float: left;
-  padding:0;
+  padding: 0;
   width: 55vw;
 }
 ion-card-header #icons {
@@ -216,7 +217,7 @@ ion-card-header #icons {
   display: flex;
 }
 .icon-div {
-margin-top: -5vw; 
+  margin-top: -5vw; 
 }
 .icon-div img {
   width: 33vw;
@@ -240,8 +241,6 @@ margin-top: -5vw;
   color: white;
   font-family: 'Source Sans Pro', sans-serif;
   text-shadow:
-		/*-1px -1px 0 rgb(228, 232, 255),
-		1px -1px 0 rgb(228, 232, 255),*/
 		-1px 1px 0 rgb(194, 199, 228),
 		1px 1px 0 rgb(194, 199, 228);
 }
@@ -256,9 +255,5 @@ margin-top: -5vw;
   position: absolute;
   left: 48.5vw;
   top: 7.5vw;
-}
-ion-icon {
-  border:2px solid;
-  border-color: red;
 }
 </style>

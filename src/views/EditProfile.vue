@@ -6,22 +6,26 @@
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
-      <ion-card id="profile-photo-change" v-if="change_photo == true">
-        <ion-card-header @click="set_change_photo(false)">Photos ❌</ion-card-header>
+
+      <!-- Card to change photo of user-->
+      <ion-card id="profile-photo-change" v-if="changePhoto == true">
+        <ion-card-header @click="set_changePhoto(false)">Photos ❌</ion-card-header>
         <ion-card-content>
           <div v-for="link in profileLinks" v-bind:key="link">
             <img id="image-choice" v-bind:src="link" @click="setNewPhoto(link)">
           </div>
         </ion-card-content>
       </ion-card>
-      <img id="current-profile-photo" @click="set_change_photo(true)" v-bind:src="old_profile_photo" alt="User">
+      <img id="current-profile-photo" @click="set_changePhoto(true)" v-bind:src="oldProfilePhoto" alt="User">
+
+      <!--Form to change name, bio, graph settings-->
 			<form @submit="change_profile">
 				<ion-item>
 					<ion-label position="floating">Name</ion-label>
-					<ion-input :value="new_name" @input="new_name = $event.target.value" type="text" name="new_name" placeholder="Enter a New Name" maxlength=12>
+					<ion-input :value="newName" @input="newName = $event.target.value" type="text" name="newName" placeholder="Enter a New Name" maxlength=12>
 					</ion-input>
           <ion-label position="floating">Description</ion-label>
-					<ion-input :value="new_bio" @input="new_bio = $event.target.value" type="text" name="new_bio" placeholder="Enter a brief description (50 Character Max)" maxlength=50>
+					<ion-input :value="newBio" @input="newBio = $event.target.value" type="text" name="newBio" placeholder="Enter a brief description (50 Character Max)" maxlength=50>
 					</ion-input>
           <ion-label position="floating">Balance Graph Data Points</ion-label>
           <ion-input :value="graphSpec" @input="graphSpec = $event.target.value" type="text" name="graphSpec" placeholder="Data points in Balance Record? (Default 10)" maxlength=50>
@@ -50,19 +54,25 @@ import Navbar from "@/components/Navbar.vue";
   }
 })
 export default class EditProfile extends Vue {
-  old_name: string = "";
-  new_name: string = "";
+  // Old username and new username vars
+  oldName: string = "";
+  newName: string = "";
 
-  old_bio: string = "";
-  new_bio: string = "";
+  // Old bio and new bio vars
+  oldBio: string = "";
+  newBio: string = "";
 
+  // New graph specifications
   graphSpec: number;
 
-  old_profile_photo: string = "";
-  new_profile_photo: string = "";
+  // Old ppf and new ppf vars
+  oldProfilePhoto: string = "";
+  newProfilePhoto: string = "";
 
-  change_photo: boolean = false;
+  // Check if photo changes
+  changePhoto: boolean = false;
 
+  //Links generated for prettier saves in firebase (attach ppf vars to urls here)
   profileLinks: string[] = ["https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileOne.jpg?alt=media&token=d0e7524d-9e7b-43e5-b4ca-e0150a8a0544",
                 "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileTwo.jpg?alt=media&token=f58c01a6-68dc-42ad-9a2f-f7da1aafa3a5",
                 "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileThree.jpg?alt=media&token=967d4034-126d-44d1-b604-29930fe14e6d",
@@ -73,38 +83,44 @@ export default class EditProfile extends Vue {
     this.getUserInfo()
   }
 
-  set_change_photo(set_change_photo: boolean) {
-    this.change_photo = set_change_photo;
+  set_changePhoto(set_changePhoto: boolean) {
+    this.changePhoto = set_changePhoto;
   }
 
   getUserInfo() {
     var userId = firebase.auth.currentUser.uid;
     var user = firebase.usersCollection.doc(userId);
+
     user.get().then(doc => {
-        this.old_name = doc.data().name;
-        this.old_bio = doc.data().bio;
-        this.old_profile_photo = doc.data().profile_photo;
+        this.oldName = doc.data().name;
+        this.oldBio = doc.data().bio;
+        this.oldProfilePhoto = doc.data().profilePhoto;
       });
   }
 
   change_profile(e: Event) {
     var userId = firebase.auth.currentUser.uid;
     var user = firebase.usersCollection.doc(userId);
-    if (this.new_name.length > 0) {
+
+    // Check how many user attributes have been changed
+    if (this.newName.length > 0) {
       user.update({
-        name: this.new_name
+        name: this.newName
       });
     }
-    if (this.new_bio.length > 0) {
+
+    if (this.newBio.length > 0) {
       user.update({
-        bio: this.new_bio
+        bio: this.newBio
       });
     }
+
     if (this.graphSpec > 0) {
       user.update({
         graphSpec: this.graphSpec
       });
     }
+
     this.$router.push('/account')
     e.preventDefault();
   }
@@ -112,13 +128,14 @@ export default class EditProfile extends Vue {
   setNewPhoto(link: string) {
     var userId = firebase.auth.currentUser.uid;
     var user = firebase.usersCollection.doc(userId);
-    this.new_profile_photo = link
-    this.old_profile_photo = this.new_profile_photo
+
+    // Reset ppf
+    this.newProfilePhoto = link
+    this.oldProfilePhoto = this.newProfilePhoto
     user.update({
-        profile_photo: this.new_profile_photo
+        profilePhoto: this.newProfilePhoto
       });
-    this.change_photo = false;
-    //e.preventDefault();
+    this.changePhoto = false;
   }
 }
 </script>

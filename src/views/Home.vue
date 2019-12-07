@@ -17,8 +17,8 @@
 		</ion-content>
 		<ion-footer class="ion-padding">
 			<ion-list>
-				<ion-button expand="block" color="dark" fill="outline" onclick="location.href='/#/signup'">Get Started</ion-button>
-				<ion-button expand="block" color="dark" onclick="location.href='/#/login'">Login</ion-button>
+				<ion-button expand="block" color="dark" fill="outline" onclick="location.href='#/signup'">Get Started</ion-button>
+				<ion-button expand="block" color="dark" onclick="location.href='#/login'">Login</ion-button>
 			</ion-list>
 		</ion-footer>
   </div>

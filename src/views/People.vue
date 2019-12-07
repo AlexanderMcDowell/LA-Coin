@@ -1,3 +1,5 @@
+<!-- Later: add custom top list for your friends-->
+
 <template>
 	<div class="ion-page">
     <ion-header>
@@ -30,7 +32,7 @@
           </ion-card-header>
           <ion-card-content>
             <div class="basic-info">
-              <img class="profile-icon" v-bind:src="friend.data.profile_photo">
+              <img class="profile-icon" v-bind:src="friend.data.profilePhoto">
               <p>{{ friend.data.balance }} Coin </p>
             </div>
             <div class="card-description">
@@ -52,7 +54,7 @@
           </ion-card-header>
           <ion-card-content>
             <div class="basic-info">
-              <img class="profile-icon" v-bind:src="person.data.profile_photo">
+              <img class="profile-icon" v-bind:src="person.data.profilePhoto">
               <p>{{ person.data.balance }} LACoin </p>
             </div>
             <div class="card-description">
@@ -85,7 +87,7 @@ import Navbar from "@/components/Navbar.vue";
 export default class People extends Vue {
     // Define people as object list
     people: object[] = [];
-    ids_of_friends: string[] = [];
+    IDsOfFriends: string[] = [];
     friends: object[] =[];
 
     created() {
@@ -98,16 +100,16 @@ export default class People extends Vue {
         var userId = firebase.auth.currentUser.uid;
         var user = firebase.usersCollection.doc(userId);
         user.get().then(doc => {
-            this.ids_of_friends = doc.data().friends;
+            this.IDsOfFriends = doc.data().friends;
         });
 
         users.get().then(snapshot => {
             snapshot.forEach(doc => {
-                var user_info = {id: doc.id, data: doc.data()};
-                user_info.data.balance = this.getBalance(user_info.data.transactions);
-                this.people.push(user_info);
-                if (this.ids_of_friends.includes(user_info.id)){
-                  this.friends.push(user_info)
+                var userInfo = {id: doc.id, data: doc.data()};
+                userInfo.data.balance = this.getBalance(userInfo.data.transactions);
+                this.people.push(userInfo);
+                if (this.IDsOfFriends.includes(userInfo.id)){
+                  this.friends.push(userInfo)
                 }
             })
         })

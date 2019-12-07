@@ -1,3 +1,5 @@
+<!-- Later: add a custom note bubble to send with your notif-->
+
 <template>
 	<div class="ion-page">
         <ion-header>
@@ -9,7 +11,7 @@
         <ion-content>
             <!-- Profile Icon & Name -->
             <div id="profile">
-                <img id="profile-icon" v-bind:src="UserData.data.profile_photo">
+                <img id="profile-icon" v-bind:src="UserData.data.profilePhoto">
                 <h1 id="profile-username">{{ UserData.data.name }}</h1>
             </div>
 
@@ -21,20 +23,19 @@
                     <br><i id="bio-field">{{ UserData.data.bio }}</i><br>
                     <div id="date-field">
                         <br><b>User Since</b><br>
-                        <i>{{ UserData.data.sign_on_date }}</i>
+                        <i>{{ UserData.data.signOnDate }}</i>
                     </div>
                 </div>
                 <!-- Friends List, if no friends -->
                 <div id="friend-list" v-if="UserData.data.friends.length == 0">
-                    <ion-label>
-                        No Friends Yet!
-                    </ion-label>
+                    <ion-label id="friend-title-label">No Friends Yet!</ion-label>
                 </div>
 
                 <!-- Friends List -->
                 <div id="friend-list" v-else>
-                    <ion-label v-for="friend in UserData.data.friends" v-bind:key="friend">
-                        <h6>{{friend}}</h6>
+                    <ion-label id="friend-title-label"><b>Friends:</b></ion-label>
+                    <ion-label id="friend-list-label" v-for="friend in UserData.data.friends" v-bind:key="friend">
+                        <!--router-link :to="{name: 'profile', params: friend}"--><h6><i>{{friend.data.name}}</i></h6><!--/router-link-->
                     </ion-label>
                 </div>
             </div>
@@ -49,10 +50,10 @@
                         <ion-button id="transfer" color="medium" fill="solid" type="submit" expand="block" >Transfer</ion-button>
                         <ion-item>
                             <ion-label position="floating">Transfer Amount</ion-label>
-                            <ion-input id="transfer-amount" :value="transfer_amount" @input="transfer_amount = $event.target.value" name="transfer_amount" placeholder="Transaction amount">
+                            <ion-input id="transfer-amount" :value="transferAmount" @input="transferAmount = $event.target.value" name="transferAmount" placeholder="Transaction amount">
                             </ion-input>
                             <ion-label position="floating">Transfer Description</ion-label>
-                            <ion-input id="transfer-description" :value="transfer_description" @input="transfer_description = $event.target.value" name="transfer_description" placeholder="Transaction Description" maxlength=20>
+                            <ion-input id="transfer-description" :value="transferDescription" @input="transferDescription = $event.target.value" name="transferDescription" placeholder="Transaction Description" maxlength=20>
                             </ion-input>
                         </ion-item>
                     </form>
@@ -84,14 +85,14 @@ export default class Profile extends Vue {
     friends: string[] = [];
 
     unreadNotif: Array<any> = [];
-    recipient_unreadNotif: Array<any> = []; // hah got eem
+    recipientUnreadNotif: Array<any> = []; // hah got eem
     
     todayDate: string = "";
 
-    transfer_amount: number = 0;
-    transfer_description: string = "";
+    transferAmount: number = 0;
+    transferDescription: string = "";
 
-    user_friends_placeholder: string[] = [];
+    userFriendsPlaceholder: Array<any> = [];
 
     created() {
         this.UserData = this.$route.params;
@@ -104,15 +105,29 @@ export default class Profile extends Vue {
         // Get the user's profile data from the router (button click)
     }
 
+    getBalance(transactionDoc: Array<any>) {
+        var startBalance = 0;
+        //console.log(transactionDoc)
+		for (var i = 0; i < transactionDoc.length; i++) {
+            var transaction = transactionDoc[i];
+            //console.log(transaction)
+            startBalance = startBalance + transaction.amount;
+        }
+        return startBalance;
+    }
+
     getProfileFriends(friend_ids: string[]){
         for (var i=0;i<friend_ids.length;i++) {
             var friend_id = friend_ids[i]
             var friend_user = firebase.usersCollection.doc(friend_id);
             friend_user.get().then(doc => {
-                this.user_friends_placeholder.push(doc.data().name);
+                var friendInfo = {id:doc.id, data:doc.data()}
+                friendInfo.data.balance = this.getBalance(friendInfo.data.transactions);
+                this.userFriendsPlaceholder.push(friendInfo);
             });
+            console.log(this.userFriendsPlaceholder)
         }
-        return this.user_friends_placeholder
+        return this.userFriendsPlaceholder
     }
 
     getDate() {
@@ -137,54 +152,54 @@ export default class Profile extends Vue {
         });
 
         recipient_user.get().then(doc => {
-            this.recipient_unreadNotif = doc.data().unreadNotif;
+            this.recipientUnreadNotif = doc.data().unreadNotif;
         });
     }
 
     //Make sure request has not previously been sent
-    check_friend_req(userId: string, req_type: string) {
-        console.log(this.recipient_unreadNotif.length)
-        for (var i = 0; i < this.recipient_unreadNotif.length; i++) {
-          var notif = this.recipient_unreadNotif[i];
+    check_friend_req(userId: string, reqType: string) {
+        console.log(this.recipientUnreadNotif.length)
+        for (var i = 0; i < this.recipientUnreadNotif.length; i++) {
+          var notif = this.recipientUnreadNotif[i];
           console.log(notif)
-          if (notif.sentfrom == userId && notif.type == req_type) {
+          if (notif.sentfrom == userId && notif.type == reqType) {
               return false;
           }
         }​
         return true;
     }
 
-    send_req(req_type: string, userId: string, recipient_id:string) {
+    send_req(reqType: string, userId: string, recipient_id:string) {
         var recipient_user = firebase.usersCollection.doc(recipient_id);
-        console.log('infunc' + req_type)
+        console.log('infunc' + reqType)
 
         // If friend notif received, send without transfer amount
-        if (req_type == 'friend') {
+        if (reqType == 'friend') {
             var notifdescription = "Make " + this.name + " your friend?";
-            var friend_req = {date:this.todayDate, type:req_type, 
+            var friend_req = {date:this.todayDate, type:reqType, 
                             sentfrom:userId, description:notifdescription
                             };
             console.log('friend req ' + friend_req)
-            this.recipient_unreadNotif.unshift(friend_req);
+            this.recipientUnreadNotif.unshift(friend_req);
             recipient_user.update({
-            unreadNotif: this.recipient_unreadNotif
+            unreadNotif: this.recipientUnreadNotif
             });
         }
 
         // If transfer notif received, send with transfer amount
-        if (req_type == 'transfer') {
+        if (reqType == 'transfer') {
             console.log('transfer')
-            var notifdescription = this.name + " " + this.transfer_amount + " LACoin request";
-            if (this.transfer_description.length > 0) {
-                notifdescription = notifdescription + ": " + this.transfer_description
+            var notifdescription = this.name + " " + this.transferAmount + " LACoin request";
+            if (this.transferDescription.length > 0) {
+                notifdescription = notifdescription + ": " + this.transferDescription
             }
-            var transfer_req = {date:this.todayDate, type:req_type, 
-                            sentfrom:userId, transfer_amount: 
-                            this.transfer_amount, description:notifdescription
+            var transferReq = {date:this.todayDate, type:reqType, 
+                            sentfrom:userId, transferAmount: 
+                            this.transferAmount, description:notifdescription
                             };
-            this.recipient_unreadNotif.unshift(transfer_req);
+            this.recipientUnreadNotif.unshift(transferReq);
             recipient_user.update({
-            unreadNotif: this.recipient_unreadNotif
+            unreadNotif: this.recipientUnreadNotif
             });
         }
     }
@@ -194,11 +209,11 @@ export default class Profile extends Vue {
         console.log(recipient_id)
         var userId = firebase.auth.currentUser.uid;
 
-        var req_type = 'friend';
+        var reqType = 'friend';
 
-        if (this.check_friend_req(userId, req_type) == true) {
+        if (this.check_friend_req(userId, reqType) == true) {
             // Send the notification
-            this.send_req(req_type, userId, recipient_id);
+            this.send_req(reqType, userId, recipient_id);
         }
         this.$router.push('/people');
     }
@@ -207,10 +222,10 @@ export default class Profile extends Vue {
         var userId = firebase.auth.currentUser.uid;
         var user = firebase.usersCollection.doc(userId);
 
-        var req_type = 'transfer'
+        var reqType = 'transfer'
 
         // Send the notification
-        this.send_req(req_type, userId, this.UserData.id)
+        this.send_req(reqType, userId, this.UserData.id)
         this.$router.push('/people');
         e.preventDefault();
     }
@@ -314,6 +329,11 @@ export default class Profile extends Vue {
         margin-top: 10vw;
         float: left;
     }
+    #friend-list-label {
+        color:rgb(238, 238, 238);
+        text-transform: uppercase;
+        text-decoration: none;
+    }
     #friend-list {
         text-overflow: auto;
         color: white;
@@ -342,5 +362,11 @@ export default class Profile extends Vue {
         width: 100vw;
         border: 2px transparent;
         border-radius: 10px;
+    }
+    router-link {
+        text-decoration: none;
+    }
+    h6, ion-label, i {
+        text-decoration: none;
     }
 </style>

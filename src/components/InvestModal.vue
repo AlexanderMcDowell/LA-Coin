@@ -2,10 +2,10 @@
     <form @submit="submit_invest">
         <ion-item >
             <ion-label position="floating">Value</ion-label>
-            <ion-input :value="invest_amount" @input="invest_amount = $event.target.value" type="text" name="invest_amount" placeholder="Enter an amount">
+            <ion-input :value="investAmount" @input="investAmount = $event.target.value" type="text" name="investAmount" placeholder="Enter an amount">
             </ion-input>
         </ion-item>
-        <ion-button color="dark" type="submit" expand="block" onclick="location.href='/#/people'">Invest</ion-button>
+        <ion-button color="dark" type="submit" expand="block" onclick="location.href='#/people'">Invest</ion-button>
     </form>
 </template>
 
@@ -15,13 +15,13 @@ import Vue from "vue";
     import firebase from "@/firebase.config";
     @Component
     export default class InvestModal extends Vue {
-        transactions: object[] = [];
+        transactions: Array<any> = [];
         balance: number = 0;
-        invest_amount: number = 0;
+        investAmount: number = 0;
         todayDate: string = "";
         name: string = "";
 
-        user_data_list: object[] = [];
+        userDataList: Array<any> = [];
 
         created() {
             this.getUsers()
@@ -52,13 +52,13 @@ import Vue from "vue";
             users.get().then(snapshot => {
                 snapshot.forEach(doc => {
                     //console.log(doc.data().name)
-                    this.user_data_list.push({id: doc.id, data: doc.data()})
-                    //console.log('append ' + this.user_data_list)
+                    this.userDataList.push({id: doc.id, data: doc.data()})
+                    //console.log('append ' + this.userDataList)
                 })
             })
         }
 
-        getBalance(transactionDoc: object[]) {
+        getBalance(transactionDoc: Array<any>) {
             var startBalance = 0;
             console.log('transactions: ' + transactionDoc)
                 for (var i = 0; i < transactionDoc.length; i++) {
@@ -75,30 +75,37 @@ import Vue from "vue";
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
 
-            var investReturn = this.randfunc(this.invest_amount)
-            console.log(investReturn)
+            var investReturn = this.randfunc(this.investAmount)
+            //console.log(investReturn)
+            var percentOfTotalCoin = (investReturn)/(250*(this.userDataList.length-1))
+            var recordTotalAmtRetracted = 0; //Track how much money has been retracted from the system
 
             // THIS IS A TO BE CLOUD FUNCTION
-            if (this.invest_amount <= this.balance) {
+            if (this.investAmount <= this.balance) {
 
-                for (var i=0;i<this.user_data_list.length;i++){
-                    var user_data = this.user_data_list[i]
-                    if (user_data.id != userId) {
-                        user_data.data.transactions.push({date: this.todayDate,
-                        amount: Math.round(-1*investReturn/this.user_data_list.length),
-                        description: "Some users friended",
+                for (var i=0;i<this.userDataList.length;i++){
+                    var userData = this.userDataList[i]
+
+                    var userBalance = this.getBalance(userData.data.transactions);
+                    var subtractBalance = Math.round(userBalance*percentOfTotalCoin);
+                    recordTotalAmtRetracted = recordTotalAmtRetracted + subtractBalance;
+
+                    if (userData.id != userId) {
+                        userData.data.transactions.unshift({date: this.todayDate,
+                        amount: -1*subtractBalance,
+                        description: "A user invested",
                         fromId: "admin", //admin means you take from everyone elses
-                        toId: user_data.id})
-                        var outside_user = firebase.usersCollection.doc(user_data.id);
+                        toId: userData.id})
+                        var outside_user = firebase.usersCollection.doc(userData.id);
                         outside_user.update({
-                            transactions: user_data.data.transactions
+                            transactions: userData.data.transactions
                         });
                     }
                 }
 
-                investReturn = Math.round(investReturn/this.user_data_list.length)*this.user_data_list.length;
+                investReturn = recordTotalAmtRetracted;
 
-                this.transactions.push({date: this.todayDate,
+                this.transactions.unshift({date: this.todayDate,
                             amount: investReturn,
                             description: "Investment",
                             fromId: "admin", //admin means you take from everyone elses

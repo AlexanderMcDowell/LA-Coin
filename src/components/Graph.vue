@@ -25,8 +25,8 @@
 
 <script lang="ts">
     import Vue from 'vue';
-    const Chartkick = require('vue-chartkick');
-    const Chart = require('chart.js');
+    import Chartkick from 'vue-chartkick'
+    import Chart from 'chart.js'
     import Component from "vue-class-component";
     import firebase from "@/firebase.config";
     Vue.use(Chartkick.use(Chart))

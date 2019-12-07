@@ -29,31 +29,33 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import firebase from '@/firebase.config'
 import ConfirmModal from "@/components/ConfirmModal.vue";
+import DenyModal from "@/components/DenyModal.vue";
 
 @Component({
   components: {
-    ConfirmModal
+    ConfirmModal,
+    DenyModal
   }
 })
 export default class Notifications extends Vue {
     balance: number = 0;
 
     unreadNotif: Array<any> = [];
-    senduserunreadNotif: Array<any> = [];
+    senduserUnreadNotif: Array<any> = [];
 
     friends: string[] = [];
-    senduserfriends: string[] = [];
+    senduserFriends: string[] = [];
 
     transactions: Array<any> = [];
-    sendusertransactions: Array<any> = [];
+    senduserTransactions: Array<any> = [];
 
     name: string = "";
     sendusername: string = "";
 
     todayDate: string = "";
-    friend_substring: string = "";
+    friendSubstring: string = "";
 
-    user_data_list: Array<any> = [];
+    userDataList: Array<any> = [];
 
     created() {
         this.getDate();
@@ -85,21 +87,19 @@ export default class Notifications extends Vue {
         var users = firebase.usersCollection
         users.get().then(snapshot => {
             snapshot.forEach(doc => {
-                //console.log(doc.data().name)
-                this.user_data_list.push({id: doc.id, data: doc.data()})
-                //console.log('append ' + this.user_data_list)
+                this.userDataList.push({id: doc.id, data: doc.data()})
             })
         })
     }
 
     getBalance(transactionDoc: Array<any>) {
     var startBalance = 0;
-    console.log('transactions: ' + transactionDoc)
+    //console.log('transactions: ' + transactionDoc)
 		for (var i = 0; i < transactionDoc.length; i++) {
       var transaction = transactionDoc[i];
       //console.log('Balance')
       //console.log(transaction)
-			startBalance = startBalance + transaction.amount;
+		startBalance = startBalance + transaction.amount;
     }
     return startBalance;
   }
@@ -111,60 +111,64 @@ export default class Notifications extends Vue {
 
         // THIS IS A TO BE CLOUD FUNCTION
 
-        var friend_return = 10;
+        var friendReturn = 10;
+        var percentOfTotalCoin = (2*friendReturn)/(250*(this.userDataList.length-2))
+
+        var recordTotalAmtRetracted = 0; //Track how much money has been retracted from the system
         
-        console.log('list ' + this.user_data_list)
-        console.log('len ' + this.user_data_list.length)
-        for (var i=0;i<this.user_data_list.length;i++){
-            var user_data = this.user_data_list[i]
-            if (user_data.id == Notification.sentfrom) {
-                this.senduserfriends = user_data.data.friends;
-                this.sendusername = user_data.data.name;
-                this.senduserunreadNotif = user_data.data.unreadNotif;
-                this.sendusertransactions = user_data.data.transactions;
-                this.friend_substring = user_data.data.name + " and " + this.name + " are friends!";
+        console.log('list ' + this.userDataList)
+        console.log('len ' + this.userDataList.length)
+        for (var i=0;i<this.userDataList.length;i++){
+            var userData = this.userDataList[i]
+            if (userData.id == Notification.sentfrom) {
+                this.senduserFriends = userData.data.friends;
+                this.sendusername = userData.data.name;
+                this.senduserUnreadNotif = userData.data.unreadNotif;
+                this.senduserTransactions = userData.data.transactions;
+                this.friendSubstring = userData.data.name + " and " + this.name + " are friends!";
             }
-            else if (user_data.id != userId) {
-                //console.log('data ' + user_data)
-                user_data.data.transactions.unshift({date: this.todayDate,
-                    amount: Math.round(-2*friend_return/this.user_data_list.length),
+            else if (userData.id != userId) {
+                var userBalance = this.getBalance(userData.data.transactions);
+                var subtractBalance = Math.round(userBalance*percentOfTotalCoin);
+                recordTotalAmtRetracted = recordTotalAmtRetracted + subtractBalance;
+                //console.log('data ' + userData)
+                userData.data.transactions.unshift({date: this.todayDate,
+                    amount: -1*subtractBalance,
                     description: "Some users friended",
                     fromId: "admin", //admin means you take from everyone elses
-                    toId: user_data.id})
-                var outside_user = firebase.usersCollection.doc(user_data.id);
+                    toId: userData.id})
+                var outside_user = firebase.usersCollection.doc(userData.id);
                 outside_user.update({
-                    transactions: user_data.data.transactions
+                    transactions: userData.data.transactions
                 });
             }
         }
 
         //Set up notif
-        var friendNotif = {date:this.todayDate, type:'Friend', sentfrom:'admin', description: this.friend_substring}
+        var friendNotif = {date:this.todayDate, type:'Friend', sentfrom:'admin', description: this.friendSubstring}
 
         this.friends.push(Notification.sentfrom)
-        this.senduserfriends.push(userId)
+        this.senduserFriends.push(userId)
 
         this.unreadNotif.unshift(friendNotif)
-        this.senduserunreadNotif.unshift(friendNotif)
+        this.senduserUnreadNotif.unshift(friendNotif)
 
         senduser.update({
-            friends: this.senduserfriends,
-            unreadNotif: this.senduserunreadNotif
+            friends: this.senduserFriends,
+            unreadNotif: this.senduserUnreadNotif
         });
         user.update({
             friends: this.friends,
             unreadNotif: this.unreadNotif
         });
 
-        friend_return = Math.round(10/this.user_data_list.length)*this.user_data_list.length;
-        console.log(Math.round(10/this.user_data_list.length))
-        console.log(this.user_data_list.length)
-        //console.log(friend_return)
+        friendReturn = Math.round(recordTotalAmtRetracted/2);
+        //console.log(friendReturn)
 
         //Give user 10 la coin
         var userDescription = "Friends with  " + this.sendusername
         this.transactions.unshift({date: this.todayDate,
-            amount: friend_return,
+            amount: friendReturn,
             description: userDescription,
             fromId: "admin", //admin means you take from everyone elses
             toId: userId})
@@ -173,13 +177,13 @@ export default class Notifications extends Vue {
         });
         //Give sender 10 la coin
         var senduserDescription = "Friends with  " + this.name
-       this.sendusertransactions.unshift({date: this.todayDate,
-            amount: friend_return,
+       this.senduserTransactions.unshift({date: this.todayDate,
+            amount: friendReturn,
             description: senduserDescription,
             fromId: "admin", //admin means you take from everyone elses
             toId: Notification.sentfrom})
         senduser.update({
-            transactions: this.sendusertransactions
+            transactions: this.senduserTransactions
         });
         // Dip into other buckets
 
@@ -195,37 +199,44 @@ export default class Notifications extends Vue {
         var user = firebase.usersCollection.doc(userId);
         
         var senduser = firebase.usersCollection.doc(Notification.sentfrom);
-        for (var i=0;i<this.user_data_list.length;i++){
-            var user_data = this.user_data_list[i]
-            if (user_data.id == Notification.sentfrom) {
-                this.sendusertransactions = user_data.data.transactions;
+        for (var i=0;i<this.userDataList.length;i++){
+            var userData = this.userDataList[i]
+            if (userData.id == Notification.sentfrom) {
+                this.senduserTransactions = userData.data.transactions;
+                this.sendusername = userData.data.name;
                 break
             }
         }
-        if (this.balance >= Number(Notification.transfer_amount)) {
+
+        this.removeNotif(Notification);
+
+        var senduserTransactionDescription = "Fund exchange with " + userId;
+        var userTransactionDescription = "Fund exchange with " + this.sendusername;
+
+        if (this.balance >= Number(Notification.transferAmount)) {
             //Take away your account money
             this.transactions.unshift({date: this.todayDate,
-                amount: Number(Notification.transfer_amount)*-1,
-                description: "Exchange",
+                amount: Number(Notification.transferAmount)*-1,
+                description: userTransactionDescription,
                 fromId: Notification.sentfrom, //admin means you take from everyone elses
                 toId: userId})
             user.update({
                 transactions: this.transactions
             });
             //give user account money
-        this.sendusertransactions.unshift({date: this.todayDate,
-                amount: Number(Notification.transfer_amount),
-                description: "Exchange",
+            this.senduserTransactions.unshift({date: this.todayDate,
+                amount: Number(Notification.transferAmount),
+                description: senduserTransactionDescription,
                 fromId: userId, //admin means you take from everyone elses
                 toId: Notification.sentfrom})
             senduser.update({
-                transactions: this.sendusertransactions
+                transactions: this.senduserTransactions
             });
+            this.modalConfirm();
         }
-
-        this.removeNotif(Notification);
-
-        this.modalConfirm();
+        else {
+            this.modalDeny();
+        }
     }
     denyTransaction(Notification: object) {
         this.removeNotif(Notification);
@@ -243,6 +254,14 @@ export default class Notifications extends Vue {
         return this.$ionic.modalController
 				.create({
 					component: ConfirmModal
+				}).then(
+          m => m.present()
+				)
+    }
+    modalDeny() {
+        return this.$ionic.modalController
+				.create({
+					component: DenyModal
 				}).then(
           m => m.present()
 				)

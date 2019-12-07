@@ -1,10 +1,10 @@
 <template>
-    <ion-card>
+    <ion-card v-if="transactions.length > 0">
         <ion-card-header>
             <ion-card-title>Your LaCoin Transactions!</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-            <ion-item v-for="transaction in transactions">
+            <ion-item v-for="transaction in transactions" v-bind:key="transaction">
                 <ion-label v-if="transaction.amount > 0" color="success">
                     +{{ transaction.amount }}
                 </ion-label>
@@ -15,6 +15,11 @@
             </ion-item>
         </ion-card-content>
     </ion-card>
+    <ion-card v-else>
+        <ion-card-header>
+            <ion-card-title>Your LaCoin Transactions!</ion-card-title>
+        </ion-card-header>
+    </ion-card>
 </template>
 
 <script lang="ts">
@@ -23,7 +28,7 @@
     import firebase from "@/firebase.config";
     @Component
     export default class Transactions extends Vue {
-        transactions: object[] = []
+        transactions: object[] = [];
         created() {
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
