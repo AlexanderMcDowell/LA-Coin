@@ -2,8 +2,8 @@
 	<div class="ion-page">
 		<ion-header>
 			<ion-toolbar>
-            <ion-title>Login</ion-title>
-            </ion-toolbar>
+        <ion-title>Login</ion-title>
+      </ion-toolbar>
 		</ion-header>
 		<ion-content class="ion-padding">
 			<form @submit="login">
@@ -45,11 +45,12 @@ export default class Login extends Vue {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css?family=Roboto|Roboto+Slab&display=swap');
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
 ion-title {
+	font-family: 'Roboto', serif;
   text-align: center;
 	margin-left: 0;
-  font-weight: bold;
   color: rgb(27, 27, 27);
   font-size: 7.5vw;
 }

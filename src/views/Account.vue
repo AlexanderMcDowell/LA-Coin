@@ -11,9 +11,9 @@
       <!--Card with user's name, photo, balance and sign on date-->
       <ion-card class="profile-card">
         <ion-card-header>
-          <div id="greeting-div">
-            <ion-card-title v-if="name.length < 10">Hello, {{ name }}</ion-card-title>
-            <ion-card-title v-else>Hi {{ name }}</ion-card-title>
+          <div class="greeting-div">
+            <ion-card-title v-if="name.length < 9">Hello, {{ name }}</ion-card-title>
+            <ion-card-title v-else>Hi, {{ name }}</ion-card-title>
           </div>
           <div id="icons">
             <p>⬜️ ⬜️</p>
@@ -32,10 +32,8 @@
           </div>
         </ion-card-content>
       </ion-card>
-
       <!--User's balance over time-->
       <Graph />
-
       <!--User's unread notifications-->
       <Notifications />
     </ion-content>
@@ -47,7 +45,7 @@
   </div>
 </template>
 
-<script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script>
+<!--script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script-->
 
 <script lang="ts">
 import Vue from "vue";
@@ -84,10 +82,10 @@ export default class Account extends Vue {
 
   created() {
     this.getDate(); //Get today's date
-    this.getInfo(); //Get all user attributes
+    this.getUserInfo(); //Get all user attributes
   }
 
-  verify_invest(transactions: Array<any>) {
+  verifyInvest(transactions: Array<any>) {
 
     //Check to see if transaction based on gamble already made
     for (var i = 0; i < transactions.length; i++) {
@@ -110,7 +108,7 @@ export default class Account extends Vue {
     this.todayDate = mm + '/' + dd + '/' + yyyy;
   }
 
-  getInfo() {
+  getUserInfo() {
     var userId = firebase.auth.currentUser.uid;
     var user = firebase.usersCollection.doc(userId);
 
@@ -120,7 +118,7 @@ export default class Account extends Vue {
       this.signOnDate = doc.data().signOnDate;
       this.profilePhoto = doc.data().profilePhoto;
       this.balance = this.getBalance(doc.data().transactions);
-      this.investedToday = this.verify_invest(doc.data().transactions)
+      this.investedToday = this.verifyInvest(doc.data().transactions)
     });
   }
 
@@ -134,6 +132,7 @@ export default class Account extends Vue {
 
     return startBalance;
   }
+
   invest(e: Event) {
     if (this.investedToday == true) {
       return false;
@@ -153,12 +152,12 @@ export default class Account extends Vue {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Roboto|Roboto+Slab&display=swap');
 @import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap');
 ion-title {
+  font-family: 'Roboto', serif;
   text-align: center;
   margin-left: 0;
-  font-weight: bold;
   color: rgb(27, 27, 27);
   font-size: 7.5vw;
 }
@@ -170,13 +169,13 @@ body {
   padding: 0;
 }
 .profile-card {
-  /*background-image: linear-gradient(to bottom right, skyblue, aquamarine); //In the Green */
+  background-image: linear-gradient(to bottom right, rgba(255, 166, 0, 0.25), rgba(220, 20, 60, 0.25)); /*In the Red*/
+  /*background-image: linear-gradient(to bottom right, skyblue, aquamarine);*/ /*In the Green */
   /*background-image: linear-gradient(to bottom right, skyblue, violet);*/
-  /*background-image: linear-gradient(to bottom right, orange, crimson); //In the Red*/
-  background:
+  /*background:
       linear-gradient(217deg, rgba(97, 255, 215, 0.8), rgba(0, 81, 255, 0) 70.71%),
       linear-gradient(127deg, rgba(101, 206, 255, 0.8), rgba(0, 255, 157, 0) 70.71%),
-      linear-gradient(336deg, rgba(250, 136, 244, 0.8), rgba(0,0,255,0) 70.71%);
+      linear-gradient(336deg, rgba(250, 136, 244, 0.8), rgba(0,0,255,0) 70.71%);*/
 }
 ion-card {
   width: 95%;
@@ -197,46 +196,55 @@ ion-toolbar {
 ion-card-header {
   display: flex;
 }
-ion-card-header #greeting-div {
-  /*border: 2px solid;*/
+ion-card-header .greeting-div {
+  /*border: 2px solid red;*/
   float: left;
   padding: 0;
   width: 55vw;
 }
 ion-card-header #icons {
-  /*border: 2px solid;*/
   display: flex;
   position: absolute;
   left: 65vw;
+  padding-bottom:0;
+  margin-bottom:0;
 }
 #icons p {
   margin-top: 0;
   font-size: 7.5vw;
 }
 .top-info {
+  position: absolute;
+  top: -3vw;
   display: flex;
 }
-.icon-div {
+/*.icon-div {
   margin-top: -5vw; 
-}
+}*/
 .icon-div img {
   width: 33vw;
   height: auto;
   border: 2px solid;
   border-radius: 50%;
   border-color: lightgray;
+  background-color: aquamarine;
 }
-.icon-div p {
+.icon-div p { 
   width: 300%;
   font-size: 4vw;
+  font-weight: bold;
+  color: white;
+  font-family: 'Source Sans Pro', sans-serif;
+  /*text-shadow:
+		-1px 1px 0 rgb(194, 199, 228),
+		1px 1px 0 rgb(194, 199, 228);*/
 }
 #balance-label {
-  margin-top: -2.5vw;
   margin-left: -3vw;
   font-size: 9vw;
   overflow: hidden;
 }
-#balance-label, .icon-div p, ion-card-title {
+#balance-label, ion-card-title {
   font-weight: bold;
   color: white;
   font-family: 'Source Sans Pro', sans-serif;
@@ -254,6 +262,6 @@ ion-card-header #icons {
 #invest-button-modal {
   position: absolute;
   left: 48.5vw;
-  top: 7.5vw;
+  top: 8vw;
 }
 </style>

@@ -7,7 +7,9 @@
 </template>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
 ion-card {
+    font-family: 'Roboto', serif;
     text-align: center;
     height: 45vh;
     width: auto;
@@ -16,7 +18,7 @@ h1 {
     text-align: center;
 }
 img {
-    margin-top: -10vw;
+    margin-top: -5vw;
     border: solid 2px;
     border-color: navy;
     border-radius: 50%;

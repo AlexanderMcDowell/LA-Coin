@@ -1,12 +1,15 @@
 <template>
-    <form @submit="submit_invest">
-        <ion-item >
-            <ion-label position="floating">Value</ion-label>
-            <ion-input :value="investAmount" @input="investAmount = $event.target.value" type="text" name="investAmount" placeholder="Enter an amount">
-            </ion-input>
-        </ion-item>
-        <ion-button color="dark" type="submit" expand="block" onclick="location.href='#/people'">Invest</ion-button>
-    </form>
+    <div class="modal-container">
+        <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"/>
+        <form @submit="submit_invest">
+            <ion-item >
+                <ion-label position="floating">Value</ion-label>
+                <ion-input :value="investAmount" @input="investAmount = $event.target.value" type="text" name="investAmount" placeholder="Enter an amount">
+                </ion-input>
+            </ion-item>
+            <ion-button color="dark" type="submit" expand="block" onclick="location.href='#/people'">Invest</ion-button>
+        </form>
+    </div>
 </template>
 
 <script lang="ts">
@@ -77,7 +80,7 @@ import Vue from "vue";
 
             var investReturn = this.randfunc(this.investAmount)
             //console.log(investReturn)
-            var percentOfTotalCoin = (investReturn)/(250*(this.userDataList.length-1))
+            var percentOfTotalCoin = (investReturn)/(250*(this.userDataList.length-2))
             var recordTotalAmtRetracted = 0; //Track how much money has been retracted from the system
 
             // THIS IS A TO BE CLOUD FUNCTION
@@ -86,14 +89,14 @@ import Vue from "vue";
                 for (var i=0;i<this.userDataList.length;i++){
                     var userData = this.userDataList[i]
 
-                    var userBalance = this.getBalance(userData.data.transactions);
-                    var subtractBalance = Math.round(userBalance*percentOfTotalCoin);
-                    recordTotalAmtRetracted = recordTotalAmtRetracted + subtractBalance;
+                    if (userData.id != userId && userData.id != 'admin') {
+                        var userBalance = this.getBalance(userData.data.transactions);
+                        var subtractBalance = Math.round(userBalance*percentOfTotalCoin);
+                        recordTotalAmtRetracted = recordTotalAmtRetracted + subtractBalance;
 
-                    if (userData.id != userId) {
                         userData.data.transactions.unshift({date: this.todayDate,
                         amount: -1*subtractBalance,
-                        description: "A user invested",
+                        description: "Another user invested",
                         fromId: "admin", //admin means you take from everyone elses
                         toId: userData.id})
                         var outside_user = firebase.usersCollection.doc(userData.id);
@@ -120,8 +123,8 @@ import Vue from "vue";
             }
             //this.confirmInvest(investReturn);
             console.log(investReturn)
-            this.$ionic.modalController.dismiss()
             e.preventDefault();
+            this.$ionic.modalController.dismiss()
         }
         randfunc(investment: number) {
             return Math.round((Math.random()-0.5)*investment);
@@ -131,3 +134,32 @@ import Vue from "vue";
         }
     }
 </script>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+.modal-container {
+    margin-top: 5vh;
+}
+img {
+    margin-top: 0;
+    border: solid 2px;
+    border-color: navy;
+    border-radius: 50%;
+    margin-left: 25%;
+    width: 50%;
+    height: auto;
+}
+form {
+    margin-top: 0;
+    width: 80vw;
+    margin-left: 10vw;
+}
+ion-button {
+    margin-bottom: 50vh;
+    width: 80vw;
+    height: 25vw;
+    margin-left: 0;
+    border-radius: 50%;
+    font-size: 8vw;
+}
+</style>

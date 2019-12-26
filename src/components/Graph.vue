@@ -4,16 +4,18 @@
             <ion-card-title>Your Balance By Day</ion-card-title>
         </ion-card-header>
             <ion-card-content>
-                <area-chart :data="chartData" height="75vw"></area-chart>
+                <area-chart :data="chartData.slice(chartData.length - graphSpec, chartData.length)" height="75vw"></area-chart>
                 <ion-list id="transaction-container" v-if="transactions.length > 0">
-                    <ion-item v-for="transaction in transactions" v-bind:key="transaction">
+                    <ion-item v-for="transaction in truncatedTransactions" v-bind:key="transaction">
                         <ion-label v-if="transaction.amount > 0" color="success">
                             +{{ transaction.amount }}
                         </ion-label>
                         <ion-label v-else color="danger">
                             {{ transaction.amount }}
                         </ion-label>
+                        <h6 id="transaction-description">
                             {{ transaction.description }}
+                        </h6>
                     </ion-item>
                 </ion-list>
                 <ion-item v-if="transactions.length == 0">
@@ -33,9 +35,10 @@
 
     @Component
     export default class Graph extends Vue {
-        transactions: object = [];
+        transactions: Array<any> = [];
+        truncatedTransactions: Array<any> = [];
         chartData: object[] = [];
-        graphSpec: number = 10;
+        graphSpec: number = 8;
 
         created() {
             this.graphData();
@@ -47,6 +50,7 @@
                 console.log("transactionsdoc " + doc.data().transactions.reverse())
                 this.transactions = doc.data().transactions;
                 this.graphSpec = doc.data().graphSpec;
+                this.truncatedTransactions = this.transactions.slice(0, this.graphSpec)
                 if (this.graphSpec >= doc.data().transactions.length) {
                     this.graphSpec = doc.data().transactions.length;
                 }
@@ -69,12 +73,26 @@
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
 #graph-container {
+    font-family: 'Roboto', serif;
     height: 100vw;
     overflow: auto;
+    overflow-y: scroll;
+}
+ion-card-title {
+    font-family: 'Roboto', serif;
+    font-weight: normal;
+    font-size: 6vw;
 }
 area-chart {
     margin: 0;
     padding: 0;
+}
+ion-label, #transaction-description{
+    font-family: 'Roboto', serif;
+}
+#transaction-description {
+    color: gray;
 }
 </style>

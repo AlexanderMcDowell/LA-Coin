@@ -41,7 +41,7 @@
             </div>
             <br>
 
-            <div id="profile-buttons">
+            <div id="profile-buttons" v-if="friends.includes(UserData.id) == false">
                     <!-- Friend Button -->
                     <ion-button id="friend" color="medium" fill="solid" @click="friend(UserData.id)" v-if="UserData.data.name != name && UserData.data.friends.includes(name) == false">Friend?</ion-button>
 
@@ -72,10 +72,14 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import firebase from '@/firebase.config'
 import Navbar from "@/components/Navbar.vue";
+import DenyModal from "@/components/DenyModal.vue";
+import ConfirmModal from "@/components/ConfirmModal.vue";
 
 @Component({
   components: {
-    Navbar
+    Navbar,
+    DenyModal,
+    ConfirmModal
   }
 })
 
@@ -193,14 +197,27 @@ export default class Profile extends Vue {
             if (this.transferDescription.length > 0) {
                 notifdescription = notifdescription + ": " + this.transferDescription
             }
-            var transferReq = {date:this.todayDate, type:reqType, 
+            console.log(typeof this.transferAmount)
+            if (isNaN(this.transferAmount) == false) {
+                console.log(this.transferAmount)
+                this.transferAmount = Math.abs(this.transferAmount);
+                var transferReq = {date:this.todayDate, type:reqType, 
                             sentfrom:userId, transferAmount: 
-                            this.transferAmount, description:notifdescription
+                            Math.round(this.transferAmount), description:notifdescription
                             };
-            this.recipientUnreadNotif.unshift(transferReq);
-            recipient_user.update({
-            unreadNotif: this.recipientUnreadNotif
-            });
+                this.recipientUnreadNotif.unshift(transferReq);
+                recipient_user.update({
+                unreadNotif: this.recipientUnreadNotif
+                });
+            }
+            else {
+                return this.$ionic.modalController
+                .create({
+                    component: DenyModal
+                }).then(
+                    m => m.present()
+                )
+            }
         }
     }
 
@@ -235,9 +252,9 @@ export default class Profile extends Vue {
 <style scoped>
     @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
     ion-title {
+        font-family: 'Roboto', serif;
         text-align: center;
         margin-left: 0;
-        font-weight: bold;
         color: rgb(27, 27, 27);
         font-size: 7.5vw;
     }
@@ -321,6 +338,7 @@ export default class Profile extends Vue {
     #bio-field {
         position:absolute;
         margin-top: 10vw;
+        width: 50vw;
         float: left;
         text-overflow: auto;
     }

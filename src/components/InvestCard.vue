@@ -38,7 +38,7 @@ export default class InvestCard extends Vue {
     padding: 0;
     
     color: white;
-    font-size: 7.5vw;
+    font-size: 6.5vw;
     font-weight: bold;
     font-family: 'Source Sans Pro', sans-serif;
 

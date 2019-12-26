@@ -11,12 +11,14 @@
       <ion-card id="profile-photo-change" v-if="changePhoto == true">
         <ion-card-header @click="set_changePhoto(false)">Photos ❌</ion-card-header>
         <ion-card-content>
-          <div v-for="link in profileLinks" v-bind:key="link">
-            <img id="image-choice" v-bind:src="link" @click="setNewPhoto(link)">
+          <div id="image-row" v-for="row in profileLinks" v-bind:key="row">
+            <img class="image-choice" v-bind:src="row[0]" @click="setNewPhoto(row[0])">
+            <img class="image-choice" v-bind:src="row[1]" @click="setNewPhoto(row[1])">
           </div>
         </ion-card-content>
       </ion-card>
       <img id="current-profile-photo" @click="set_changePhoto(true)" v-bind:src="oldProfilePhoto" alt="User">
+      <h2 id="profile-photo-caption">Click to Change Photo</h2>
 
       <!--Form to change name, bio, graph settings-->
 			<form @submit="change_profile">
@@ -25,10 +27,10 @@
 					<ion-input :value="newName" @input="newName = $event.target.value" type="text" name="newName" placeholder="Enter a New Name" maxlength=12>
 					</ion-input>
           <ion-label position="floating">Description</ion-label>
-					<ion-input :value="newBio" @input="newBio = $event.target.value" type="text" name="newBio" placeholder="Enter a brief description (50 Character Max)" maxlength=50>
+					<ion-input :value="newBio" @input="newBio = $event.target.value" type="text" name="newBio" placeholder="Enter a brief description (50 Char Max)" maxlength=50>
 					</ion-input>
           <ion-label position="floating">Balance Graph Data Points</ion-label>
-          <ion-input :value="graphSpec" @input="graphSpec = $event.target.value" type="text" name="graphSpec" placeholder="Data points in Balance Record? (Default 10)" maxlength=50>
+          <ion-input :value="graphSpec" @input="graphSpec = $event.target.value" type="text" name="graphSpec" placeholder="Data pts in Balance Record? (Deft. 8)" maxlength=50>
 					</ion-input>
 				</ion-item>
         <ion-button color="dark" type="submit" expand="block">Continue</ion-button>
@@ -73,10 +75,10 @@ export default class EditProfile extends Vue {
   changePhoto: boolean = false;
 
   //Links generated for prettier saves in firebase (attach ppf vars to urls here)
-  profileLinks: string[] = ["https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileOne.jpg?alt=media&token=d0e7524d-9e7b-43e5-b4ca-e0150a8a0544",
-                "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileTwo.jpg?alt=media&token=f58c01a6-68dc-42ad-9a2f-f7da1aafa3a5",
-                "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileThree.jpg?alt=media&token=967d4034-126d-44d1-b604-29930fe14e6d",
-                "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileFour.jpg?alt=media&token=102b0ce2-69f0-4bd8-ac3f-ce15479277c1"
+  profileLinks: Array<any> = [["https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileOne.jpg?alt=media&token=d0e7524d-9e7b-43e5-b4ca-e0150a8a0544",
+                "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileTwo.jpg?alt=media&token=f58c01a6-68dc-42ad-9a2f-f7da1aafa3a5"],
+                ["https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileThree.jpg?alt=media&token=967d4034-126d-44d1-b604-29930fe14e6d",
+                "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileFour.jpg?alt=media&token=102b0ce2-69f0-4bd8-ac3f-ce15479277c1"]
                 ]
 
   created() {
@@ -143,9 +145,9 @@ export default class EditProfile extends Vue {
 <style scoped>
 @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
 ion-title {
+  font-family: 'Roboto', serif;
   text-align: center;
   margin-left: 0;
-  font-weight: bold;
   color: rgb(27, 27, 27);
   font-size: 7.5vw;
 }
@@ -163,12 +165,37 @@ ion-footer {
 ion-toolbar {
   background-color: rgb(250, 250, 250);
 }
-#current-profile-photo, #image-choice {
+#image-row {
+  display: flex;
+  padding:0;
+}
+#image-col {
+  padding:0;
+  display: flex;
+  border: 2px solid red;
+}
+.image-choice {
+  display: flex;
+  border: 2px solid;
+  border-color: lightgray;
+  border-radius: 50%;
+  width: 40%;
+  height: 40%;
+  background-color: aquamarine;
+  margin: 5%;
+}
+#profile-photo-caption {
+  color: gray;
+  text-align: center;
+  font-size: 3vw;
+}
+#current-profile-photo {
   border: 2px solid;
   border-color: lightgray;
   border-radius: 50%;
   width: 50%;
   height: auto;
   margin-left: 25%;
+  background-color: aquamarine;
 }
 </style>

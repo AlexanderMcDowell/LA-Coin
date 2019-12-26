@@ -112,12 +112,12 @@ export default class Notifications extends Vue {
         // THIS IS A TO BE CLOUD FUNCTION
 
         var friendReturn = 10;
-        var percentOfTotalCoin = (2*friendReturn)/(250*(this.userDataList.length-2))
+        var percentOfTotalCoin = (2*friendReturn)/(250*(this.userDataList.length-3))
 
         var recordTotalAmtRetracted = 0; //Track how much money has been retracted from the system
         
-        console.log('list ' + this.userDataList)
-        console.log('len ' + this.userDataList.length)
+        //console.log('list ' + this.userDataList)
+        //console.log('len ' + this.userDataList.length)
         for (var i=0;i<this.userDataList.length;i++){
             var userData = this.userDataList[i]
             if (userData.id == Notification.sentfrom) {
@@ -127,7 +127,7 @@ export default class Notifications extends Vue {
                 this.senduserTransactions = userData.data.transactions;
                 this.friendSubstring = userData.data.name + " and " + this.name + " are friends!";
             }
-            else if (userData.id != userId) {
+            else if (userData.id != userId && userData.id != 'admin') {
                 var userBalance = this.getBalance(userData.data.transactions);
                 var subtractBalance = Math.round(userBalance*percentOfTotalCoin);
                 recordTotalAmtRetracted = recordTotalAmtRetracted + subtractBalance;
@@ -190,6 +190,7 @@ export default class Notifications extends Vue {
 
         this.removeNotif(Notification);
         this.modalConfirm();
+        this.$router.push('/people')
     }
     denyFriend(Notification: object) {
         this.removeNotif(Notification);
@@ -210,8 +211,8 @@ export default class Notifications extends Vue {
 
         this.removeNotif(Notification);
 
-        var senduserTransactionDescription = "Fund exchange with " + userId;
-        var userTransactionDescription = "Fund exchange with " + this.sendusername;
+        var senduserTransactionDescription = this.name + " fund exchange";
+        var userTransactionDescription = this.sendusername + " fund exchange";
 
         if (this.balance >= Number(Notification.transferAmount)) {
             //Take away your account money
@@ -270,7 +271,14 @@ export default class Notifications extends Vue {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+ion-card-title {
+    font-family: 'Roboto', serif;
+    font-weight: normal;
+    font-size: 5vw;
+}
 #notif-container {
+    font-family: 'Roboto', serif;
     height: 50vw;
     overflow: auto;
 }
@@ -279,14 +287,14 @@ export default class Notifications extends Vue {
     justify-content: space-evenly;
 }
 #notif-description {
-    width: 60vw;
+    width: 57.5vw;
     float: left;
     text-overflow: auto;
 }
 #notif-button {
     display: flex;
     position: absolute;
-    left: 60vw;
+    left: 57.5vw;
     width: 10vw;
 }
 #notif-button h2 {
