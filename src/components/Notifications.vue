@@ -10,11 +10,16 @@
                     <h2>{{notification.description}}</h2>
                 </div>
                 <div id="notif-button">
-                    <h2 v-if="notification.type != 'friend' && notification.type != 'transfer'" @click="removeNotif(notification)">✖</h2>
-                    <h2 v-if="notification.type == 'friend'" @click="denyFriend(notification)">✖</h2>
-                    <h2 v-if="notification.type == 'friend'" @click="approveFriend(notification)">✔</h2>
-                    <h2 v-if="notification.type == 'transfer'" @click="denyTransaction(notification)">✖</h2>
-                    <h2 v-if="notification.type == 'transfer'" @click="approveTransaction(notification)">✔</h2>
+                    <i class="ion-md-checkmark-circle-outline" style="font-size: 1.75em" v-if="notification.type != 'friend' && notification.type != 'transfer'" @click="removeNotif(notification)"></i>
+                    <i class="ion-md-close-circle-outline" style="font-size: 1.75em" v-if="notification.type == 'friend'" @click="denyFriend(notification)"></i>
+                    <i class="ion-md-checkmark-circle-outline" style="font-size: 1.75em" v-if="notification.type == 'friend'" @click="reward(notification, 'friend')"></i>
+                    <i class="ion-md-close-circle-outline" style="font-size: 1.75em" v-if="notification.type == 'transfer'" @click="denyTransaction(notification)"></i>
+                    <i class="ion-md-checkmark-circle-outline" style="font-size: 1.75em" v-if="notification.type == 'transfer'" @click="approveTransaction(notification)"></i>
+                    <!--h2 v-if="notification.type != 'friend' && notification.type != 'transfer'" @click="removeNotif(notification)">✖</h2-->
+                    <!--h2 v-if="notification.type == 'friend'" @click="denyFriend(notification)">✖</h2-->
+                    <!--h2 v-if="notification.type == 'friend'" @click="reward(notification, 'friend')">✔</h2-->
+                    <!--h2 v-if="notification.type == 'transfer'" @click="denyTransaction(notification)">✖</h2-->
+                    <!--h2 v-if="notification.type == 'transfer'" @click="approveTransaction(notification)">✔</h2-->
                 </div>
             </ion-item>
 		</ion-card-content>
@@ -30,11 +35,13 @@ import Component from 'vue-class-component'
 import firebase from '@/firebase.config'
 import ConfirmModal from "@/components/ConfirmModal.vue";
 import DenyModal from "@/components/DenyModal.vue";
+import RedEnvelope from "@/components/RedEnvelope.vue";
 
 @Component({
   components: {
     ConfirmModal,
-    DenyModal
+    DenyModal,
+    RedEnvelope
   }
 })
 export default class Notifications extends Vue {
@@ -104,14 +111,18 @@ export default class Notifications extends Vue {
     return startBalance;
   }
 
-    approveFriend(Notification: any) {
+    reward(Notification: any, type: string) {
         var userId = firebase.auth.currentUser.uid;
         var user = firebase.usersCollection.doc(userId);
         var senduser = firebase.usersCollection.doc(Notification.sentfrom);
 
         // THIS IS A TO BE CLOUD FUNCTION
-
-        var friendReturn = 10;
+        if (type == 'friend') {
+            var friendReturn = 10;
+        }
+        else {
+            var friendReturn = Number(Notification.redEnvelope);
+        }
         var percentOfTotalCoin = (2*friendReturn)/(250*(this.userDataList.length-3))
 
         var recordTotalAmtRetracted = 0; //Track how much money has been retracted from the system
@@ -125,16 +136,27 @@ export default class Notifications extends Vue {
                 this.sendusername = userData.data.name;
                 this.senduserUnreadNotif = userData.data.unreadNotif;
                 this.senduserTransactions = userData.data.transactions;
-                this.friendSubstring = userData.data.name + " and " + this.name + " are friends!";
+                if (type == 'friend') {
+                    this.friendSubstring = userData.data.name + " and " + this.name + " are friends!";
+                }
+                else {
+                    this.friendSubstring = "Red Envelope with " + userData.data.name + " and " + this.name + "!";
+                }
             }
             else if (userData.id != userId && userData.id != 'admin') {
+                if (type == 'friend') {
+                    var outsideMessage = "Some users friended";
+                }
+                else {
+                    var outsideMessage = "Red Envelope";
+                }
                 var userBalance = this.getBalance(userData.data.transactions);
                 var subtractBalance = Math.round(userBalance*percentOfTotalCoin);
                 recordTotalAmtRetracted = recordTotalAmtRetracted + subtractBalance;
                 //console.log('data ' + userData)
                 userData.data.transactions.unshift({date: this.todayDate,
                     amount: -1*subtractBalance,
-                    description: "Some users friended",
+                    description: outsideMessage,
                     fromId: "admin", //admin means you take from everyone elses
                     toId: userData.id})
                 var outside_user = firebase.usersCollection.doc(userData.id);
@@ -145,28 +167,35 @@ export default class Notifications extends Vue {
         }
 
         //Set up notif
-        var friendNotif = {date:this.todayDate, type:'Friend', sentfrom:'admin', description: this.friendSubstring}
+        if (type == 'friend') {
+            var friendNotif = {date:this.todayDate, type:'Friend', sentfrom:'admin', description: this.friendSubstring}
 
-        this.friends.push(Notification.sentfrom)
-        this.senduserFriends.push(userId)
+            this.friends.push(Notification.sentfrom)
+            this.senduserFriends.push(userId)
 
-        this.unreadNotif.unshift(friendNotif)
-        this.senduserUnreadNotif.unshift(friendNotif)
+            this.unreadNotif.unshift(friendNotif)
+            this.senduserUnreadNotif.unshift(friendNotif)
 
-        senduser.update({
-            friends: this.senduserFriends,
-            unreadNotif: this.senduserUnreadNotif
-        });
-        user.update({
-            friends: this.friends,
-            unreadNotif: this.unreadNotif
-        });
+            senduser.update({
+                friends: this.senduserFriends,
+                unreadNotif: this.senduserUnreadNotif
+            });
+            user.update({
+                friends: this.friends,
+                unreadNotif: this.unreadNotif
+            });
+        }
 
         friendReturn = Math.round(recordTotalAmtRetracted/2);
         //console.log(friendReturn)
 
         //Give user 10 la coin
-        var userDescription = "Friends with  " + this.sendusername
+        if (type == 'friend') {
+            var userDescription = "Friends with  " + this.sendusername
+        }
+        else {
+            var userDescription = "Red Envelope with  " + this.sendusername
+        }
         this.transactions.unshift({date: this.todayDate,
             amount: friendReturn,
             description: userDescription,
@@ -176,8 +205,13 @@ export default class Notifications extends Vue {
             transactions: this.transactions
         });
         //Give sender 10 la coin
-        var senduserDescription = "Friends with  " + this.name
-       this.senduserTransactions.unshift({date: this.todayDate,
+        if (type == 'friend') {
+            var senduserDescription = "Friends with  " + this.name
+        }
+        else {
+            var senduserDescription = "Red Envelope with  " + this.name
+        }
+        this.senduserTransactions.unshift({date: this.todayDate,
             amount: friendReturn,
             description: senduserDescription,
             fromId: "admin", //admin means you take from everyone elses
@@ -186,11 +220,11 @@ export default class Notifications extends Vue {
             transactions: this.senduserTransactions
         });
         // Dip into other buckets
-
-
-        this.removeNotif(Notification);
-        this.modalConfirm();
-        this.$router.push('/people')
+        if (type == 'friend') {
+            this.removeNotif(Notification);
+            this.modalConfirm();
+            this.$router.push('/people')
+        }
     }
     denyFriend(Notification: object) {
         this.removeNotif(Notification);
@@ -211,8 +245,8 @@ export default class Notifications extends Vue {
 
         this.removeNotif(Notification);
 
-        var senduserTransactionDescription = this.name + " fund exchange";
-        var userTransactionDescription = this.sendusername + " fund exchange";
+        var senduserTransactionDescription = "Exchange with " + this.name;
+        var userTransactionDescription = "Exchange with " + this.sendusername;
 
         if (this.balance >= Number(Notification.transferAmount)) {
             //Take away your account money
@@ -233,7 +267,13 @@ export default class Notifications extends Vue {
             senduser.update({
                 transactions: this.senduserTransactions
             });
-            this.modalConfirm();
+            if (Notification.redEnvelope != 0) {
+                this.reward(Notification, 'redEnvelope')
+                this.modalRedEnvelope();
+            }
+            else {
+                this.modalConfirm();
+            }
         }
         else {
             this.modalDeny();
@@ -267,11 +307,19 @@ export default class Notifications extends Vue {
           m => m.present()
 				)
     }
+    modalRedEnvelope() {
+        return this.$ionic.modalController
+				.create({
+					component: RedEnvelope
+				}).then(
+          m => m.present()
+				)
+    }
 }
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
 ion-card-title {
     font-family: 'Roboto', serif;
     font-weight: normal;
@@ -287,17 +335,17 @@ ion-card-title {
     justify-content: space-evenly;
 }
 #notif-description {
-    width: 57.5vw;
+    width: 50vw;
     float: left;
     text-overflow: auto;
 }
 #notif-button {
     display: flex;
     position: absolute;
-    left: 57.5vw;
-    width: 10vw;
+    left: 50vw;
+    width: 50vw;
 }
-#notif-button h2 {
-    margin-right: 2.5vw;
+#notif-button i {
+    margin-right: 0.5em;
 }
 </style>

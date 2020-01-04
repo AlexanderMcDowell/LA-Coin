@@ -1,14 +1,14 @@
 <template>
     <ion-card>
         <h1>DENIED</h1>
-        <h2>Action is illegal / a user error. Try again.</h2>
-        <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"/>
+        <h2>Invalid. Try again.</h2>
+        <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
         <ion-button fill="outline" @click="exit()">Exit</ion-button>
     </ion-card>
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
 ion-card {
     font-family: 'Roboto', serif;
     text-align: center;
@@ -22,11 +22,12 @@ h1 {
 img {
     margin-top: 0;
     border: solid 2px;
-    border-color: navy;
+    border-color: rgb(185, 143, 2);
     border-radius: 50%;
     margin-left: 25%;
-    width: 50%;
-    height: auto;
+    --img-size: 50%;
+    width: var(--img-size);
+    height: calc(var(--img-size) + 0);
 }
 ion-button {
     margin-bottom: 5vh;
@@ -39,7 +40,7 @@ ion-button {
     import firebase from "@/firebase.config";
     @Component
 export default class DenyModal extends Vue {
-    imageUrl: string = "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"
+    imageUrl: string = "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"
     exit() {
         this.$ionic.modalController.dismiss()
     }

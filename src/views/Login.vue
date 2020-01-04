@@ -45,8 +45,8 @@ export default class Login extends Vue {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Roboto|Roboto+Slab&display=swap');
-@import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
+
+
 ion-title {
 	font-family: 'Roboto', serif;
   text-align: center;

@@ -1,6 +1,7 @@
 <template>
     <div class="modal-container">
-        <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"/>
+        <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
+        <h2 v-if="investError == true">Error! Invalid Amount.</h2>
         <form @submit="submit_invest">
             <ion-item >
                 <ion-label position="floating">Value</ion-label>
@@ -23,6 +24,7 @@ import Vue from "vue";
         investAmount: number = 0;
         todayDate: string = "";
         name: string = "";
+        investError: boolean = false;
 
         userDataList: Array<any> = [];
 
@@ -84,7 +86,7 @@ import Vue from "vue";
             var recordTotalAmtRetracted = 0; //Track how much money has been retracted from the system
 
             // THIS IS A TO BE CLOUD FUNCTION
-            if (this.investAmount <= this.balance) {
+            if (this.investAmount <= this.balance && String(this.investAmount).length > 0) {
 
                 for (var i=0;i<this.userDataList.length;i++){
                     var userData = this.userDataList[i]
@@ -116,27 +118,22 @@ import Vue from "vue";
                 user.update({
                     transactions: this.transactions
                 });
+                e.preventDefault();
+                this.$ionic.modalController.dismiss()
             }
             else {
-                this.$ionic.modalController.dismiss()
+                this.investError = true;
                 e.preventDefault();
             }
-            //this.confirmInvest(investReturn);
-            console.log(investReturn)
-            e.preventDefault();
-            this.$ionic.modalController.dismiss()
         }
         randfunc(investment: number) {
             return Math.round((Math.random()-0.5)*investment);
-        }
-        confirmInvest(investReturn: number) {
-            console.log(investReturn)
         }
     }
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
 .modal-container {
     margin-top: 5vh;
 }
@@ -161,5 +158,9 @@ ion-button {
     margin-left: 0;
     border-radius: 50%;
     font-size: 8vw;
+}
+h2 {
+    text-align: center;
+    color: darkred;
 }
 </style>

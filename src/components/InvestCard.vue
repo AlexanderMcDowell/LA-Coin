@@ -30,7 +30,7 @@ export default class InvestCard extends Vue {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap');
+
 #cool-invest-button {
     margin-left: calc(10vw - 16px);
     width:27.5vw;

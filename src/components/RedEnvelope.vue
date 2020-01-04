@@ -1,7 +1,8 @@
 <template>
     <ion-card>
-        <h1>Success!</h1>
-        <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
+        <h1>Extra Gift Waiting for you.</h1>
+        <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/RedEnvelope.png?alt=media&token=1cbf3c87-dc75-4b02-8e32-6da5bdfd7003"/>
+        <p>Red Envelope Transfer!</p>
         <ion-button fill="outline" @click="exit()">Exit</ion-button>
     </ion-card>
     <!--https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5-->
@@ -39,7 +40,7 @@ ion-button {
     import Component from "vue-class-component";
     import firebase from "@/firebase.config";
     @Component
-export default class EventModal extends Vue {
+export default class RedEnvelope extends Vue {
     imageUrl: string = "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"
     exit() {
         this.$ionic.modalController.dismiss()

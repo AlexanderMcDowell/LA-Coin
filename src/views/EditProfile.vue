@@ -17,7 +17,7 @@
           </div>
         </ion-card-content>
       </ion-card>
-      <img id="current-profile-photo" @click="set_changePhoto(true)" v-bind:src="oldProfilePhoto" alt="User">
+      <img id="current-profile-photo" @click="set_changePhoto(true)" v-bind:src="oldProfilePhoto">
       <h2 id="profile-photo-caption">Click to Change Photo</h2>
 
       <!--Form to change name, bio, graph settings-->
@@ -143,7 +143,7 @@ export default class EditProfile extends Vue {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
+
 ion-title {
   font-family: 'Roboto', serif;
   text-align: center;
@@ -193,8 +193,9 @@ ion-toolbar {
   border: 2px solid;
   border-color: lightgray;
   border-radius: 50%;
-  width: 50%;
-  height: auto;
+  --img-size: 50%;
+  width: var(--img-size);
+  height: calc(var(--img-size) + 0);
   margin-left: 25%;
   background-color: aquamarine;
 }

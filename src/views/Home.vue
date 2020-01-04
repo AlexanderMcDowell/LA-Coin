@@ -11,8 +11,8 @@
 			<div class="home-container">
 				<h1>LAcoin</h1>
 				<h2>Points System for Los Altos Eagles</h2>
-				<img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"/>
-				<h3>Greed is good. <br> Get Started Below</h3>
+				<img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
+				<h3>Tutorial on App Store!<br>Get Started Below</h3>
 			</div>
 		</ion-content>
 
@@ -42,8 +42,8 @@ export default class Home extends Vue{
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
+
 ion-title {
 	font-family: 'Roboto', serif;
   text-align: center;
@@ -82,13 +82,14 @@ ion-toolbar {
 }
 .home-container img {
 	margin-top: 0;
-	border: 2px solid;
+	border: 4px solid;
 	border-radius: 50%;
-	border-color: navy;
+	border-color: rgb(185, 143, 2);
 	position: absolute;
 	left: 50%;
-	height: 50%;
-	width: auto;
+	--img-size: 50%;
+	height: var(--img-size);
+	width: calc(var(--img-size) + 0);
 	transform: translate(-50%, -50%);
 	background-color: aquamarine;
 }

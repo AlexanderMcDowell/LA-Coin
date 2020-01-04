@@ -11,13 +11,14 @@
 
       <!-- Instructions -->
 
-      <ion-card id="intro-card">
+      <ion-card id="intro-card" type="button" @click="moreInfo()">
           <ion-card-header>
             <ion-card-title>Welcome to the LAcoin Community!</ion-card-title>
           </ion-card-header>
           <ion-card-content id="content-text">
-            <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"/>
+            <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
             <p>Click on a person / friend to reach out, make a transaction, and more!</p>
+            <p><b>Click here for more info!</b></p>
           </ion-card-content>
         </ion-card>
       <!-- Admin Card-->
@@ -46,10 +47,10 @@
           <ion-card-content>
             <div class="basic-info">
               <img class="profile-icon" v-bind:src="friend.data.profilePhoto">
-              <p>{{ friend.data.balance }} Coin </p>
             </div>
             <div class="card-description">
-              <p>{{ friend.data.bio }}</p>
+              <p class="bio">{{ friend.data.bio }}</p>
+              <p class="balance">{{ friend.data.balance }} Coin </p>
             </div>
           </ion-card-content>
         </ion-card>
@@ -68,10 +69,10 @@
           <ion-card-content>
             <div class="basic-info">
               <img class="profile-icon" v-bind:src="person.data.profilePhoto">
-              <p>{{ person.data.balance }} LACoin </p>
             </div>
             <div class="card-description">
-              <p>{{ person.data.bio }}</p>
+              <p class="bio">{{ person.data.bio }}</p>
+              <p class="balance">{{ person.data.balance }} LACoin </p>
             </div>
           </ion-card-content>
         </ion-card>
@@ -91,11 +92,13 @@ import Component from 'vue-class-component'
 import firebase from '@/firebase.config'
 import Navbar from "@/components/Navbar.vue";
 import GetGifts from "@/components/GetGifts.vue";
+import MoreInfo from "@/components/MoreInfo.vue";
 
 @Component({
   components: {
     Navbar,
-    GetGifts
+    GetGifts,
+    MoreInfo
   }
 })
 
@@ -156,11 +159,19 @@ export default class People extends Vue {
         //this.$router.go();
         e.preventDefault();
     }
+  moreInfo(e: Event) {
+      return this.$ionic.modalController
+            .create({
+                component: MoreInfo
+            }).then(
+                m => m.present()
+            )
+    }
 }
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
+
 ion-title {
   font-family: 'Roboto', serif;
   margin-left: 0;
@@ -174,7 +185,7 @@ ion-content {
 #info-card {
     display: inline-block;
     width: 75vw;
-    height: 43.42vw;
+    height: 45vw;
     background:
       linear-gradient(217deg, rgba(223, 227, 230, 0.8), rgba(245, 251, 255, 0) 80%),
       linear-gradient(127deg, rgba(252, 252, 252, 0.8), rgba(226, 226, 226, 0) 80%),
@@ -183,7 +194,8 @@ ion-content {
 #friend-info-card {
     display: inline-block;
     width: 75vw;
-    height: 43.42vw;
+    height: 45vw;
+    padding-bottom: 1em;
     background:
       linear-gradient(217deg, rgba(255, 219, 165, 0.8), rgba(255, 219, 165, 0) 80%),
       linear-gradient(127deg, rgba(255, 223, 176, 0.8), rgba(255, 223, 176, 0) 80%),
@@ -192,7 +204,7 @@ ion-content {
 #admin-info-card {
   display: inline-block;
     width: 75vw;
-    height: 43.42vw;
+    height: 45vw;
     background: rgb(235, 235, 235);
 }
 ion-card-content{
@@ -217,8 +229,8 @@ ion-toolbar {
   background-color: rgb(250, 250, 250);
 }
 .profile-icon {
-  width: 20vw;
-  height: auto;
+  width: 25vw;
+  height: 25vw;
   background-color: aquamarine;
   border: solid 1px rgb(194, 194, 194);
   border-radius:50%;
@@ -236,7 +248,16 @@ ion-toolbar {
   height: 20vw;
   padding-left: 2.5vw;
   padding-right: 1vw;
+}
+.bio {
+  height: 3em;
   overflow: auto;
+}
+.balance {
+  color: rgb(47, 69, 79);
+  font-size: 6vw;
+  font-family: 'Nunito', sans-serif;
+  font-weight: bold;
 }
 #info-card a, #friend-info-card a, #admin-info-card a {
   text-decoration: none;
@@ -249,11 +270,12 @@ ion-toolbar {
 }
 #content-text img {
   border: solid 2px;
-  border-color: navy;
+  border-color: rgb(185, 143, 2);
   border-radius: 50%;
   margin-left: 25%;
   margin-bottom: 5vw;
-  width: 50%;
-  height: auto;
+  --img-size: 50%;
+  width: var(--img-size);
+  height: calc(var(--img-size) + 0);
 }
 </style>

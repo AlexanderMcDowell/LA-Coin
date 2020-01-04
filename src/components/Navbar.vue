@@ -1,10 +1,26 @@
 <template>
-    <ion-buttons slot="secondary">
-        <ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='#/account'">Account</ion-button>
-        <ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='#/people'">People</ion-button>
-        <ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='#/events'">Events</ion-button>
-        <ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='#/editprofile'">Settings</ion-button>
-    </ion-buttons>
+    <div class="button-container">
+        <div class="button-div">
+            <i class="ion-md-contact" style="font-size: 20vw" type="button" onclick="location.href='#/account'"></i>
+            <h6>Account</h6>
+        </div>
+        <!--ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='#/account'">Account</ion-button-->
+        <div class="button-div">
+            <i class="ion-md-contacts" style="font-size: 20vw" type="button" onclick="location.href='#/people'"></i>
+            <h6>People</h6>
+        </div>
+        <!--ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='#/people'">People</ion-button-->
+        <div class="button-div">
+            <i class="ion-md-ribbon" style="font-size: 20vw" type="button" onclick="location.href='#/events'"></i>
+            <h6>Events</h6>
+        </div>
+        <!--ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='#/events'">Events</ion-button-->
+        <div class="button-div">
+            <i class="ion-ios-cog" style="font-size: 20vw" type="button" onclick="location.href='#/editprofile'"></i>
+            <h6>Settings</h6>
+        </div>
+        <!--ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='#/editprofile'">Settings</ion-button-->
+    </div>
 </template>
 
 <script lang="ts">
@@ -17,7 +33,7 @@
 </script>
 
 <style scoped>
-ion-buttons {
+.button-container {
     padding-top: 2vw;
     padding-bottom: 2vw;
     width: 100vw;
@@ -26,14 +42,16 @@ ion-buttons {
     margin-bottom: 0;
     margin-left: 0;
     margin-right: 0;
-    background-color: rgb(250, 250, 250);
+    /*background-color: rgb(250, 250, 250);*/
 }
-ion-button {
-    width: 75px;
-    height: 75px;
-    font-weight: bold;
-    font-size: 12.5px;
-    border-radius: 50%;
-    background-color: white;
+.button-div {
+    display: inline-block;
+}
+.button-div h6 {
+    font-family: 'Nunito', sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    font-size: 4vw;
 }
 </style>

@@ -48,6 +48,8 @@
                     <!-- Transaction fillout-->
                     <form id="transfer-form" v-if="UserData.data.name != name" @submit="transfer">
                         <ion-button id="transfer" color="medium" fill="solid" type="submit" expand="block" >Transfer</ion-button>
+                        <ion-button id="transfer" v-if="lastRedEnvelope != todayDate && setRedEnvelope == false" color="danger" fill="solid" expand="block" @click="setRedEnvelope = true">Red Envelope?</ion-button>
+                        <ion-button id="transfer" v-if="lastRedEnvelope != todayDate && setRedEnvelope == true" color="success" fill="solid" expand="block" @click="setRedEnvelope = false">Reset Red Envelope?</ion-button>
                         <ion-item>
                             <ion-label position="floating">Transfer Amount</ion-label>
                             <ion-input id="transfer-amount" :value="transferAmount" @input="transferAmount = $event.target.value" name="transferAmount" placeholder="Transaction amount">
@@ -87,6 +89,8 @@ export default class Profile extends Vue {
     UserData: any = {};
     name: string = "";
     friends: string[] = [];
+    lastRedEnvelope: string = "";
+    setRedEnvelope: boolean = false;
 
     unreadNotif: Array<any> = [];
     recipientUnreadNotif: Array<any> = []; // hah got eem
@@ -153,6 +157,7 @@ export default class Profile extends Vue {
             this.name = doc.data().name;
             this.friends = doc.data().friends;
             this.unreadNotif = doc.data().unreadNotif;
+            this.lastRedEnvelope = doc.data().lastRedEnvelope
         });
 
         recipient_user.get().then(doc => {
@@ -201,10 +206,27 @@ export default class Profile extends Vue {
             if (isNaN(this.transferAmount) == false) {
                 console.log(this.transferAmount)
                 this.transferAmount = Math.abs(this.transferAmount);
-                var transferReq = {date:this.todayDate, type:reqType, 
-                            sentfrom:userId, transferAmount: 
-                            Math.round(this.transferAmount), description:notifdescription
+                if (this.setRedEnvelope == true) {
+                    var transferReq = {date:this.todayDate, type:reqType, 
+                            sentfrom:userId, 
+                            transferAmount: Math.round(this.transferAmount), 
+                            description: notifdescription + " (Red Envelope)",
+                            redEnvelope: Math.round(Math.random()*this.UserData.data.balance/4)
                             };
+                    var userId = firebase.auth.currentUser.uid;
+                    var user = firebase.usersCollection.doc(userId);
+                    user.update({
+                        lastRedEnvelope: this.todayDate
+                    })
+                }
+                else {
+                    var transferReq = {date:this.todayDate, type:reqType, 
+                            sentfrom:userId, 
+                            transferAmount: Math.round(this.transferAmount), 
+                            description: notifdescription,
+                            redEnvelope: 0
+                            };
+                }
                 this.recipientUnreadNotif.unshift(transferReq);
                 recipient_user.update({
                 unreadNotif: this.recipientUnreadNotif
@@ -250,7 +272,7 @@ export default class Profile extends Vue {
 </script>
 
 <style scoped>
-    @import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
+    
     ion-title {
         font-family: 'Roboto', serif;
         text-align: center;

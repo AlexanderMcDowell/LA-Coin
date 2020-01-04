@@ -73,7 +73,7 @@
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
 #graph-container {
     font-family: 'Roboto', serif;
     height: 100vw;

@@ -12,7 +12,7 @@
       <ion-card class="profile-card">
         <ion-card-header>
           <div class="greeting-div">
-            <ion-card-title v-if="name.length < 9">Hello, {{ name }}</ion-card-title>
+            <ion-card-title v-if="name.length < 8">Hello, {{ name }}</ion-card-title>
             <ion-card-title v-else>Hi, {{ name }}</ion-card-title>
           </div>
           <div id="icons">
@@ -25,17 +25,17 @@
               <img v-bind:src="profilePhoto">
               <p>User Since {{ signOnDate }}!</p>
             </div>
-            <h2 id="balance-label"> 💰 {{balance}}.00</h2>
+            <h2 id="balance-label"> ${{balance}}.00</h2>
           </div>
-          <div id="invest-button-modal">
+          <!--div id="invest-button-modal">
             <InvestCard v-if="investedToday == false" />
-          </div>
+          </div-->
         </ion-card-content>
       </ion-card>
       <!--User's balance over time-->
-      <Graph />
+      <Graph style="overflow: auto;"/>
       <!--User's unread notifications-->
-      <Notifications />
+      <Notifications style="overflow: auto;"/>
     </ion-content>
     <ion-footer>
       <ion-toolbar>
@@ -85,7 +85,7 @@ export default class Account extends Vue {
     this.getUserInfo(); //Get all user attributes
   }
 
-  verifyInvest(transactions: Array<any>) {
+  /*verifyInvest(transactions: Array<any>) {
 
     //Check to see if transaction based on gamble already made
     for (var i = 0; i < transactions.length; i++) {
@@ -98,7 +98,7 @@ export default class Account extends Vue {
 
     this.investedToday = false
     return this.investedToday
-  }
+  }*/
 
   getDate() {
     var today = new Date();
@@ -118,7 +118,7 @@ export default class Account extends Vue {
       this.signOnDate = doc.data().signOnDate;
       this.profilePhoto = doc.data().profilePhoto;
       this.balance = this.getBalance(doc.data().transactions);
-      this.investedToday = this.verifyInvest(doc.data().transactions)
+      //this.investedToday = this.verifyInvest(doc.data().transactions)
     });
   }
 
@@ -152,8 +152,7 @@ export default class Account extends Vue {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Roboto|Roboto+Slab&display=swap');
-@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap');
+
 ion-title {
   font-family: 'Roboto', serif;
   text-align: center;
@@ -223,7 +222,7 @@ ion-card-header #icons {
 }*/
 .icon-div img {
   width: 33vw;
-  height: auto;
+  height: 33vw;
   border: 2px solid;
   border-radius: 50%;
   border-color: lightgray;
@@ -234,20 +233,21 @@ ion-card-header #icons {
   font-size: 4vw;
   font-weight: bold;
   color: white;
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Nunito', sans-serif;
   /*text-shadow:
 		-1px 1px 0 rgb(194, 199, 228),
 		1px 1px 0 rgb(194, 199, 228);*/
 }
 #balance-label {
   margin-left: -3vw;
+  /*font-size: 9vw;*/
   font-size: 9vw;
   overflow: hidden;
 }
 #balance-label, ion-card-title {
   font-weight: bold;
   color: white;
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Nunito', sans-serif;
   text-shadow:
 		-1px 1px 0 rgb(194, 199, 228),
 		1px 1px 0 rgb(194, 199, 228);

@@ -10,7 +10,7 @@
 			<form @submit="signup">
 				<ion-item>
 					<ion-label position="floating">Name</ion-label>
-					<ion-input :value="name" @input="name = $event.target.value" type="text" name="name" maxlength=12>
+					<ion-input :value="name" @input="name = $event.target.value" type="text" name="name" maxlength=10>
 					</ion-input>
 				</ion-item>
 				<ion-item>
@@ -54,6 +54,7 @@
 		todayDate: string = "";
 		startDate: string = "";
 		graphSpec: number = 8;
+		lastRedEnvelope: string = "";
 
 		// Get the date
 		created() {
@@ -97,11 +98,12 @@
 					unreadNotif: [{date:this.todayDate, type:'welcome_message', sentfrom:'admin', description:"Welcome to LAcoin!"}],
 					transactions: [{date:this.todayDate, amount: 250, description:"Welcome to LAcoin!", sender_id: 'admin'}],
 					friends: this.friends,
-					graphSpec: this.graphSpec
+					graphSpec: this.graphSpec,
+					lastRedEnvelope: this.lastRedEnvelope
 				})
 
 				// Send data to new page
-				this.$router.push('/people');
+				this.$router.push('/account');
 			})
 
 			// Cleanup
@@ -115,7 +117,7 @@
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
+
 ion-title {
 	font-family: 'Roboto', serif;
 	text-align: center;

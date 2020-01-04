@@ -16,11 +16,11 @@
           <ion-card-title>Event Signups Here!</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/eagle.jpg?alt=media&token=da6e77ad-61d5-47b3-9ab3-a4fe860402a5"/>
+          <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
           <p>Easy way to get free LAcoin! Click any games to register. Once registered, find the game code at the event and enter it below.</p>
           <form id="code-form" @submit="sumbit_code">
             <ion-item lines="none">
-              <ion-input :value="inputCode" @input="inputCode = $event.target.value" type="text" name="inputCode" placeholder="Enter Game Code" maxlength=12>
+              <ion-input :value="inputCode" @input="inputCode = $event.target.value" type="text" name="inputCode" placeholder="Enter Event Code" maxlength=12>
               </ion-input>
             </ion-item>
             <ion-button color="dark" type="submit" expand="block" onclick="location.href='#/people'">Continue</ion-button>
@@ -30,6 +30,7 @@
       </div>
 
       <!-- List events-->
+      <h1>Events Coming Up</h1>
       <ion-list>
         <ion-card class="event-card" v-for="event in events" v-bind:key="event">
           <ion-card-header>
@@ -43,7 +44,7 @@
             <div class="card-description">
               <p>{{ event.data.description }}</p>
             </div>
-            <ion-button class="register-button" shape="round" fill="outline" v-if="eventTickets.includes(event.data.gameCode) == false && event.data.userAttendance.includes(confirmId) == false" @click="register(event.data.gameCode, event.data.date)">Register?</ion-button>
+            <ion-button class="register-button" shape="round" fill="outline" v-if="eventTickets.includes(event.data.gameCode) == false && event.data.userAttendance.includes(confirmId) == false">Register?</ion-button>
             <ion-button class="register-button" shape="round" fill="outline" v-if="eventTickets.includes(event.data.gameCode) == true && event.data.userAttendance.includes(confirmId) == false" @click="unregister(event.data.gameCode)" color="success">Unregister?</ion-button>
           </ion-card-content>
         </ion-card>
@@ -245,8 +246,7 @@ export default class Events extends Vue {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Roboto+Slab&display=swap');
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
 ion-title {
   font-family: 'Roboto', serif;
   text-align: center;
@@ -347,7 +347,7 @@ ion-card-title {
 }
 #intro-card img {
   border: solid 2px;
-  border-color: navy;
+  border-color: rgb(185, 143, 2);
   border-radius: 50%;
   margin-left: 25%;
   margin-bottom: 5vw;

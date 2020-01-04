@@ -203,7 +203,7 @@ export default class GetGifts extends Vue {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
+
 ion-card {
     font-family: 'Roboto', serif;
     text-align: center;
