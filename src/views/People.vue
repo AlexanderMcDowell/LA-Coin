@@ -17,7 +17,7 @@
           </ion-card-header>
           <ion-card-content id="content-text">
             <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
-            <p>Click on a person / friend to reach out, make a transaction, and more!</p>
+            <p>Click on any user's name to reach out, make a transaction, and more!</p>
             <p><b>Click here for more info!</b></p>
           </ion-card-content>
         </ion-card>
@@ -137,14 +137,14 @@ export default class People extends Vue {
                 }
             })
         })
-        console.log(this.people)
+        //console.log(this.people)
     }
     getBalance(transactionDoc: Array<any>) {
     var startBalance = 0;
-    //console.log(transactionDoc)
+    ////console.log(transactionDoc)
 		for (var i = 0; i < transactionDoc.length; i++) {
       var transaction = transactionDoc[i];
-      //console.log(transaction)
+      ////console.log(transaction)
 			startBalance = startBalance + transaction.amount;
     }
     return startBalance;

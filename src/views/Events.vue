@@ -44,7 +44,7 @@
             <div class="card-description">
               <p>{{ event.data.description }}</p>
             </div>
-            <ion-button class="register-button" shape="round" fill="outline" v-if="eventTickets.includes(event.data.gameCode) == false && event.data.userAttendance.includes(confirmId) == false">Register?</ion-button>
+            <ion-button class="register-button" shape="round" fill="outline" v-if="eventTickets.includes(event.data.gameCode) == false && event.data.userAttendance.includes(confirmId) == false" @click="register(event.data.gameCode, event.data.date)">Register?</ion-button>
             <ion-button class="register-button" shape="round" fill="outline" v-if="eventTickets.includes(event.data.gameCode) == true && event.data.userAttendance.includes(confirmId) == false" @click="unregister(event.data.gameCode)" color="success">Unregister?</ion-button>
           </ion-card-content>
         </ion-card>
@@ -106,9 +106,9 @@ export default class Events extends Vue {
       var users = firebase.usersCollection
       users.get().then(snapshot => {
         snapshot.forEach(doc => {
-        //console.log(doc.data().name)
+        ////console.log(doc.data().name)
         this.userDataList.push({id: doc.id, data: doc.data()})
-        //console.log('append ' + this.userDataList)
+        ////console.log('append ' + this.userDataList)
         })
       })
     }
@@ -128,7 +128,7 @@ export default class Events extends Vue {
             snapshot.forEach(doc => {
                 var Images = this.sportImgKey;
                 var sportImg = Images[String(doc.data().type)];
-                //console.log(doc.data());
+                ////console.log(doc.data());
                 var eventDoc = {id: doc.id, data: doc.data()}
                 eventDoc.data.type = sportImg
                 if (eventDoc.data.isActive == true) {
@@ -139,7 +139,7 @@ export default class Events extends Vue {
     }
     // Open modal to confirm registration
     register(gameCode: string, eventdate: string) {
-      //console.log('game code ' + gameCode)
+      ////console.log('game code ' + gameCode)
       var userId = firebase.auth.currentUser.uid;
       var user = firebase.usersCollection.doc(userId);
       this.eventTickets.push(gameCode)
@@ -170,23 +170,23 @@ export default class Events extends Vue {
       var eventdocs = firebase.db.collection('events');
       var userId = firebase.auth.currentUser.uid;
       var user = firebase.usersCollection.doc(userId);
-      //console.log('list ' + this.userDataList)
-      //console.log('len ' + this.userDataList.length)
+      ////console.log('list ' + this.userDataList)
+      ////console.log('len ' + this.userDataList.length)
         //6afh12
       for (var i=0; i<this.events.length;i++) {
         var event = this.events[i]
-        //console.log('event ' + event)
-        //console.log('user code ' + this.inputCode)
-        //console.log('game code ' + event.data.gameCode)
+        ////console.log('event ' + event)
+        ////console.log('user code ' + this.inputCode)
+        ////console.log('game code ' + event.data.gameCode)
         if (this.inputCode == event.data.gameCode && this.eventTickets.includes(this.inputCode) == true && event.data.userAttendance.includes(userId) == false) {
-          //console.log('accept ' + this.inputCode)
+          ////console.log('accept ' + this.inputCode)
             // THIS IS A TO BE CLOUD FUNCTION
-            //console.log('return ' + Math.round(-1*event.data.coin_return/this.userDataList.length))
-            //console.log('return ' + (event.data.coin_return/this.userDataList.length));
-            //console.log('return ' + event.data.coin_return)
+            ////console.log('return ' + Math.round(-1*event.data.coin_return/this.userDataList.length))
+            ////console.log('return ' + (event.data.coin_return/this.userDataList.length));
+            ////console.log('return ' + event.data.coin_return)
           for (var i=0;i<this.userDataList.length;i++){
             var userData = this.userDataList[i]
-            //console.log(userData.id)
+            ////console.log(userData.id)
             if (userData.id != userId && userData.id != 'admin') {
               userData.data.transactions.unshift({date: this.todayDate,
                 amount: Math.round(-1*event.data.coinReturn/this.userDataList.length),
@@ -203,7 +203,7 @@ export default class Events extends Vue {
           if (Number(realreturn) < 5) {
             realreturn = 5;
           }
-          //console.log(Number(realreturn))
+          ////console.log(Number(realreturn))
               
           this.transactions.unshift({date: this.todayDate,
             amount: Number(realreturn),
@@ -214,7 +214,7 @@ export default class Events extends Vue {
           user.update({
             transactions: this.transactions
           });
-          //console.log(event.id)
+          ////console.log(event.id)
           var updateGame = firebase.db.collection('events').doc(event.id)
           event.data.userAttendance.push(userId)
           updateGame.update({

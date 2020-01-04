@@ -241,7 +241,7 @@ ion-card-header #icons {
 #balance-label {
   margin-left: -3vw;
   /*font-size: 9vw;*/
-  font-size: 9vw;
+  font-size: 8vw;
   overflow: hidden;
 }
 #balance-label, ion-card-title {

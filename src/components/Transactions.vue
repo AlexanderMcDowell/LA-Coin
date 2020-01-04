@@ -40,9 +40,9 @@
             transactionsDoc.get().then(snapshot => {
                 snapshot.forEach(doc => {
                     this.transactions.push(doc.data());
-                    console.log('transaction')
-                    console.log(doc.data())
-                    console.log('transaction')
+                    //console.log('transaction')
+                    //console.log(doc.data())
+                    //console.log('transaction')
                 });
             });*/
         }

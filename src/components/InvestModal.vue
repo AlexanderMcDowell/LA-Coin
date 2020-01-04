@@ -32,7 +32,7 @@ import Vue from "vue";
             this.getUsers()
             this.getDate()
             this.get_userinfo()
-            console.log('completed')
+            //console.log('completed')
         }
         getDate() {
             var today = new Date();
@@ -56,32 +56,32 @@ import Vue from "vue";
             var users = firebase.usersCollection
             users.get().then(snapshot => {
                 snapshot.forEach(doc => {
-                    //console.log(doc.data().name)
+                    ////console.log(doc.data().name)
                     this.userDataList.push({id: doc.id, data: doc.data()})
-                    //console.log('append ' + this.userDataList)
+                    ////console.log('append ' + this.userDataList)
                 })
             })
         }
 
         getBalance(transactionDoc: Array<any>) {
             var startBalance = 0;
-            console.log('transactions: ' + transactionDoc)
+            //console.log('transactions: ' + transactionDoc)
                 for (var i = 0; i < transactionDoc.length; i++) {
                     var transaction = transactionDoc[i];
-                    console.log('Balance')
-                    console.log(transaction)
+                    //console.log('Balance')
+                    //console.log(transaction)
                     startBalance = startBalance + transaction.amount;
             }
             return startBalance;
         }
         submit_invest(e: Event) {
-            console.log('balance ' + this.balance)
+            //console.log('balance ' + this.balance)
             var users = firebase.usersCollection
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
 
             var investReturn = this.randfunc(this.investAmount)
-            //console.log(investReturn)
+            ////console.log(investReturn)
             var percentOfTotalCoin = (investReturn)/(250*(this.userDataList.length-2))
             var recordTotalAmtRetracted = 0; //Track how much money has been retracted from the system
 

@@ -15,7 +15,7 @@
                             </div>
                         </div>
                         <ion-label position="floating">How Many?</ion-label>
-                        <ion-input :value="number" @input="pushProduct(product, Math.round($event.target.value))" type="text" name="productAmt" placeholder="0" maxlength=1>
+                        <ion-input :value="0" @input="pushProduct(product, Math.round($event.target.value))" type="text" name="productAmt" placeholder="0" maxlength=1>
                         </ion-input>
                     </div>
 				</ion-item>
@@ -101,13 +101,13 @@ export default class GetGifts extends Vue {
         }
         if (isNaN(reqVal) == false && resetVal == false) {
             this.productAmts.push({
-            name:product.data.name, 
-            amt: reqVal, 
-            price: product.data.price, 
-            stock: product.data.stock
+                name: product.data.name, 
+                amt: reqVal, 
+                price: product.data.price, 
+                stock: product.data.stock
             })
             this.selectedProducts.push(product)
-            console.log(this.productAmts)
+            //console.log(this.productAmts)
         }
         else if (isNaN(reqVal) == false && resetVal == true) {
             this.productAmts[index] = {
@@ -116,7 +116,7 @@ export default class GetGifts extends Vue {
             price: product.data.price, 
             stock: product.data.stock
             }
-            console.log(this.productAmts)
+            //console.log(this.productAmts)
         }
     }
     submitPurchases(e: Event) {
@@ -131,13 +131,16 @@ export default class GetGifts extends Vue {
                 if (this.productAmts[i].amt > this.productAmts[i].stock) {
                     this.productAmts[i].amt = this.productAmts[i].stock
                 }
-            totalPrice = totalPrice + (this.productAmts[i].amt*this.products[i].data.price)
             }
             else if (isNaN(this.productAmts[i].amt) == true){
                 this.productAmts[i].amt = 0;
             }
+            console.log(this.productAmts[i].name)
+            console.log(this.productAmts[i].amt)
+            console.log(this.productAmts[i].price)
+            totalPrice = totalPrice + (this.productAmts[i].amt*this.productAmts[i].price)
         }
-
+        console.log(totalPrice)
         if (totalPrice > this.balance) {
             this.fundError = true;
         }

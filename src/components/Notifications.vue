@@ -101,11 +101,11 @@ export default class Notifications extends Vue {
 
     getBalance(transactionDoc: Array<any>) {
     var startBalance = 0;
-    //console.log('transactions: ' + transactionDoc)
+    ////console.log('transactions: ' + transactionDoc)
 		for (var i = 0; i < transactionDoc.length; i++) {
       var transaction = transactionDoc[i];
-      //console.log('Balance')
-      //console.log(transaction)
+      ////console.log('Balance')
+      ////console.log(transaction)
 		startBalance = startBalance + transaction.amount;
     }
     return startBalance;
@@ -127,8 +127,8 @@ export default class Notifications extends Vue {
 
         var recordTotalAmtRetracted = 0; //Track how much money has been retracted from the system
         
-        //console.log('list ' + this.userDataList)
-        //console.log('len ' + this.userDataList.length)
+        ////console.log('list ' + this.userDataList)
+        ////console.log('len ' + this.userDataList.length)
         for (var i=0;i<this.userDataList.length;i++){
             var userData = this.userDataList[i]
             if (userData.id == Notification.sentfrom) {
@@ -153,7 +153,7 @@ export default class Notifications extends Vue {
                 var userBalance = this.getBalance(userData.data.transactions);
                 var subtractBalance = Math.round(userBalance*percentOfTotalCoin);
                 recordTotalAmtRetracted = recordTotalAmtRetracted + subtractBalance;
-                //console.log('data ' + userData)
+                ////console.log('data ' + userData)
                 userData.data.transactions.unshift({date: this.todayDate,
                     amount: -1*subtractBalance,
                     description: outsideMessage,
@@ -187,7 +187,7 @@ export default class Notifications extends Vue {
         }
 
         friendReturn = Math.round(recordTotalAmtRetracted/2);
-        //console.log(friendReturn)
+        ////console.log(friendReturn)
 
         //Give user 10 la coin
         if (type == 'friend') {

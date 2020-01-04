@@ -41,9 +41,9 @@
             </div>
             <br>
 
-            <div id="profile-buttons" v-if="friends.includes(UserData.id) == false">
+            <div id="profile-buttons">
                     <!-- Friend Button -->
-                    <ion-button id="friend" color="medium" fill="solid" @click="friend(UserData.id)" v-if="UserData.data.name != name && UserData.data.friends.includes(name) == false">Friend?</ion-button>
+                    <ion-button id="friend" color="medium" fill="solid" @click="friend(UserData.id)" v-if="UserData.data.name != name && friends.includes(UserData.id) == false">Friend?</ion-button>
 
                     <!-- Transaction fillout-->
                     <form id="transfer-form" v-if="UserData.data.name != name" @submit="transfer">
@@ -104,7 +104,7 @@ export default class Profile extends Vue {
 
     created() {
         this.UserData = this.$route.params;
-        console.log(this.UserData)
+        //console.log(this.UserData)
         this.UserData.data.friends = this.getProfileFriends(this.UserData.data.friends)
 
         this.getUserInfo();
@@ -115,10 +115,10 @@ export default class Profile extends Vue {
 
     getBalance(transactionDoc: Array<any>) {
         var startBalance = 0;
-        //console.log(transactionDoc)
+        ////console.log(transactionDoc)
 		for (var i = 0; i < transactionDoc.length; i++) {
             var transaction = transactionDoc[i];
-            //console.log(transaction)
+            ////console.log(transaction)
             startBalance = startBalance + transaction.amount;
         }
         return startBalance;
@@ -133,7 +133,7 @@ export default class Profile extends Vue {
                 friendInfo.data.balance = this.getBalance(friendInfo.data.transactions);
                 this.userFriendsPlaceholder.push(friendInfo);
             });
-            console.log(this.userFriendsPlaceholder)
+            //console.log(this.userFriendsPlaceholder)
         }
         return this.userFriendsPlaceholder
     }
@@ -167,10 +167,10 @@ export default class Profile extends Vue {
 
     //Make sure request has not previously been sent
     check_friend_req(userId: string, reqType: string) {
-        console.log(this.recipientUnreadNotif.length)
+        //console.log(this.recipientUnreadNotif.length)
         for (var i = 0; i < this.recipientUnreadNotif.length; i++) {
           var notif = this.recipientUnreadNotif[i];
-          console.log(notif)
+          //console.log(notif)
           if (notif.sentfrom == userId && notif.type == reqType) {
               return false;
           }
@@ -180,7 +180,7 @@ export default class Profile extends Vue {
 
     send_req(reqType: string, userId: string, recipient_id:string) {
         var recipient_user = firebase.usersCollection.doc(recipient_id);
-        console.log('infunc' + reqType)
+        //console.log('infunc' + reqType)
 
         // If friend notif received, send without transfer amount
         if (reqType == 'friend') {
@@ -188,7 +188,7 @@ export default class Profile extends Vue {
             var friend_req = {date:this.todayDate, type:reqType, 
                             sentfrom:userId, description:notifdescription
                             };
-            console.log('friend req ' + friend_req)
+            //console.log('friend req ' + friend_req)
             this.recipientUnreadNotif.unshift(friend_req);
             recipient_user.update({
             unreadNotif: this.recipientUnreadNotif
@@ -197,14 +197,14 @@ export default class Profile extends Vue {
 
         // If transfer notif received, send with transfer amount
         if (reqType == 'transfer') {
-            console.log('transfer')
+            //console.log('transfer')
             var notifdescription = this.name + " " + this.transferAmount + " LACoin request";
             if (this.transferDescription.length > 0) {
                 notifdescription = notifdescription + ": " + this.transferDescription
             }
-            console.log(typeof this.transferAmount)
+            //console.log(typeof this.transferAmount)
             if (isNaN(this.transferAmount) == false) {
-                console.log(this.transferAmount)
+                //console.log(this.transferAmount)
                 this.transferAmount = Math.abs(this.transferAmount);
                 if (this.setRedEnvelope == true) {
                     var transferReq = {date:this.todayDate, type:reqType, 
@@ -244,8 +244,8 @@ export default class Profile extends Vue {
     }
 
     friend(recipient_id:string) {
-        console.log('got in')
-        console.log(recipient_id)
+        //console.log('got in')
+        //console.log(recipient_id)
         var userId = firebase.auth.currentUser.uid;
 
         var reqType = 'friend';

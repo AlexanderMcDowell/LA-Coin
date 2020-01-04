@@ -47,7 +47,7 @@
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
             user.get().then(doc => {
-                console.log("transactionsdoc " + doc.data().transactions.reverse())
+                //console.log("transactionsdoc " + doc.data().transactions.reverse())
                 this.transactions = doc.data().transactions;
                 this.graphSpec = doc.data().graphSpec;
                 this.truncatedTransactions = this.transactions.slice(0, this.graphSpec)
@@ -62,10 +62,10 @@
                     var transaction = doc.data().transactions.reverse()[i];
                     var date = transaction.date;
                     compiledBalance = compiledBalance + transaction.amount;
-                    console.log(date)
+                    //console.log(date)
                     this.chartData.push([date, compiledBalance])
                 }
-                console.log("chartdata " + this.chartData)
+                //console.log("chartdata " + this.chartData)
                 //this.chartData = this.chartData.slice(this.chartData.length-this.graphSpec, this.chartData.length);
             });
         }
