@@ -4,22 +4,18 @@
             <i class="ion-md-contact" type="button" @click="accountChange()"></i>
             <h6>Account</h6>
         </div>
-        <!--ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='#/account'">Account</ion-button-->
         <div class="button-div" :style="peopleStyle">
             <i class="ion-md-contacts" type="button" @click="peopleChange()"></i>
             <h6>People</h6>
         </div>
-        <!--ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='#/people'">People</ion-button-->
         <div class="button-div" :style="eventStyle">
             <i class="ion-md-ribbon" type="button" @click="eventChange()"></i>
             <h6>Events</h6>
         </div>
-        <!--ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='#/events'">Events</ion-button-->
         <div class="button-div" :style="settingStyle">
             <i class="ion-ios-cog" type="button" @click="settingChange()"></i>
             <h6>Settings</h6>
         </div>
-        <!--ion-button color="primary" shape="round" fill="outline" strong="true" onclick="location.href='#/editprofile'">Settings</ion-button-->
     </div>
 </template>
 
@@ -27,21 +23,17 @@
     import Vue from "vue";
     import Component from "vue-class-component";
     import firebase from "@/firebase.config";
+
     @Component
+
     export default class Navbar extends Vue {
         currentPath: string = window.location.href;
-        accountStyle: any = {
-            color: "gray"
-        }
-        peopleStyle: any = {
-            color: "gray"
-        }
-        eventStyle: any = {
-            color: "gray"
-        }
-        settingStyle: any = {
-            color: "gray"
-        }
+
+        accountStyle: any = {color: "gray"}
+        peopleStyle: any = {color: "gray"}
+        eventStyle: any = {color: "gray"}
+        settingStyle: any = {color: "gray"}
+        
         created() {
             // Note -- the current path start index is denoted at 24. This may change
             if (this.currentPath.slice(this.currentPath.length-7, this.currentPath.length) == 'account') {

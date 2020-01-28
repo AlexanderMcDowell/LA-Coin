@@ -1,10 +1,9 @@
 <template>
     <ion-card>
-        <h1>Extra Gift Waiting for you.</h1>
-        <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/RedEnvelope.png?alt=media&token=b1169843-707d-402f-a2ca-b6cbdda534dd"/>
-        <p>Red Envelope Transfer!</p>
-        <!--ion-button mode="md" fill="outline" @click="exit()">Exit</ion-button-->
-        <i class="ion-ios-close-circle-outline" type="button" @click="exit()"></i>
+        <h1>Congratulations!</h1>
+        <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/Gift.png?alt=media&token=b53fccbe-f5bf-4b9a-9f51-3393c8e345ee"/>
+        <p>You won this week's contest!</p>
+        <ion-button mode="md" fill="outline" @click="exit()">Exit</ion-button>
     </ion-card>
 </template>
 
@@ -12,12 +11,17 @@
     import Vue from "vue";
     import Component from "vue-class-component";
     import firebase from "@/firebase.config";
-
+    
     @Component
 
-    export default class RedEnvelope extends Vue {
+    export default class SelectedModal extends Vue {
         imageUrl: string = "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"
         exit() {
+            var userId = firebase.auth.currentUser.uid;
+            var user = firebase.usersCollection.doc(userId);
+            user.update({
+                seenSelectedNotif: true
+            })
             this.$ionic.modalController.dismiss()
         }
     }
@@ -27,7 +31,7 @@
 ion-card {
     font-family: 'Nunito', sans-serif;
     text-align: center;
-    height: 55vh;
+    height: 45vh;
     width: auto;
 }
 h1 {
@@ -44,9 +48,5 @@ img {
 }
 ion-button {
     margin-bottom: 5vh;
-}
-i {
-    font-size: 18vw;
-    color: rgb(90, 90, 90);
 }
 </style>

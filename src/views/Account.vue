@@ -1,7 +1,7 @@
 <template>
   <div class="ion-page">
     <ion-header>
-      <ion-toolbar>
+      <ion-toolbar mode="ios">
         <ion-title>Account</ion-title>
       </ion-toolbar>
     </ion-header>
@@ -9,7 +9,7 @@
       <h1>Welcome Back!</h1>
 
       <!--Card with user's name, photo, balance and sign on date-->
-      <ion-card class="profile-card">
+      <ion-card mode="md" class="profile-card" :style="{background: cardColor}" @click="changeColor">
         <ion-card-header>
           <div class="greeting-div">
             <ion-card-title v-if="name.length < 8">Hello, {{ name }}</ion-card-title>
@@ -25,17 +25,16 @@
               <img v-bind:src="profilePhoto">
               <p>User Since {{ signOnDate }}!</p>
             </div>
-            <h2 id="balance-label"> ${{balance}}.00</h2>
+            <h2 class="balance-label" v-if="isNaN(balance) == false && balance < 1000">{{balance}}.00</h2>
+            <h2 class="long-balance-label" v-if="isNaN(balance) == false && balance > 999">{{balance}}.00</h2>
           </div>
-          <!--div id="invest-button-modal">
-            <InvestCard v-if="investedToday == false" />
-          </div-->
         </ion-card-content>
       </ion-card>
+      <h2 class="profile-card-caption">Click the card to change color!</h2>
       <!--User's balance over time-->
-      <Graph style="overflow: auto;"/>
+      <Graph style="overflow: scroll;"/>
       <!--User's unread notifications-->
-      <Notifications style="overflow: auto;"/>
+      <Notifications style="overflow: scroll;"/>
     </ion-content>
     <ion-footer>
       <ion-toolbar>
@@ -45,136 +44,114 @@
   </div>
 </template>
 
-<!--script src="https://unpkg.com/ionicons@4.5.10-0/dist/ionicons.js"></script-->
-
 <script lang="ts">
-import Vue from "vue";
-import Component from "vue-class-component";
-import firebase from "@/firebase.config";
+  import Vue from "vue";
+  import Component from "vue-class-component";
+  import firebase from "@/firebase.config";
+  import Notifications from "@/components/Notifications.vue";
+  import Graph from "@/components/Graph.vue";
+  import Navbar from "@/components/Navbar.vue";
+  import SelectedModal from "@/components/SelectedModal.vue";
 
-import Transactions from "@/components/Transactions.vue";
-import Notifications from "@/components/Notifications.vue";
-import Graph from "@/components/Graph.vue";
-import Navbar from "@/components/Navbar.vue";
-import InvestCard from "@/components/InvestCard.vue";
-import InvestModal from "@/components/InvestModal.vue";
+  @Component({
+    components: {
+      Navbar,
+      Notifications,
+      Graph,
+      SelectedModal
+    }
+  })
 
-@Component({
-  components: {
-    Transactions,
-    Navbar,
-    Notifications,
-    Graph,
-    InvestCard,
-    InvestModal
-  }
-})
-export default class Account extends Vue {
-  //User attributes
-  name: string = "";
-  signOnDate: string = "";
-  profilePhoto: string = "";
-  transactions: object[] = [];
-  balance: number = 0;
-  investedToday: boolean = true;
+  export default class Account extends Vue {
+    todayDate: string = "";
+    name: string = "";
+    balance: number;
+    signOnDate: string = "";
+    profilePhoto: string = "";
+    transactions: object[] = [];
+    isSelected: boolean;
+    seenSelectedNotif: boolean;
 
-  todayDate: string = "";
+    cardColorChoices: string[] = [];
+    cardColor: string = "";
 
-  created() {
-    this.getDate(); //Get today's date
-    this.getUserInfo(); //Get all user attributes
-  }
-
-  /*verifyInvest(transactions: Array<any>) {
-
-    //Check to see if transaction based on gamble already made
-    for (var i = 0; i < transactions.length; i++) {
-      var transaction = transactions[i];
-			if (transaction.description == "Investment" && transaction.date == this.todayDate) {
-        this.investedToday = true
-        return this.investedToday
+    created() {
+      this.getDate(); //Get today's date
+      this.getUserInfo(); //Get all user attributes
+    }
+    getDate() {
+      var today = new Date();
+      var dd = String(today.getDate()).padStart(2, '0');
+      var mm = String(today.getMonth() + 1).padStart(2, '0');
+      var yyyy = today.getFullYear();
+      this.todayDate = mm + '/' + dd + '/' + yyyy;
+    }
+    getUserInfo() {
+      var userId = firebase.auth.currentUser.uid;
+      var user = firebase.usersCollection.doc(userId);
+      user.get().then(doc => {
+        this.name = doc.data().name;
+        this.transactions = doc.data().transactions;
+        this.signOnDate = doc.data().signOnDate;
+        this.profilePhoto = doc.data().profilePhoto;
+        this.balance = this.getBalance(doc.data().transactions);
+        this.seenSelectedNotif = doc.data().seenSelectedNotif;
+        this.isSelected = doc.data().isSelected;
+        this.cardColor = doc.data().cardColor;
+        if (this.isSelected == true && this.seenSelectedNotif == false) {
+        return this.$ionic.modalController
+          .create({
+            component: SelectedModal
+          }).then(
+            m => m.present()
+          )
+        }
+      });
+      var colorList = firebase.photosCollection.doc('colorList')
+      colorList.get().then(doc => {
+        this.cardColorChoices = doc.data().colors
+      })
+    }
+    getBalance(transactionDoc: Array<any>) {
+      var startBalance = 0;
+      // Express balance as a sum of all transactions
+      for (var i = 0; i < transactionDoc.length; i++) {
+        var transaction = transactionDoc[i];
+        startBalance = startBalance + transaction.amount;
       }
-    }​
-
-    this.investedToday = false
-    return this.investedToday
-  }*/
-
-  getDate() {
-    var today = new Date();
-		var dd = String(today.getDate()).padStart(2, '0');
-		var mm = String(today.getMonth() + 1).padStart(2, '0');
-		var yyyy = today.getFullYear();
-    this.todayDate = mm + '/' + dd + '/' + yyyy;
-  }
-
-  getUserInfo() {
-    var userId = firebase.auth.currentUser.uid;
-    var user = firebase.usersCollection.doc(userId);
-
-    user.get().then(doc => {
-      this.name = doc.data().name;
-      this.transactions = doc.data().transactions;
-      this.signOnDate = doc.data().signOnDate;
-      this.profilePhoto = doc.data().profilePhoto;
-      this.balance = this.getBalance(doc.data().transactions);
-      //this.investedToday = this.verifyInvest(doc.data().transactions)
-    });
-  }
-
-  getBalance(transactionDoc: Array<any>) {
-    var startBalance = 0;
-    // Express balance as a sum of all transactions
-		for (var i = 0; i < transactionDoc.length; i++) {
-      var transaction = transactionDoc[i];
-			startBalance = startBalance + transaction.amount;
+      return startBalance;
     }
-
-    return startBalance;
+    changeColor() {
+      //console.log(this.cardColor)
+      var userId = firebase.auth.currentUser.uid;
+      var user = firebase.usersCollection.doc(userId);
+      var startIndex = this.cardColorChoices.indexOf(this.cardColor)
+      this.cardColor = this.cardColorChoices[(startIndex + 1)%(this.cardColorChoices.length)]
+      user.update({
+        cardColor: this.cardColor
+      })
+    }
   }
-
-  invest(e: Event) {
-    if (this.investedToday == true) {
-      return false;
-    }
-
-    // Open the investing window
-    return this.$ionic.modalController
-				.create({
-					component: InvestModal
-				}).then(
-          m => m.present()
-				)
-
-      e.preventDefault();
-    }
-}
 </script>
 
 <style scoped>
-
 ion-title {
-  font-family: 'Roboto', serif;
+  font-family: 'Nunito', sans-serif;
+  font-weight: normal;
   text-align: center;
   margin-left: 0;
   color: rgb(27, 27, 27);
   font-size: 7.5vw;
 }
 ion-content{
-  font-family: 'Roboto', serif;
+  font-family: 'Nunito', sans-serif;
 }
 body {
   margin: 0;
   padding: 0;
 }
-.profile-card {
-  background-image: linear-gradient(to bottom right, rgba(255, 166, 0, 0.25), rgba(220, 20, 60, 0.25)); /*In the Red*/
-  /*background-image: linear-gradient(to bottom right, skyblue, aquamarine);*/ /*In the Green */
-  /*background-image: linear-gradient(to bottom right, skyblue, violet);*/
-  /*background:
-      linear-gradient(217deg, rgba(97, 255, 215, 0.8), rgba(0, 81, 255, 0) 70.71%),
-      linear-gradient(127deg, rgba(101, 206, 255, 0.8), rgba(0, 255, 157, 0) 70.71%),
-      linear-gradient(336deg, rgba(250, 136, 244, 0.8), rgba(0,0,255,0) 70.71%);*/
+h1 {
+  font-family: 'Nunito', sans-serif;
 }
 ion-card {
   width: 95%;
@@ -223,9 +200,8 @@ ion-card-header #icons {
 .icon-div img {
   width: 33vw;
   height: 33vw;
-  border: 2px solid;
   border-radius: 50%;
-  border-color: lightgray;
+  border: 2px solid lightgray;
   background-color: aquamarine;
 }
 .icon-div p { 
@@ -238,13 +214,18 @@ ion-card-header #icons {
 		-1px 1px 0 rgb(194, 199, 228),
 		1px 1px 0 rgb(194, 199, 228);*/
 }
-#balance-label {
-  margin-left: -3vw;
+.balance-label {
+  margin-left: -4vw;
   /*font-size: 9vw;*/
   font-size: 8vw;
   overflow: hidden;
 }
-#balance-label, ion-card-title {
+.long-balance-label {
+  margin-left: -4vw;
+  font-size: 6vw;
+  overflow: auto;
+}
+.balance-label, .long-balance-label, ion-card-title {
   font-weight: bold;
   color: white;
   font-family: 'Nunito', sans-serif;
@@ -254,6 +235,10 @@ ion-card-header #icons {
 }
 .profile-card a {
   text-decoration: none;
+}
+.profile-card-caption {
+  font-size: 4vw;
+  color: gray;
 }
 #update-balance {
   text-align: center;

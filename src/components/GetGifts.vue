@@ -1,29 +1,37 @@
 <template>
-    <ion-card>
-        <h1>Request Gift!</h1>
-        <h2 v-if="fundError == true">Error! Too many purchases.</h2>
-        <!-- List with annotations, firebase-->
-        <form @submit="submitPurchases">
-			    <ion-item>
-                    <div id="choice" v-for="product in products" v-bind:key="product">
-                        <div class="description-container">
-                            <img id="choice-img" v-bind:src="product.data.photo"/>
-                            <div class="description-tags">
-                                <h6>{{product.data.name}}</h6>
-                                <h6>{{product.data.price}} coin required</h6>
-                                <h6>{{product.data.stock}} left in stock</h6>
-                            </div>
-                        </div>
-                        <ion-label position="floating">How Many?</ion-label>
-                        <ion-input :value="0" @input="pushProduct(product, Math.round($event.target.value))" type="text" name="productAmt" placeholder="0" maxlength=1>
-                        </ion-input>
+    <ion-card mode="md">
+        <ion-card-header>
+            <ion-toolbar mode="ios">
+                <ion-buttons slot="start">
+                    <div class="back-icon">
+                        <i class="ion-md-arrow-round-back" type="button" v-on:click="exit()"></i>
                     </div>
-				</ion-item>
-            <div id="button-div">
-                <ion-button class="form-button" fill="outline" type="submit">Submit</ion-button>
-                <ion-button class="form-button" fill="outline" @click="exit()">Exit</ion-button>
+                </ion-buttons>
+                <ion-card-title v-if="isSelected == true">Request Gift!</ion-card-title>
+                <ion-card-title v-if="isSelected == false" h1>Check out gifts!</ion-card-title>
+            </ion-toolbar>
+        </ion-card-header>
+        <ion-card-content>
+            <div id="form-container">
+                <!--ion-label v-if="isSelected == true" position="floating">Enter valid email</ion-label>
+                <ion-input v-if="isSelected == true" @input="inputEmail = $event.target.value" type="text" name="productAmt" placeholder="Email">
+                </ion-input>
+                <h2 v-if="emailError == true" style="color: darkred; font-size: 5vw;">Please Enter valid Email</h2-->
+                <div class="choice" v-for="product in products" v-bind:key="product">
+                    <h3>{{product.data.name}}</h3>
+                    <div class="description-container">
+                        <img id="choice-img" v-bind:src="product.data.photo"/>
+                        <div class="description-tags">
+                            <h6 v-if="isSelected == true">{{product.data.description}}</h6>
+                            <h6 v-if="isSelected == false">Win to get access to gifts!</h6>
+                        </div>
+                    </div>
+                    <ion-button mode="md" v-if="isSelected == true" class="form-button" fill="outline" @click="select(product.data.name, product.data.popularity, product.id)">Select this Product?</ion-button>
+                </div>
             </div>
-		</form>
+            <!--ion-button class="exit-button" mode="md" color="dark" expand="block" v-if="isSelected == false || isSelected == true" @click="exit()">Exit</ion-button-->
+            <i id="bottom-icon" class="ion-ios-close-circle-outline" type="button" v-if="isSelected == false || isSelected == true" @click="exit()"></i>
+        </ion-card-content>
     </ion-card>
 </template>
 
@@ -31,217 +39,200 @@
     import Vue from "vue";
     import Component from "vue-class-component";
     import firebase from "@/firebase.config";
-    @Component
-export default class GetGifts extends Vue {
-    products: Array<any> = [];
-    productAmts: Array<any> = [];
-    fundError: boolean = false;
-    todayDate: string = "";
+    import ConfirmModal from "@/components/ConfirmModal.vue";
 
-    name: string = "";
-    balance: number = 0;
-    transactions:Array<any>;
-    unreadNotif: Array<any> = [];
+    @Component({
+        components: {
+            ConfirmModal
+        }
+    })
 
-    adminUnreadNotif: Array<any> = [];
-    selectedProducts: Array<any> = [];
+    export default class GetGifts extends Vue {
+        products: Array<any> = [];
+        todayDate: string = "";
 
-    created(){
-        this.getDate()
-        this.getProducts();
-        this.getUserAdminData();
-    }
-    getDate() {
-        var today = new Date();
-		var dd = String(today.getDate()).padStart(2, '0');
-		var mm = String(today.getMonth() + 1).padStart(2, '0');
-		var yyyy = today.getFullYear();
-        this.todayDate = mm + '/' + dd + '/' + yyyy;
-    }
-    getProducts() {
-        var productList = firebase.db.collection('products');
-        productList.get().then(snapshot => {
-            snapshot.forEach(doc => {
-                var product = {id: doc.id, data: doc.data()}
-                this.products.push(product);
+        name: string = "";
+        balance: number = 0;
+        unreadNotif: Array<any> = [];
+        transactions:Array<any>;
+        isSelected: boolean;
+        
+        adminUnreadNotif: Array<any> = [];
+
+        inputEmail: string = "";
+        //emailError: boolean = false;
+
+        created() {
+            this.getUserAdminData();
+            this.getDate()
+            this.getProducts();
+        }
+        getDate() {
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var yyyy = today.getFullYear();
+            this.todayDate = mm + '/' + dd + '/' + yyyy;
+        }
+        getProducts() {
+            var productList = firebase.db.collection('products');
+            productList.get().then(snapshot => {
+                snapshot.forEach(doc => {
+                    var product = {id: doc.id, data: doc.data()}
+                    this.products.push(product);
+                })
             })
-        })
-    }
-    getUserAdminData() {
-        var userId = firebase.auth.currentUser.uid;
-        var user = firebase.usersCollection.doc(userId);
-
-        var admin = firebase.usersCollection.doc('admin');
-        user.get().then(doc => {
-            this.name = doc.data().name;
-            this.transactions = doc.data().transactions;
-            this.balance = this.getBalance(doc.data().transactions);
-            this.unreadNotif = doc.data().unreadNotif;
-        })
-        admin.get().then(doc => {
-            this.adminUnreadNotif = doc.data().unreadNotif;
-        })
-    }
-    getBalance(transactionDoc: Array<any>) {
-        var startBalance = 0;
-        // Express balance as a sum of all transactions
-        for (var i = 0; i < transactionDoc.length; i++) {
-            var transaction = transactionDoc[i];
-            startBalance = startBalance + transaction.amount;
         }
-        return startBalance;
-    }
-    pushProduct(product: any, reqVal: number) {
-        var resetVal = false;
-        for (var i = 0; i< this.productAmts.length; i++) {
-            if (this.productAmts[i].name == product.data.name) {
-                resetVal = true;
-                var index = i;
-            }
-        }
-        if (isNaN(reqVal) == false && resetVal == false) {
-            this.productAmts.push({
-                name: product.data.name, 
-                amt: reqVal, 
-                price: product.data.price, 
-                stock: product.data.stock
-            })
-            this.selectedProducts.push(product)
-            //console.log(this.productAmts)
-        }
-        else if (isNaN(reqVal) == false && resetVal == true) {
-            this.productAmts[index] = {
-            name:product.data.name, 
-            amt: reqVal, 
-            price: product.data.price, 
-            stock: product.data.stock
-            }
-            //console.log(this.productAmts)
-        }
-    }
-    submitPurchases(e: Event) {
-
-        if (this.productAmts.length == 0) {
-            e.preventDefault();
-            this.exit();
-        }
-        var totalPrice = 0;
-        for (var i=0; i<this.productAmts.length;i++) {
-            if (isNaN(this.productAmts[i].amt) == false) {
-                if (this.productAmts[i].amt > this.productAmts[i].stock) {
-                    this.productAmts[i].amt = this.productAmts[i].stock
-                }
-            }
-            else if (isNaN(this.productAmts[i].amt) == true){
-                this.productAmts[i].amt = 0;
-            }
-            console.log(this.productAmts[i].name)
-            console.log(this.productAmts[i].amt)
-            console.log(this.productAmts[i].price)
-            totalPrice = totalPrice + (this.productAmts[i].amt*this.productAmts[i].price)
-        }
-        console.log(totalPrice)
-        if (totalPrice > this.balance) {
-            this.fundError = true;
-        }
-        else if (totalPrice == 0) {
-            e.preventDefault();
-            this.exit()
-        }
-        else {
-
+        getUserAdminData() {
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
             var admin = firebase.usersCollection.doc('admin');
-
-            //Send mutual notifications
-
-            var codeLetters = "abcdefghijklmnopqrstuvwxyz0123456789";
-            var newCode = "";
-            for (var i=0; i<6;i++) {
-                newCode += codeLetters[Math.round(Math.random()*codeLetters.length)]
+            user.get().then(doc => {
+                this.name = doc.data().name;
+                this.transactions = doc.data().transactions;
+                this.balance = this.getBalance(doc.data().transactions);
+                this.unreadNotif = doc.data().unreadNotif;
+                this.isSelected = doc.data().isSelected;
+            })
+            admin.get().then(doc => {
+                this.adminUnreadNotif = doc.data().unreadNotif;
+            })
+        }
+        getBalance(transactionDoc: Array<any>) {
+            var startBalance = 0;
+            // Express balance as a sum of all transactions
+            for (var i = 0; i < transactionDoc.length; i++) {
+                var transaction = transactionDoc[i];
+                startBalance = startBalance + transaction.amount;
             }
+            return startBalance;
+        }
+        select(productName: string, productPopularity: string, productId: string) {
+            var userId = firebase.auth.currentUser.uid;
+            var user = firebase.usersCollection.doc(userId);
+            var admin = firebase.usersCollection.doc('admin');
+            var slectedProduct = firebase.productsCollection.doc(productId);
 
-
-            var giftReq = {date:this.todayDate, type:'Gift', 
-                sentfrom:this.name, description:this.productAmts, purchaseCode: newCode
-                };
-            var detailedDescription = "Your purchases were recorded! Confirm Code: " + newCode;
-            var userUpdate = {date:this.todayDate, type:'Gift', 
-                sentfrom:'admin', description: detailedDescription
-                };
-            var subTransaction = {date: this.todayDate,
-                amount: -1*totalPrice,
-                description: "Your purchases were recorded!",
-                fromId: 'admin', //admin means you take from everyone elses
-                toId: userId}
+            var giftReq = {
+                date:this.todayDate, 
+                type:'Gift', 
+                sentfrom:this.name,
+                email: this.inputEmail,
+                description: productName
+            };
+            var userUpdate = {
+                date:this.todayDate, 
+                type:'Gift', 
+                sentfrom:'admin', 
+                description: "Your purchase has been confirmed!"
+            };
 
             this.adminUnreadNotif.unshift(giftReq);
             this.unreadNotif.unshift(userUpdate);
-            this.transactions.unshift(subTransaction);
+
+            if (this.unreadNotif.length > 20) {
+                this.unreadNotif.pop()
+            }
+
             admin.update({
                 unreadNotif: this.adminUnreadNotif
             });
             user.update({
                 unreadNotif: this.unreadNotif,
-                transactions: this.transactions
+                isSelected: false,
+                seenSelectedNotif: false
             });
-
-            for (var i=0; i<this.selectedProducts.length;i++) {
-                var product = firebase.db.collection('products').doc(this.selectedProducts[i].id);
-                product.update({
-                    stock: this.selectedProducts[i].data.stock - this.productAmts[i].amt
-                });
-            }
-            e.preventDefault()
+            slectedProduct.update({
+                popularity: productPopularity + 1
+            })
+            location.href='#/account'
             this.exit()
-            //Lower stock
+            return this.$ionic.modalController
+                .create({
+                    component: ConfirmModal
+                }).then(
+                    m => m.present()
+            )
         }
-        e.preventDefault()
+        exit() {
+            this.$ionic.modalController.dismiss()
+        }
     }
-    exit() {
-        this.$ionic.modalController.dismiss()
-    }
-}
 </script>
 
 <style scoped>
-
 ion-card {
-    font-family: 'Roboto', serif;
+    font-family: 'Nunito', sans-serif;
     text-align: center;
-    height: 55vh;
+    padding-bottom: 1em;
+    height: 75vh;
     width: auto;
-    overflow: auto;
+    overflow: scroll;
 }
-h1 {
+ion-card-title {
+    font-family: 'Nunito', sans-serif;
     text-align: center;
     color: rgb(128, 128, 128);
+    font-size: 7.5vw;
+    font-weight: bold;
+    margin-right: 13vw;
 }
-h2 {
-    color: darkred;
+h3 {
+    color: rgb(68, 68, 68);
+    font-size: 7vw;
+    font-weight: bold;
+}
+.choice {
+    margin-bottom: 1em;
+}
+#form-container {
+    display: inline-block;
+}
+ion-input {
+    margin-right: 2em;
+    margin-left: 2em;
+    width: calc(100% - 4em);
+    border-bottom: solid 1px;
 }
 .description-container {
-    width: 80vw;
+    width: 100%;
     display: flex;
 }
 .description-tags {
-    font-family: 'Roboto', serif;
+    font-family: 'Nunito', sans-serif;
+    padding: 1em;
     color: gray;
-    text-align: right;
+    text-align: left;
     float: right;
+    margin: 1em 1em 1em 0;
+    background-color: rgb(250, 250, 250);
+    height: auto;
 }
 #choice-img {
+    margin: 1em;
     float: left;
     width: 40vw;
     height: 40vw;
     border: solid 2px gray;
     border-radius: 50%;
 }
-#button-div {
-    display: flex;
-}
 .form-button {
-    width: 50vw;
+    margin: 1em
+}
+.exit-button {
+    width: 80vw;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5vw;
+}
+.back-icon {
+	margin-left: 5vw;
+	width: 8vw;
+	font-size: 7.5vw;
+    color: rgb(128, 128, 128);
+}
+#bottom-icon {
+    font-size: 18vw;
+    color: rgb(90, 90, 90);
 }
 </style>

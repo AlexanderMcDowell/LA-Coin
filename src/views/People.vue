@@ -1,9 +1,7 @@
-<!-- Later: add custom top list for your friends-->
-
 <template>
 	<div class="ion-page">
     <ion-header>
-      <ion-toolbar>
+      <ion-toolbar mode="ios">
         <ion-title>People</ion-title>
       </ion-toolbar>
     </ion-header>
@@ -11,7 +9,7 @@
 
       <!-- Instructions -->
 
-      <ion-card id="intro-card" type="button" @click="moreInfo()">
+      <ion-card mode="md" class="intro-card" type="button" @click="moreInfo()">
           <ion-card-header>
             <ion-card-title>Welcome to the LAcoin Community!</ion-card-title>
           </ion-card-header>
@@ -21,38 +19,43 @@
             <p><b>Click here for more info!</b></p>
           </ion-card-content>
         </ion-card>
-      <!-- Admin Card-->
-      <ion-card id="admin-info-card" type="button" @click="requestGift()">
+      <!-- Admin Card ADD v-if later!!!!!-->
+      <ion-card mode="md" class="admin-info-card" type="button" @click="requestGift()">
           <ion-card-header>
               <ion-card-title>{{ adminInfo.data.name }}</ion-card-title>
           </ion-card-header>
           <ion-card-content>
             <div class="basic-info">
-              <img class="profile-icon" v-bind:src="adminInfo.data.profilePhoto">
+              <img v-if="isSelected == false" class="profile-icon" v-bind:src="adminInfo.data.profilePhoto">
+              <img v-else class="profile-icon" v-bind:src="adminInfo.data.selectedProfilePhoto">
             </div>
             <div class="card-description">
-              <p>{{ adminInfo.data.bio }}</p>
+              <p v-if="isSelected == false">{{ adminInfo.data.bio }}</p>
+              <p v-else>{{ adminInfo.data.selectedBio }}</p>
             </div>
           </ion-card-content>
         </ion-card>
       <!-- List of your Friends-->
       <div id="friends" v-if="friends.length > 0">
         <h1>Your friends</h1>
-        <ion-card id="friend-info-card" v-for="friend in friends" v-bind:key="friend">
+        <ion-card mode="md" class="friend-info-card" v-for="friend in friends" v-bind:key="friend">
           <ion-card-header>
             <router-link :to="{name: 'profile', params: friend}">
               <ion-card-title>{{ friend.data.name }}</ion-card-title>
             </router-link>
           </ion-card-header>
+          <router-link :to="{name: 'profile', params: friend}">
           <ion-card-content>
             <div class="basic-info">
               <img class="profile-icon" v-bind:src="friend.data.profilePhoto">
             </div>
             <div class="card-description">
               <p class="bio">{{ friend.data.bio }}</p>
-              <p class="balance">{{ friend.data.balance }} Coin </p>
+              <p class="balance" v-if="friend.data.balance < 1000">{{friend.data.balance}}.00</p>
+              <p class="long-balance" v-if="friend.data.balance > 999">{{friend.data.balance}}.00</p>
             </div>
           </ion-card-content>
+          </router-link>
         </ion-card>
       </div>
 
@@ -60,21 +63,24 @@
         <!-- List of all users, no friends yet-->
 
         <h1>All Users</h1>
-        <ion-card id="info-card" v-for="person in people" v-bind:key="person">
+        <ion-card mode="md" class="info-card" v-for="person in people" v-bind:key="person">
           <ion-card-header>
             <router-link :to="{name: 'profile', params: person}">
               <ion-card-title>{{ person.data.name }}</ion-card-title>
             </router-link>
           </ion-card-header>
+          <router-link :to="{name: 'profile', params: person}">
           <ion-card-content>
             <div class="basic-info">
               <img class="profile-icon" v-bind:src="person.data.profilePhoto">
             </div>
             <div class="card-description">
               <p class="bio">{{ person.data.bio }}</p>
-              <p class="balance">{{ person.data.balance }} LACoin </p>
+              <p class="balance" v-if="person.data.balance < 1000">{{person.data.balance}}.00</p>
+              <p class="long-balance" v-if="person.data.balance > 999">{{person.data.balance}}.00</p>
             </div>
           </ion-card-content>
+          </router-link>
         </ion-card>
       </ion-list>
 		</ion-content>
@@ -87,32 +93,33 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import firebase from '@/firebase.config'
-import Navbar from "@/components/Navbar.vue";
-import GetGifts from "@/components/GetGifts.vue";
-import MoreInfo from "@/components/MoreInfo.vue";
+  import Vue from 'vue'
+  import Component from 'vue-class-component'
+  import firebase from '@/firebase.config'
+  import Navbar from "@/components/Navbar.vue";
+  import GetGifts from "@/components/GetGifts.vue";
+  import MoreInfo from "@/components/MoreInfo.vue";
 
-@Component({
-  components: {
-    Navbar,
-    GetGifts,
-    MoreInfo
-  }
-})
+  @Component({
+    components: {
+      Navbar,
+      GetGifts,
+      MoreInfo
+    }
+  })
 
-export default class People extends Vue {
+  export default class People extends Vue {
     // Define people as object list
     people: object[] = [];
     IDsOfFriends: string[] = [];
-    friends: object[] =[];
     adminInfo: object = [];
+
+    friends: object[] =[];
+    isSelected: boolean;
 
     created() {
       this.getPeople();
     }
-
     // Get data of all users
     getPeople() {
         var users = firebase.usersCollection
@@ -120,8 +127,8 @@ export default class People extends Vue {
         var user = firebase.usersCollection.doc(userId);
         user.get().then(doc => {
             this.IDsOfFriends = doc.data().friends;
+            this.isSelected = doc.data().isSelected;
         });
-
         users.get().then(snapshot => {
             snapshot.forEach(doc => {
                 var userInfo = {id: doc.id, data: doc.data()};
@@ -141,10 +148,10 @@ export default class People extends Vue {
     }
     getBalance(transactionDoc: Array<any>) {
     var startBalance = 0;
-    ////console.log(transactionDoc)
+    //console.log(transactionDoc)
 		for (var i = 0; i < transactionDoc.length; i++) {
       var transaction = transactionDoc[i];
-      ////console.log(transaction)
+      //console.log(transaction)
 			startBalance = startBalance + transaction.amount;
     }
     return startBalance;
@@ -156,71 +163,77 @@ export default class People extends Vue {
             }).then(
                 m => m.present()
             )
+        var userId = firebase.auth.currentUser.uid;
+        var user = firebase.usersCollection.doc(userId);
+        // add reload
         //this.$router.go();
         e.preventDefault();
-    }
+  }
   moreInfo(e: Event) {
       return this.$ionic.modalController
-            .create({
-                component: MoreInfo
-            }).then(
-                m => m.present()
-            )
+        .create({
+          component: MoreInfo
+        }).then(
+          m => m.present()
+        )
     }
-}
+  }
 </script>
 
 <style scoped>
-
 ion-title {
-  font-family: 'Roboto', serif;
+  font-family: 'Nunito', sans-serif;
+  font-weight: normal;
   margin-left: 0;
   text-align: center;
   color: rgb(27, 27, 27);
   font-size: 7.5vw;
 }
 ion-content {
-  font-family: 'Roboto Slab', serif;
+  font-family: 'Nunito', sans-serif;
 }
-#info-card {
-    display: inline-block;
-    width: 75vw;
-    height: 45vw;
+h1 {
+  font-family: 'Nunito', sans-serif;
+}
+.info-card, .friend-info-card, .admin-info-card {
+  display: inline-block;
+  border-radius: 0.75em;
+  width: 75vw;
+  height: 45vw;
+}
+.info-card {
     background:
-      linear-gradient(217deg, rgba(223, 227, 230, 0.8), rgba(245, 251, 255, 0) 80%),
+      linear-gradient(217deg, rgba(235, 236, 238, 0.8), rgba(245, 251, 255, 0) 80%),
       linear-gradient(127deg, rgba(252, 252, 252, 0.8), rgba(226, 226, 226, 0) 80%),
-      linear-gradient(336deg, rgba(155, 183, 224, 0.8), rgba(215, 231, 255, 0) 80%);
+      linear-gradient(336deg, rgba(188, 205, 231, 0.8), rgba(215, 231, 255, 0) 80%);
 }
-#friend-info-card {
-    display: inline-block;
-    width: 75vw;
-    height: 45vw;
+.friend-info-card {
     padding-bottom: 1em;
     background:
       linear-gradient(217deg, rgba(255, 219, 165, 0.8), rgba(255, 219, 165, 0) 80%),
       linear-gradient(127deg, rgba(255, 223, 176, 0.8), rgba(255, 223, 176, 0) 80%),
       linear-gradient(336deg, rgba(241, 215, 208, 0.8), rgba(241, 215, 208, 0) 80%);
 }
-#admin-info-card {
-  display: inline-block;
-    width: 75vw;
-    height: 45vw;
-    background: rgb(235, 235, 235);
+.admin-info-card {
+  background: rgb(235, 235, 235);
 }
 ion-card-content{
-    font-family: 'Roboto', serif;
+    font-family: 'Nunito', sans-serif;
     padding-top: 0;
     margin-left:-2%;
     display:flex;
   }
 ion-card-header {
-    font-family: 'Roboto', serif;
+    font-family: 'Nunito', sans-serif;
     text-transform: uppercase;
     color: black;
   }
 ion-card-title {
   font-weight: normal;
   font-size: 7vw;
+}
+.intro-card ion-card-title {
+  font-family: 'Roboto', sans-serif;
 }
 ion-footer {
   background-color: rgb(250, 250, 250);
@@ -251,18 +264,25 @@ ion-toolbar {
 }
 .bio {
   height: 3em;
+  color: rgb(47, 69, 79);
   overflow: auto;
 }
-.balance {
+.balance, .long-balance {
   color: rgb(47, 69, 79);
-  font-size: 6vw;
   font-family: 'Nunito', sans-serif;
   font-weight: bold;
 }
-#info-card a, #friend-info-card a, #admin-info-card a {
+.balance {
+  font-size: 8vw;
+}
+.long-balance {
+  font-size: 6vw;
+  overflow: auto;
+}
+.info-card a, .friend-info-card a, .admin-info-card a {
   text-decoration: none;
 }
-#intro-card {
+.intro-card {
   text-align: center;
 }
 #content-text {
@@ -272,10 +292,11 @@ ion-toolbar {
   border: solid 2px;
   border-color: rgb(185, 143, 2);
   border-radius: 50%;
+  background-color: rgb(255, 214, 80);
   margin-left: 25%;
   margin-bottom: 5vw;
   --img-size: 50%;
   width: var(--img-size);
-  height: calc(var(--img-size) + 0);
+  height: var(--img-size);
 }
 </style>

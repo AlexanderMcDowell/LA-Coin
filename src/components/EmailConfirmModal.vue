@@ -1,7 +1,7 @@
 <template>
     <ion-card>
-        <h1>Success!</h1>
-        <h2>Click below to continue.</h2>
+        <h1>Check your Email!</h1>
+        <h2>Confirmation link sent to your email. Log in after you're confirmed!</h2>
         <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
         <!--ion-button mode="md" fill="outline" @click="exit()">Exit</ion-button-->
         <i class="ion-ios-close-circle-outline" type="button" @click="exit()"></i>
@@ -15,7 +15,7 @@
 
     @Component
     
-    export default class EventModal extends Vue {
+    export default class EmailConfirmModal extends Vue {
         exit() {
             this.$ionic.modalController.dismiss()
         }
@@ -26,7 +26,7 @@
 ion-card {
     font-family: 'Nunito', sans-serif;
     text-align: center;
-    height: 55vh;
+    height: 57vh;
     width: auto;
     display: inline-block;
 }
@@ -38,7 +38,7 @@ h1 {
 h2 {
     color: gray;
     margin: 0 0 1em 0;
-    font-size: 5vw;
+    font-size: 4vw;
 }
 img {
     border: solid 2px;

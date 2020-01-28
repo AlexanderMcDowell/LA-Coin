@@ -1,11 +1,14 @@
-<!-- Later: add a custom note bubble to send with your notif-->
-
 <template>
 	<div class="ion-page">
         <ion-header>
-            <ion-toolbar>
-                <ion-title>Profile</ion-title>
-            </ion-toolbar>
+        <ion-toolbar mode="ios">
+      		<ion-buttons slot="start">
+				<div class="back-icon">
+        			<i class="ion-md-arrow-round-back" type="button" v-on:click="eventChange()"></i>
+				</div>
+      		</ion-buttons>
+      		<ion-title>Profile</ion-title>
+    	</ion-toolbar>
         </ion-header>
 
         <ion-content>
@@ -35,253 +38,250 @@
                 <div id="friend-list" v-else>
                     <ion-label id="friend-title-label"><b>Friends:</b></ion-label>
                     <ion-label id="friend-list-label" v-for="friend in UserData.data.friends" v-bind:key="friend">
-                        <!--router-link :to="{name: 'profile', params: friend}"--><h6><i>{{friend.data.name}}</i></h6><!--/router-link-->
+                        <h6><i>{{friend.data.name}}</i></h6>
                     </ion-label>
                 </div>
             </div>
             <br>
-
             <div id="profile-buttons">
-                    <!-- Friend Button -->
-                    <ion-button id="friend" color="medium" fill="solid" @click="friend(UserData.id)" v-if="UserData.data.name != name && friends.includes(UserData.id) == false">Friend?</ion-button>
-
-                    <!-- Transaction fillout-->
-                    <form id="transfer-form" v-if="UserData.data.name != name" @submit="transfer">
-                        <ion-button id="transfer" color="medium" fill="solid" type="submit" expand="block" >Transfer</ion-button>
-                        <ion-button id="transfer" v-if="lastRedEnvelope != todayDate && setRedEnvelope == false" color="danger" fill="solid" expand="block" @click="setRedEnvelope = true">Red Envelope?</ion-button>
-                        <ion-button id="transfer" v-if="lastRedEnvelope != todayDate && setRedEnvelope == true" color="success" fill="solid" expand="block" @click="setRedEnvelope = false">Reset Red Envelope?</ion-button>
-                        <ion-item>
-                            <ion-label position="floating">Transfer Amount</ion-label>
-                            <ion-input id="transfer-amount" :value="transferAmount" @input="transferAmount = $event.target.value" name="transferAmount" placeholder="Transaction amount">
-                            </ion-input>
-                            <ion-label position="floating">Transfer Description</ion-label>
-                            <ion-input id="transfer-description" :value="transferDescription" @input="transferDescription = $event.target.value" name="transferDescription" placeholder="Transaction Description" maxlength=20>
-                            </ion-input>
-                        </ion-item>
-                    </form>
-                </div>
+                <!-- Friend Button -->
+                <ion-button mode="md" id="friend" color="medium" fill="solid" @click="friend(UserData.id)" v-if="UserData.data.name != name && friends.includes(UserData.id) == false">Friend?</ion-button>
+                <!-- Transaction fillout-->
+                <form id="transfer-form" v-if="UserData.data.name != name" @submit="transfer">
+                    <ion-button mode="md" id="transfer" color="medium" fill="solid" type="submit" expand="block" >Transfer</ion-button>
+                    <ion-button mode="md" id="transfer" v-if="lastRedEnvelope != todayDate && setRedEnvelope == false" color="danger" fill="solid" expand="block" @click="setRedEnvelope = true">Red Envelope?</ion-button>
+                    <ion-button mode="md" id="transfer" v-if="lastRedEnvelope != todayDate && setRedEnvelope == true" color="success" fill="solid" expand="block" @click="setRedEnvelope = false">Reset Red Envelope?</ion-button>
+                    <ion-item>
+                        <ion-label position="floating">Transfer Amount</ion-label>
+                        <ion-input id="transfer-amount" :value="transferAmount" @input="transferAmount = $event.target.value" name="transferAmount" placeholder="Transaction amount">
+                        </ion-input>
+                        <ion-label position="floating">Transfer Description</ion-label>
+                        <ion-input id="transfer-description" :value="transferDescription" @input="transferDescription = $event.target.value" name="transferDescription" placeholder="Transaction Description" maxlength=20>
+                        </ion-input>
+                    </ion-item>
+                </form>
+            </div>
         </ion-content>
         <ion-footer>
-      <ion-toolbar>
-        <Navbar />
-      </ion-toolbar>
-    </ion-footer>
+            <ion-toolbar>
+                <Navbar />
+            </ion-toolbar>
+        </ion-footer>
     </div>
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import firebase from '@/firebase.config'
-import Navbar from "@/components/Navbar.vue";
-import DenyModal from "@/components/DenyModal.vue";
-import ConfirmModal from "@/components/ConfirmModal.vue";
+    import Vue from 'vue'
+    import Component from 'vue-class-component'
+    import firebase from '@/firebase.config'
+    import Navbar from "@/components/Navbar.vue";
+    import DenyModal from "@/components/DenyModal.vue";
+    import ConfirmModal from "@/components/ConfirmModal.vue";
 
-@Component({
-  components: {
-    Navbar,
-    DenyModal,
-    ConfirmModal
-  }
-})
-
-export default class Profile extends Vue {
-    UserData: any = {};
-    name: string = "";
-    friends: string[] = [];
-    lastRedEnvelope: string = "";
-    setRedEnvelope: boolean = false;
-
-    unreadNotif: Array<any> = [];
-    recipientUnreadNotif: Array<any> = []; // hah got eem
-    
-    todayDate: string = "";
-
-    transferAmount: number = 0;
-    transferDescription: string = "";
-
-    userFriendsPlaceholder: Array<any> = [];
-
-    created() {
-        this.UserData = this.$route.params;
-        //console.log(this.UserData)
-        this.UserData.data.friends = this.getProfileFriends(this.UserData.data.friends)
-
-        this.getUserInfo();
-        this.getDate();
-
-        // Get the user's profile data from the router (button click)
+    @Component({
+    components: {
+        Navbar,
+        DenyModal,
+        ConfirmModal
     }
+    })
 
-    getBalance(transactionDoc: Array<any>) {
-        var startBalance = 0;
-        ////console.log(transactionDoc)
-		for (var i = 0; i < transactionDoc.length; i++) {
-            var transaction = transactionDoc[i];
-            ////console.log(transaction)
-            startBalance = startBalance + transaction.amount;
+    export default class Profile extends Vue {
+        UserData: any = {};
+        todayDate: string = "";
+
+        name: string = "";
+        friends: string[] = [];
+        lastRedEnvelope: string = "";
+        setRedEnvelope: boolean = false;
+        unreadNotif: Array<any> = [];
+
+        recipientUnreadNotif: Array<any> = []; // hah got eem
+        
+        transferAmount: number = 0;
+        transferDescription: string = "";
+        userFriendsPlaceholder: Array<any> = [];
+        created() {
+            this.UserData = this.$route.params;
+            //console.log(this.UserData)
+            this.UserData.data.friends = this.getProfileFriends(this.UserData.data.friends)
+            this.getUserInfo();
+            this.getDate();
+            // Get the user's profile data from the router (button click)
         }
-        return startBalance;
-    }
-
-    getProfileFriends(friend_ids: string[]){
-        for (var i=0;i<friend_ids.length;i++) {
-            var friend_id = friend_ids[i]
-            var friend_user = firebase.usersCollection.doc(friend_id);
-            friend_user.get().then(doc => {
-                var friendInfo = {id:doc.id, data:doc.data()}
-                friendInfo.data.balance = this.getBalance(friendInfo.data.transactions);
-                this.userFriendsPlaceholder.push(friendInfo);
-            });
-            //console.log(this.userFriendsPlaceholder)
-        }
-        return this.userFriendsPlaceholder
-    }
-
-    getDate() {
-		var today = new Date();
-		var dd = String(today.getDate()).padStart(2, '0');
-		var mm = String(today.getMonth() + 1).padStart(2, '0');
-		var yyyy = today.getFullYear();
-		this.todayDate = mm + '/' + dd + '/' + yyyy;
-	}
-
-    getUserInfo() {
-        // Set up Firebase User calling
-        var userId = firebase.auth.currentUser.uid;
-        var user = firebase.usersCollection.doc(userId);
-
-        var recipient_user = firebase.usersCollection.doc(this.UserData.id);
-
-        user.get().then(doc => {
-            this.name = doc.data().name;
-            this.friends = doc.data().friends;
-            this.unreadNotif = doc.data().unreadNotif;
-            this.lastRedEnvelope = doc.data().lastRedEnvelope
-        });
-
-        recipient_user.get().then(doc => {
-            this.recipientUnreadNotif = doc.data().unreadNotif;
-        });
-    }
-
-    //Make sure request has not previously been sent
-    check_friend_req(userId: string, reqType: string) {
-        //console.log(this.recipientUnreadNotif.length)
-        for (var i = 0; i < this.recipientUnreadNotif.length; i++) {
-          var notif = this.recipientUnreadNotif[i];
-          //console.log(notif)
-          if (notif.sentfrom == userId && notif.type == reqType) {
-              return false;
-          }
-        }​
-        return true;
-    }
-
-    send_req(reqType: string, userId: string, recipient_id:string) {
-        var recipient_user = firebase.usersCollection.doc(recipient_id);
-        //console.log('infunc' + reqType)
-
-        // If friend notif received, send without transfer amount
-        if (reqType == 'friend') {
-            var notifdescription = "Make " + this.name + " your friend?";
-            var friend_req = {date:this.todayDate, type:reqType, 
-                            sentfrom:userId, description:notifdescription
-                            };
-            //console.log('friend req ' + friend_req)
-            this.recipientUnreadNotif.unshift(friend_req);
-            recipient_user.update({
-            unreadNotif: this.recipientUnreadNotif
-            });
-        }
-
-        // If transfer notif received, send with transfer amount
-        if (reqType == 'transfer') {
-            //console.log('transfer')
-            var notifdescription = this.name + " " + this.transferAmount + " LACoin request";
-            if (this.transferDescription.length > 0) {
-                notifdescription = notifdescription + ": " + this.transferDescription
+        getBalance(transactionDoc: Array<any>) {
+            var startBalance = 0;
+            //console.log(transactionDoc)
+            for (var i = 0; i < transactionDoc.length; i++) {
+                var transaction = transactionDoc[i];
+                //console.log(transaction)
+                startBalance = startBalance + transaction.amount;
             }
-            //console.log(typeof this.transferAmount)
-            if (isNaN(this.transferAmount) == false) {
-                //console.log(this.transferAmount)
-                this.transferAmount = Math.abs(this.transferAmount);
-                if (this.setRedEnvelope == true) {
-                    var transferReq = {date:this.todayDate, type:reqType, 
-                            sentfrom:userId, 
-                            transferAmount: Math.round(this.transferAmount), 
-                            description: notifdescription + " (Red Envelope)",
-                            redEnvelope: Math.round(Math.random()*this.UserData.data.balance/4)
-                            };
-                    var userId = firebase.auth.currentUser.uid;
-                    var user = firebase.usersCollection.doc(userId);
-                    user.update({
-                        lastRedEnvelope: this.todayDate
-                    })
-                }
-                else {
-                    var transferReq = {date:this.todayDate, type:reqType, 
-                            sentfrom:userId, 
-                            transferAmount: Math.round(this.transferAmount), 
-                            description: notifdescription,
-                            redEnvelope: 0
-                            };
-                }
-                this.recipientUnreadNotif.unshift(transferReq);
+            return startBalance;
+        }
+        getProfileFriends(friend_ids: string[]){
+            for (var i=0;i<friend_ids.length;i++) {
+                var friend_id = friend_ids[i]
+                var friend_user = firebase.usersCollection.doc(friend_id);
+                friend_user.get().then(doc => {
+                    var friendInfo = {id:doc.id, data:doc.data()}
+                    friendInfo.data.balance = this.getBalance(friendInfo.data.transactions);
+                    this.userFriendsPlaceholder.push(friendInfo);
+                });
+                //console.log(this.userFriendsPlaceholder)
+            }
+            return this.userFriendsPlaceholder
+        }
+        getDate() {
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var yyyy = today.getFullYear();
+            this.todayDate = mm + '/' + dd + '/' + yyyy;
+        }
+        getUserInfo() {
+            // Set up Firebase User calling
+            var userId = firebase.auth.currentUser.uid;
+            var user = firebase.usersCollection.doc(userId);
+            var recipient_user = firebase.usersCollection.doc(this.UserData.id);
+            user.get().then(doc => {
+                this.name = doc.data().name;
+                this.friends = doc.data().friends;
+                this.unreadNotif = doc.data().unreadNotif;
+                this.lastRedEnvelope = doc.data().lastRedEnvelope
+            });
+            recipient_user.get().then(doc => {
+                this.recipientUnreadNotif = doc.data().unreadNotif;
+            });
+        }
+        //Make sure request has not previously been sent
+        check_friend_req(userId: string, reqType: string) {
+            //console.log(this.recipientUnreadNotif.length)
+            for (var i = 0; i < this.recipientUnreadNotif.length; i++) {
+            var notif = this.recipientUnreadNotif[i];
+            //console.log(notif)
+            if (notif.sentfrom == userId && notif.type == reqType) {
+                return false;
+            }
+            }​
+            return true;
+        }
+        send_req(reqType: string, userId: string, recipient_id:string) {
+            var recipient_user = firebase.usersCollection.doc(recipient_id);
+            //console.log('infunc' + reqType)
+            // If friend notif received, send without transfer amount
+            if (reqType == 'friend') {
+                var notifdescription = "Make " + this.name + " your friend?";
+                var friend_req = {date:this.todayDate, type:reqType, 
+                                sentfrom:userId, description:notifdescription
+                                };
+                //console.log('friend req ' + friend_req)
+                this.recipientUnreadNotif.unshift(friend_req);
                 recipient_user.update({
                 unreadNotif: this.recipientUnreadNotif
                 });
-            }
-            else {
                 return this.$ionic.modalController
-                .create({
-                    component: DenyModal
-                }).then(
-                    m => m.present()
+                    .create({
+                        component: ConfirmModal
+                    }).then(
+                        m => m.present()
                 )
             }
+            // If transfer notif received, send with transfer amount
+            if (reqType == 'transfer') {
+                //console.log('transfer')
+                var notifdescription = this.name + " " + this.transferAmount + " LACoin Request";
+                if (this.transferDescription.length > 0) {
+                    notifdescription = notifdescription + " - " + this.transferDescription
+                }
+                //console.log(typeof this.transferAmount)
+                if (isNaN(this.transferAmount) == false) {
+                    //console.log(this.transferAmount)
+                    if (this.setRedEnvelope == true) {
+                        var transferReq = {date:this.todayDate, type:reqType, 
+                                sentfrom:userId, 
+                                transferAmount: Math.round(this.transferAmount), 
+                                description: "(Red Envelope) " + notifdescription,
+                                redEnvelope: Math.round(Math.random()*this.UserData.data.balance/4)
+                                };
+                        var userId = firebase.auth.currentUser.uid;
+                        var user = firebase.usersCollection.doc(userId);
+                        user.update({
+                            lastRedEnvelope: this.todayDate
+                        })
+                    }
+                    else {
+                        var transferReq = {date:this.todayDate, type:reqType, 
+                                sentfrom:userId, 
+                                transferAmount: Math.round(this.transferAmount), 
+                                description: notifdescription,
+                                redEnvelope: 0
+                                };
+                    }
+                    this.recipientUnreadNotif.unshift(transferReq);
+                    recipient_user.update({
+                    unreadNotif: this.recipientUnreadNotif
+                    });
+                    return this.$ionic.modalController
+                    .create({
+                        component: ConfirmModal
+                    }).then(
+                        m => m.present()
+                    )
+                }
+                else {
+                    return this.$ionic.modalController
+                    .create({
+                        component: DenyModal
+                    }).then(
+                        m => m.present()
+                    )
+                }
+            }
         }
-    }
-
-    friend(recipient_id:string) {
-        //console.log('got in')
-        //console.log(recipient_id)
-        var userId = firebase.auth.currentUser.uid;
-
-        var reqType = 'friend';
-
-        if (this.check_friend_req(userId, reqType) == true) {
+        friend(recipient_id:string) {
+            //console.log('got in')
+            //console.log(recipient_id)
+            var userId = firebase.auth.currentUser.uid;
+            var reqType = 'friend';
+            if (this.check_friend_req(userId, reqType) == true) {
+                // Send the notification
+                this.send_req(reqType, userId, recipient_id);
+            }
+            this.$router.push('/people');
+        }
+        transfer(e: Event) {
+            var userId = firebase.auth.currentUser.uid;
+            var user = firebase.usersCollection.doc(userId);
+            var reqType = 'transfer'
             // Send the notification
-            this.send_req(reqType, userId, recipient_id);
+            this.send_req(reqType, userId, this.UserData.id)
+            this.$router.push('/people');
+            e.preventDefault();
         }
-        this.$router.push('/people');
+        eventChange() {
+            this.$router.push('/people')
+        }
     }
-
-    transfer(e: Event) {
-        var userId = firebase.auth.currentUser.uid;
-        var user = firebase.usersCollection.doc(userId);
-
-        var reqType = 'transfer'
-
-        // Send the notification
-        this.send_req(reqType, userId, this.UserData.id)
-        this.$router.push('/people');
-        e.preventDefault();
-    }
-}
 </script>
 
 <style scoped>
-    
     ion-title {
-        font-family: 'Roboto', serif;
-        text-align: center;
-        margin-left: 0;
-        color: rgb(27, 27, 27);
+	font-family: 'Nunito', sans-serif;
+	font-weight: normal;
+	text-align: center;
+	color: rgb(27, 27, 27);
+	font-size: 7.5vw;
+	margin-right: 13vw;
+	width: 100vw;
+    }
+    .back-icon {
+        margin-left: 5vw;
+        width: 8vw;
         font-size: 7.5vw;
     }
     ion-content {
-        font-family: 'Roboto Slab', serif;
+        font-family: 'Nunito', sans-serif;
     }
     ion-footer {
         background-color: rgb(250, 250, 250);
@@ -406,7 +406,7 @@ export default class Profile extends Vue {
     router-link {
         text-decoration: none;
     }
-    h6, ion-label, i {
+    h6, ion-label {
         text-decoration: none;
     }
 </style>

@@ -1,5 +1,5 @@
 <template>
-	<ion-card id="notif-container">
+	<ion-card mode="md" id="notif-container">
 		<ion-card-header>
             <ion-card-title>Notifications</ion-card-title>
             <ion-card-subtitle>Click the notification to remove.</ion-card-subtitle>
@@ -10,16 +10,11 @@
                     <h2>{{notification.description}}</h2>
                 </div>
                 <div id="notif-button">
-                    <i class="ion-md-checkmark-circle-outline" style="font-size: 1.75em" v-if="notification.type != 'friend' && notification.type != 'transfer'" @click="removeNotif(notification)"></i>
+                    <i class="ion-md-checkmark-circle" style="font-size: 1.75em" v-if="notification.type != 'friend' && notification.type != 'transfer'" @click="removeNotif(notification)"></i>
+                    <i class="ion-md-checkmark-circle" style="font-size: 1.75em" v-if="notification.type == 'friend'" @click="reward(notification, 'friend')"></i>
                     <i class="ion-md-close-circle-outline" style="font-size: 1.75em" v-if="notification.type == 'friend'" @click="denyFriend(notification)"></i>
-                    <i class="ion-md-checkmark-circle-outline" style="font-size: 1.75em" v-if="notification.type == 'friend'" @click="reward(notification, 'friend')"></i>
+                    <i class="ion-md-checkmark-circle" style="font-size: 1.75em" v-if="notification.type == 'transfer'" @click="approveTransaction(notification)"></i>
                     <i class="ion-md-close-circle-outline" style="font-size: 1.75em" v-if="notification.type == 'transfer'" @click="denyTransaction(notification)"></i>
-                    <i class="ion-md-checkmark-circle-outline" style="font-size: 1.75em" v-if="notification.type == 'transfer'" @click="approveTransaction(notification)"></i>
-                    <!--h2 v-if="notification.type != 'friend' && notification.type != 'transfer'" @click="removeNotif(notification)">✖</h2-->
-                    <!--h2 v-if="notification.type == 'friend'" @click="denyFriend(notification)">✖</h2-->
-                    <!--h2 v-if="notification.type == 'friend'" @click="reward(notification, 'friend')">✔</h2-->
-                    <!--h2 v-if="notification.type == 'transfer'" @click="denyTransaction(notification)">✖</h2-->
-                    <!--h2 v-if="notification.type == 'transfer'" @click="approveTransaction(notification)">✔</h2-->
                 </div>
             </ion-item>
 		</ion-card-content>
@@ -30,303 +25,300 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import firebase from '@/firebase.config'
-import ConfirmModal from "@/components/ConfirmModal.vue";
-import DenyModal from "@/components/DenyModal.vue";
-import RedEnvelope from "@/components/RedEnvelope.vue";
-
-@Component({
-  components: {
-    ConfirmModal,
-    DenyModal,
-    RedEnvelope
-  }
-})
-export default class Notifications extends Vue {
-    balance: number = 0;
-
-    unreadNotif: Array<any> = [];
-    senduserUnreadNotif: Array<any> = [];
-
-    friends: string[] = [];
-    senduserFriends: string[] = [];
-
-    transactions: Array<any> = [];
-    senduserTransactions: Array<any> = [];
-
-    name: string = "";
-    sendusername: string = "";
-
-    todayDate: string = "";
-    friendSubstring: string = "";
-
-    userDataList: Array<any> = [];
-
-    created() {
-        this.getDate();
-        this.getUserData();
-        this.getUsers();
+    import Vue from 'vue'
+    import Component from 'vue-class-component'
+    import firebase from '@/firebase.config'
+    import ConfirmModal from "@/components/ConfirmModal.vue";
+    import DenyModal from "@/components/DenyModal.vue";
+    import RedEnvelope from "@/components/RedEnvelope.vue";
+    @Component({
+    components: {
+        ConfirmModal,
+        DenyModal,
+        RedEnvelope
     }
+    })
+    export default class Notifications extends Vue {
+        todayDate: string = "";
+        friendSubstring: string = "";
+        userDataList: Array<any> = [];
 
-    getDate() {
-        var today = new Date();
-		var dd = String(today.getDate()).padStart(2, '0');
-		var mm = String(today.getMonth() + 1).padStart(2, '0');
-		var yyyy = today.getFullYear();
-        this.todayDate = mm + '/' + dd + '/' + yyyy;
-    }
+        name: string = "";
+        balance: number = 0;
+        unreadNotif: Array<any> = [];
+        friends: string[] = [];
+        transactions: Array<any> = [];
 
-    getUserData() {
-        var userId = firebase.auth.currentUser.uid;
-        var user = firebase.usersCollection.doc(userId);
-        user.get().then(doc => {
-            this.name = doc.data().name;
-            this.unreadNotif = doc.data().unreadNotif;
-            this.friends = doc.data().friends;
-            this.transactions = doc.data().transactions;
-            this.balance = this.getBalance(doc.data().transactions);
-        });
-    }
-
-    getUsers() {
-        var users = firebase.usersCollection
-        users.get().then(snapshot => {
-            snapshot.forEach(doc => {
-                this.userDataList.push({id: doc.id, data: doc.data()})
-            })
-        })
-    }
-
-    getBalance(transactionDoc: Array<any>) {
-    var startBalance = 0;
-    ////console.log('transactions: ' + transactionDoc)
-		for (var i = 0; i < transactionDoc.length; i++) {
-      var transaction = transactionDoc[i];
-      ////console.log('Balance')
-      ////console.log(transaction)
-		startBalance = startBalance + transaction.amount;
-    }
-    return startBalance;
-  }
-
-    reward(Notification: any, type: string) {
-        var userId = firebase.auth.currentUser.uid;
-        var user = firebase.usersCollection.doc(userId);
-        var senduser = firebase.usersCollection.doc(Notification.sentfrom);
-
-        // THIS IS A TO BE CLOUD FUNCTION
-        if (type == 'friend') {
-            var friendReturn = 10;
-        }
-        else {
-            var friendReturn = Number(Notification.redEnvelope);
-        }
-        var percentOfTotalCoin = (2*friendReturn)/(250*(this.userDataList.length-3))
-
-        var recordTotalAmtRetracted = 0; //Track how much money has been retracted from the system
+        sendusername: string = "";
+        senduserUnreadNotif: Array<any> = [];
+        senduserFriends: string[] = [];
+        senduserTransactions: Array<any> = [];
         
-        ////console.log('list ' + this.userDataList)
-        ////console.log('len ' + this.userDataList.length)
-        for (var i=0;i<this.userDataList.length;i++){
-            var userData = this.userDataList[i]
-            if (userData.id == Notification.sentfrom) {
-                this.senduserFriends = userData.data.friends;
-                this.sendusername = userData.data.name;
-                this.senduserUnreadNotif = userData.data.unreadNotif;
-                this.senduserTransactions = userData.data.transactions;
-                if (type == 'friend') {
-                    this.friendSubstring = userData.data.name + " and " + this.name + " are friends!";
+        created() {
+            this.getDate();
+            this.getUserData();
+            this.getUsers();
+        }
+        getDate() {
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0');
+            var yyyy = today.getFullYear();
+            this.todayDate = mm + '/' + dd + '/' + yyyy;
+        }
+        getUserData() {
+            var userId = firebase.auth.currentUser.uid;
+            var user = firebase.usersCollection.doc(userId);
+            user.get().then(doc => {
+                this.name = doc.data().name;
+                this.unreadNotif = doc.data().unreadNotif;
+                this.friends = doc.data().friends;
+                this.transactions = doc.data().transactions;
+                this.balance = this.getBalance(doc.data().transactions);
+            });
+        }
+        getUsers() {
+            var users = firebase.usersCollection
+            users.get().then(snapshot => {
+                snapshot.forEach(doc => {
+                    this.userDataList.push({id: doc.id, data: doc.data()})
+                })
+            })
+        }
+        getBalance(transactionDoc: Array<any>) {
+        var startBalance = 0;
+        //console.log('transactions: ' + transactionDoc)
+            for (var i = 0; i < transactionDoc.length; i++) {
+        var transaction = transactionDoc[i];
+        //console.log('Balance')
+        //console.log(transaction)
+            startBalance = startBalance + transaction.amount;
+        }
+        return startBalance;
+    }
+        reward(Notification: any, type: string) {
+            var userId = firebase.auth.currentUser.uid;
+            var user = firebase.usersCollection.doc(userId);
+            var senduser = firebase.usersCollection.doc(Notification.sentfrom);
+            // THIS IS A TO BE CLOUD FUNCTION
+            if (type == 'friend') {
+                var friendReturn = 10;
+            }
+            else {
+                var friendReturn = Number(Notification.redEnvelope);
+            }
+            var percentOfTotalCoin = (2*friendReturn)/(250*(this.userDataList.length-3))
+            var recordTotalAmtRetracted = 0; //Track how much money has been retracted from the system
+            
+            //console.log('list ' + this.userDataList)
+            //console.log('len ' + this.userDataList.length)
+            for (var i=0;i<this.userDataList.length;i++){
+                var userData = this.userDataList[i]
+                if (userData.id == Notification.sentfrom) {
+                    this.senduserFriends = userData.data.friends;
+                    this.sendusername = userData.data.name;
+                    this.senduserUnreadNotif = userData.data.unreadNotif;
+                    this.senduserTransactions = userData.data.transactions;
+                    if (type == 'friend') {
+                        this.friendSubstring = userData.data.name + " and " + this.name + " are friends!";
+                    }
+                    else {
+                        this.friendSubstring = "Red Envelope with " + userData.data.name + " and " + this.name + "!";
+                    }
                 }
-                else {
-                    this.friendSubstring = "Red Envelope with " + userData.data.name + " and " + this.name + "!";
+                else if (userData.id != userId && userData.id != 'admin') {
+                    if (type == 'friend') {
+                        var outsideMessage = "Some users friended";
+                    }
+                    else {
+                        var outsideMessage = "Red Envelope";
+                    }
+                    var userBalance = this.getBalance(userData.data.transactions);
+                    var subtractBalance = Math.round(userBalance*percentOfTotalCoin);
+                    recordTotalAmtRetracted = recordTotalAmtRetracted + subtractBalance;
+                    //console.log('data ' + userData)
+                    userData.data.transactions.unshift({date: this.todayDate,
+                        amount: -1*subtractBalance,
+                        description: outsideMessage,
+                        fromId: "admin", //admin means you take from everyone elses
+                        toId: userData.id,
+                        type: 'deduction'
+                        })
+                    var outside_user = firebase.usersCollection.doc(userData.id);
+                    outside_user.update({
+                        transactions: userData.data.transactions
+                    });
                 }
             }
-            else if (userData.id != userId && userData.id != 'admin') {
-                if (type == 'friend') {
-                    var outsideMessage = "Some users friended";
+            //Set up notif
+            if (type == 'friend') {
+                var friendNotif = {date:this.todayDate, type:'Friend', sentfrom:'admin', description: this.friendSubstring}
+                this.friends.push(Notification.sentfrom)
+                this.senduserFriends.push(userId)
+                this.unreadNotif.unshift(friendNotif)
+                this.senduserUnreadNotif.unshift(friendNotif)
+
+                if (this.unreadNotif.length > 20) {
+                    this.unreadNotif.pop()
                 }
-                else {
-                    var outsideMessage = "Red Envelope";
-                }
-                var userBalance = this.getBalance(userData.data.transactions);
-                var subtractBalance = Math.round(userBalance*percentOfTotalCoin);
-                recordTotalAmtRetracted = recordTotalAmtRetracted + subtractBalance;
-                ////console.log('data ' + userData)
-                userData.data.transactions.unshift({date: this.todayDate,
-                    amount: -1*subtractBalance,
-                    description: outsideMessage,
-                    fromId: "admin", //admin means you take from everyone elses
-                    toId: userData.id})
-                var outside_user = firebase.usersCollection.doc(userData.id);
-                outside_user.update({
-                    transactions: userData.data.transactions
+
+                senduser.update({
+                    friends: this.senduserFriends,
+                    unreadNotif: this.senduserUnreadNotif
+                });
+                user.update({
+                    friends: this.friends,
+                    unreadNotif: this.unreadNotif
                 });
             }
-        }
-
-        //Set up notif
-        if (type == 'friend') {
-            var friendNotif = {date:this.todayDate, type:'Friend', sentfrom:'admin', description: this.friendSubstring}
-
-            this.friends.push(Notification.sentfrom)
-            this.senduserFriends.push(userId)
-
-            this.unreadNotif.unshift(friendNotif)
-            this.senduserUnreadNotif.unshift(friendNotif)
-
-            senduser.update({
-                friends: this.senduserFriends,
-                unreadNotif: this.senduserUnreadNotif
-            });
-            user.update({
-                friends: this.friends,
-                unreadNotif: this.unreadNotif
-            });
-        }
-
-        friendReturn = Math.round(recordTotalAmtRetracted/2);
-        ////console.log(friendReturn)
-
-        //Give user 10 la coin
-        if (type == 'friend') {
-            var userDescription = "Friends with  " + this.sendusername
-        }
-        else {
-            var userDescription = "Red Envelope with  " + this.sendusername
-        }
-        this.transactions.unshift({date: this.todayDate,
-            amount: friendReturn,
-            description: userDescription,
-            fromId: "admin", //admin means you take from everyone elses
-            toId: userId})
-        user.update({
-            transactions: this.transactions
-        });
-        //Give sender 10 la coin
-        if (type == 'friend') {
-            var senduserDescription = "Friends with  " + this.name
-        }
-        else {
-            var senduserDescription = "Red Envelope with  " + this.name
-        }
-        this.senduserTransactions.unshift({date: this.todayDate,
-            amount: friendReturn,
-            description: senduserDescription,
-            fromId: "admin", //admin means you take from everyone elses
-            toId: Notification.sentfrom})
-        senduser.update({
-            transactions: this.senduserTransactions
-        });
-        // Dip into other buckets
-        if (type == 'friend') {
-            this.removeNotif(Notification);
-            this.modalConfirm();
-            this.$router.push('/people')
-        }
-    }
-    denyFriend(Notification: object) {
-        this.removeNotif(Notification);
-    }
-    approveTransaction(Notification: any) {
-        var userId = firebase.auth.currentUser.uid;
-        var user = firebase.usersCollection.doc(userId);
-        
-        var senduser = firebase.usersCollection.doc(Notification.sentfrom);
-        for (var i=0;i<this.userDataList.length;i++){
-            var userData = this.userDataList[i]
-            if (userData.id == Notification.sentfrom) {
-                this.senduserTransactions = userData.data.transactions;
-                this.sendusername = userData.data.name;
-                break
+            friendReturn = Math.round(recordTotalAmtRetracted/2);
+            //console.log(friendReturn)
+            //Give user 10 la coin
+            if (type == 'friend') {
+                var userDescription = "Friends with  " + this.sendusername
+                var transactionType = 'friend'
             }
-        }
-
-        this.removeNotif(Notification);
-
-        var senduserTransactionDescription = "Exchange with " + this.name;
-        var userTransactionDescription = "Exchange with " + this.sendusername;
-
-        if (this.balance >= Number(Notification.transferAmount)) {
-            //Take away your account money
+            else {
+                var userDescription = "Red Envelope with  " + this.sendusername
+                var transactionType = 'red envelope'
+            }
             this.transactions.unshift({date: this.todayDate,
-                amount: Number(Notification.transferAmount)*-1,
-                description: userTransactionDescription,
-                fromId: Notification.sentfrom, //admin means you take from everyone elses
-                toId: userId})
+                amount: friendReturn,
+                description: userDescription,
+                fromId: "admin", //admin means you take from everyone elses
+                toId: userId,
+                type: transactionType
+                })
             user.update({
                 transactions: this.transactions
             });
-            //give user account money
+            //Give sender 10 la coin
+            if (type == 'friend') {
+                var senduserDescription = "Friends with  " + this.name
+                var transactionType = 'friend'
+            }
+            else {
+                var senduserDescription = "Red Envelope with  " + this.name
+                var transactionType = 'red envelope'
+            }
             this.senduserTransactions.unshift({date: this.todayDate,
-                amount: Number(Notification.transferAmount),
-                description: senduserTransactionDescription,
-                fromId: userId, //admin means you take from everyone elses
-                toId: Notification.sentfrom})
+                amount: friendReturn,
+                description: senduserDescription,
+                fromId: "admin", //admin means you take from everyone elses
+                toId: Notification.sentfrom,
+                type: transactionType
+                })
             senduser.update({
                 transactions: this.senduserTransactions
             });
-            if (Notification.redEnvelope != 0) {
-                this.reward(Notification, 'redEnvelope')
-                this.modalRedEnvelope();
-            }
-            else {
+            // Dip into other buckets
+            if (type == 'friend') {
+                this.removeNotif(Notification);
                 this.modalConfirm();
             }
         }
-        else {
-            this.modalDeny();
+        denyFriend(Notification: object) {
+            this.removeNotif(Notification);
+        }
+        approveTransaction(Notification: any) {
+            var userId = firebase.auth.currentUser.uid;
+            var user = firebase.usersCollection.doc(userId);
+            
+            var senduser = firebase.usersCollection.doc(Notification.sentfrom);
+            for (var i=0;i<this.userDataList.length;i++){
+                var userData = this.userDataList[i]
+                if (userData.id == Notification.sentfrom) {
+                    this.senduserTransactions = userData.data.transactions;
+                    this.sendusername = userData.data.name;
+                    break
+                }
+            }
+            this.removeNotif(Notification);
+            var senduserTransactionDescription = "Exchange with " + this.name;
+            var userTransactionDescription = "Exchange with " + this.sendusername;
+            if (this.balance >= Number(Notification.transferAmount)) {
+                //Take away your account money
+                this.transactions.unshift({date: this.todayDate,
+                    amount: Number(Notification.transferAmount)*-1,
+                    description: userTransactionDescription,
+                    fromId: Notification.sentfrom, //admin means you take from everyone elses
+                    toId: userId,
+                    type: 'exchange'})
+                user.update({
+                    transactions: this.transactions
+                });
+                //give user account money
+                this.senduserTransactions.unshift({date: this.todayDate,
+                    amount: Number(Notification.transferAmount),
+                    description: senduserTransactionDescription,
+                    fromId: userId, //admin means you take from everyone elses
+                    toId: Notification.sentfrom,
+                    type: 'exchange'})
+                senduser.update({
+                    transactions: this.senduserTransactions
+                });
+                if (Notification.redEnvelope != 0) {
+                    this.reward(Notification, 'redEnvelope')
+                    this.modalRedEnvelope();
+                }
+                else {
+                    this.modalConfirm();
+                }
+            }
+            else {
+                this.modalDeny();
+            }
+        }
+        denyTransaction(Notification: object) {
+            this.removeNotif(Notification);
+        }
+        removeNotif(Notification: object) {
+            var userId = firebase.auth.currentUser.uid;
+            var user = firebase.usersCollection.doc(userId);
+            var index = this.unreadNotif.indexOf(Notification);
+            this.unreadNotif.splice(index, 1);
+            user.update({
+                unreadNotif: this.unreadNotif
+            });
+        }
+        modalConfirm() {
+            return this.$ionic.modalController
+                    .create({
+                        component: ConfirmModal
+                    }).then(
+            m => m.present()
+                    )
+        }
+        modalDeny() {
+            return this.$ionic.modalController
+                    .create({
+                        component: DenyModal
+                    }).then(
+            m => m.present()
+                    )
+        }
+        modalRedEnvelope() {
+            return this.$ionic.modalController
+                    .create({
+                        component: RedEnvelope
+                    }).then(
+            m => m.present()
+                    )
         }
     }
-    denyTransaction(Notification: object) {
-        this.removeNotif(Notification);
-    }
-    removeNotif(Notification: object) {
-        var userId = firebase.auth.currentUser.uid;
-        var user = firebase.usersCollection.doc(userId);
-        var index = this.unreadNotif.indexOf(Notification);
-        this.unreadNotif.splice(index, 1);
-        user.update({
-            unreadNotif: this.unreadNotif
-        });
-    }
-    modalConfirm() {
-        return this.$ionic.modalController
-				.create({
-					component: ConfirmModal
-				}).then(
-          m => m.present()
-				)
-    }
-    modalDeny() {
-        return this.$ionic.modalController
-				.create({
-					component: DenyModal
-				}).then(
-          m => m.present()
-				)
-    }
-    modalRedEnvelope() {
-        return this.$ionic.modalController
-				.create({
-					component: RedEnvelope
-				}).then(
-          m => m.present()
-				)
-    }
-}
 </script>
 
 <style scoped>
-
 ion-card-title {
-    font-family: 'Roboto', serif;
+    font-family: 'Nunito', sans-serif;
     font-weight: normal;
     font-size: 5vw;
 }
+ion-card-content {
+    font-family: 'Nunito', sans-serif;
+}
 #notif-container {
-    font-family: 'Roboto', serif;
+    font-family: 'Nunito', sans-serif;
     height: 50vw;
     overflow: auto;
 }
@@ -335,6 +327,7 @@ ion-card-title {
     justify-content: space-evenly;
 }
 #notif-description {
+    font-family: 'Nunito', sans-serif;
     width: 50vw;
     float: left;
     text-overflow: auto;
@@ -346,6 +339,6 @@ ion-card-title {
     width: 50vw;
 }
 #notif-button i {
-    margin-right: 0.5em;
+    margin-left: 0.5em;
 }
 </style>

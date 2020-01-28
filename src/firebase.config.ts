@@ -21,6 +21,9 @@ const googleAuthProvider = firebase.auth.GoogleAuthProvider
 
 // firebase collections
 const usersCollection = db.collection('users')
+const eventsCollection = db.collection('events')
+const productsCollection = db.collection('products')
+const photosCollection = db.collection('profilephotos')
 
 // firebase functions
 const functions = firebase.functions();
@@ -32,6 +35,9 @@ export default {
     currentUser,
     googleAuthProvider,
     usersCollection,
+    eventsCollection,
+    productsCollection,
+    photosCollection,
     functions,
     transfer
 }

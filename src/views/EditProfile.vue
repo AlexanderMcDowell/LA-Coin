@@ -1,14 +1,14 @@
 <template>
 	<div class="ion-page">
     <ion-header>
-      <ion-toolbar>
+      <ion-toolbar mode="ios">
         <ion-title>Settings</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content class="ion-padding">
 
       <!-- Card to change photo of user-->
-      <ion-card id="profile-photo-change" v-if="changePhoto == true">
+      <ion-card mode="md" id="profile-photo-change" v-if="changePhoto == true">
         <ion-card-header @click="set_changePhoto(false)">Photos ❌</ion-card-header>
         <ion-card-content>
           <div id="image-row" v-for="row in profileLinks" v-bind:key="row">
@@ -17,8 +17,10 @@
           </div>
         </ion-card-content>
       </ion-card>
-      <img id="current-profile-photo" @click="set_changePhoto(true)" v-bind:src="oldProfilePhoto">
-      <h2 id="profile-photo-caption">Click to Change Photo</h2>
+      <div class="profile-photo-container">
+        <img id="current-profile-photo" @click="set_changePhoto(true)" v-bind:src="oldProfilePhoto">
+        <h2 id="profile-photo-caption">Click to Change Photo</h2>
+      </div>
 
       <!--Form to change name, bio, graph settings-->
 			<form @submit="change_profile">
@@ -33,7 +35,7 @@
           <ion-input :value="graphSpec" @input="graphSpec = $event.target.value" type="text" name="graphSpec" placeholder="Data pts in Balance Record? (Deft. 8)" maxlength=50>
 					</ion-input>
 				</ion-item>
-        <ion-button color="dark" type="submit" expand="block">Continue</ion-button>
+        <ion-button mode="md" color="dark" type="submit" expand="block">Continue</ion-button>
 			</form>
     </ion-content>
     <ion-footer>
@@ -45,107 +47,110 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import firebase from '@/firebase.config'
-import Navbar from "@/components/Navbar.vue";
+  import Vue from 'vue'
+  import Component from 'vue-class-component'
+  import firebase from '@/firebase.config'
+  import Navbar from "@/components/Navbar.vue";
 
-@Component({
-  components: {
-    Navbar
-  }
-})
-export default class EditProfile extends Vue {
-  // Old username and new username vars
-  oldName: string = "";
-  newName: string = "";
-
-  // Old bio and new bio vars
-  oldBio: string = "";
-  newBio: string = "";
-
-  // New graph specifications
-  graphSpec: number;
-
-  // Old ppf and new ppf vars
-  oldProfilePhoto: string = "";
-  newProfilePhoto: string = "";
-
-  // Check if photo changes
-  changePhoto: boolean = false;
-
-  //Links generated for prettier saves in firebase (attach ppf vars to urls here)
-  profileLinks: Array<any> = [["https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileOne.jpg?alt=media&token=d0e7524d-9e7b-43e5-b4ca-e0150a8a0544",
-                "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileTwo.jpg?alt=media&token=f58c01a6-68dc-42ad-9a2f-f7da1aafa3a5"],
-                ["https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileThree.jpg?alt=media&token=967d4034-126d-44d1-b604-29930fe14e6d",
-                "https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileFour.jpg?alt=media&token=102b0ce2-69f0-4bd8-ac3f-ce15479277c1"]
-                ]
-
-  created() {
-    this.getUserInfo()
-  }
-
-  set_changePhoto(set_changePhoto: boolean) {
-    this.changePhoto = set_changePhoto;
-  }
-
-  getUserInfo() {
-    var userId = firebase.auth.currentUser.uid;
-    var user = firebase.usersCollection.doc(userId);
-
-    user.get().then(doc => {
-        this.oldName = doc.data().name;
-        this.oldBio = doc.data().bio;
-        this.oldProfilePhoto = doc.data().profilePhoto;
-      });
-  }
-
-  change_profile(e: Event) {
-    var userId = firebase.auth.currentUser.uid;
-    var user = firebase.usersCollection.doc(userId);
-
-    // Check how many user attributes have been changed
-    if (this.newName.length > 0) {
-      user.update({
-        name: this.newName
-      });
+  @Component({
+    components: {
+      Navbar
     }
-
-    if (this.newBio.length > 0) {
-      user.update({
-        bio: this.newBio
-      });
+  })
+  
+  export default class EditProfile extends Vue {
+    // Old username and new username vars
+    oldName: string = "";
+    newName: string = "";
+    // Old bio and new bio vars
+    oldBio: string = "";
+    newBio: string = "";
+    // New graph specifications
+    graphSpec: number;
+    // Old ppf and new ppf vars
+    oldProfilePhoto: string = "";
+    newProfilePhoto: string = "";
+    // Check if photo changes
+    changePhoto: boolean = false;
+    //Links generated for prettier saves in firebase (attach ppf vars to urls here)
+    profileLinks: Array<any> = []
+    created() {
+      this.getProfilePhotos()
+      this.getUserInfo()
     }
-
-    if (this.graphSpec > 0) {
-      user.update({
-        graphSpec: this.graphSpec
-      });
+    getProfilePhotos() {
+      var photoList = firebase.photosCollection.doc('photoList')
+      photoList.get().then(doc => {
+        this.profileLinks = this.parseURLs(doc.data().urls)
+      })
     }
-
-    this.$router.push('/account')
-    e.preventDefault();
+    parseURLs(urlList: string[]) {
+      //console.log('pointer')
+      //console.log(urlList.length)
+      var newUrlList = []
+      if (urlList.length%2 != 0) {
+        urlList = urlList.slice(0, urlList.length - 1)
+      }
+      console.log(urlList.length)
+      for (var i=0;i<urlList.length;i+=2) {
+        console.log(i)
+        console.log(i+1)
+        newUrlList.push([urlList[i], urlList[i+1]])
+      }
+      return newUrlList
+    }
+    set_changePhoto(set_changePhoto: boolean) {
+      this.changePhoto = set_changePhoto;
+    }
+    getUserInfo() {
+      var userId = firebase.auth.currentUser.uid;
+      var user = firebase.usersCollection.doc(userId);
+      user.get().then(doc => {
+          this.oldName = doc.data().name;
+          this.oldBio = doc.data().bio;
+          this.oldProfilePhoto = doc.data().profilePhoto;
+        });
+    }
+    change_profile(e: Event) {
+      var userId = firebase.auth.currentUser.uid;
+      var user = firebase.usersCollection.doc(userId);
+      // Check how many user attributes have been changed
+      if (this.newName.length > 0) {
+        user.update({
+          name: this.newName
+        });
+      }
+      if (this.newBio.length > 0) {
+        user.update({
+          bio: this.newBio
+        });
+      }
+      if (this.graphSpec > 0) {
+        user.update({
+          graphSpec: this.graphSpec
+        });
+      }
+      this.$router.push('/account')
+      e.preventDefault();
+    }
+    setNewPhoto(link: string) {
+      var userId = firebase.auth.currentUser.uid;
+      var user = firebase.usersCollection.doc(userId);
+      // Reset ppf
+      this.newProfilePhoto = link
+      this.oldProfilePhoto = this.newProfilePhoto
+      user.update({
+          profilePhoto: this.newProfilePhoto
+        });
+      this.changePhoto = false;
+    }
   }
-
-  setNewPhoto(link: string) {
-    var userId = firebase.auth.currentUser.uid;
-    var user = firebase.usersCollection.doc(userId);
-
-    // Reset ppf
-    this.newProfilePhoto = link
-    this.oldProfilePhoto = this.newProfilePhoto
-    user.update({
-        profilePhoto: this.newProfilePhoto
-      });
-    this.changePhoto = false;
-  }
-}
 </script>
 
 <style scoped>
-
 ion-title {
-  font-family: 'Roboto', serif;
+  font-family: 'Nunito', sans-serif;
+  font-weight: normal;
   text-align: center;
   margin-left: 0;
   color: rgb(27, 27, 27);
@@ -189,14 +194,17 @@ ion-toolbar {
   text-align: center;
   font-size: 3vw;
 }
-#current-profile-photo {
+.profile-photo-container {
+  width: 100%;
+}
+.profile-photo-container img {
   border: 2px solid;
   border-color: lightgray;
   border-radius: 50%;
-  --img-size: 50%;
+  --img-size: 50vw;
   width: var(--img-size);
-  height: calc(var(--img-size) + 0);
-  margin-left: 25%;
+  height: var(--img-size);
+  margin-left: 20vw;
   background-color: aquamarine;
 }
 </style>
