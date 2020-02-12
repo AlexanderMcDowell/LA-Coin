@@ -1,7 +1,7 @@
 #
 
 ### Transaction API
-> A fast and secure wuffee transaction API
+> A fast and secure transaction API
 
 ```typescript
 var transaction = firebase.transfer({
