@@ -4,6 +4,9 @@ import router from './router'
 import store from './store'
 import Ionic from '@ionic/vue'
 import '@ionic/core/css/ionic.bundle.css'
+//import VuePageTransition from '../node_modules/vue-page-transition'
+
+//Vue.use(VuePageTransition)
 
 import firebase from './firebase.config'
 Object.defineProperty(Vue.prototype, '$firebase', { value: firebase });

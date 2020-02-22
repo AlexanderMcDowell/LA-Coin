@@ -2,7 +2,7 @@
     <ion-card>
         <h1>DENIED</h1>
         <h2>Invalid. Try again.</h2>
-        <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
+        <img id="lacoin-logo" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
         <!--ion-button mode="md" fill="outline" @click="exit()">Exit</ion-button-->
         <i class="ion-ios-close-circle-outline" type="button" @click="exit()"></i>
     </ion-card>
@@ -26,7 +26,7 @@
 ion-card {
     font-family: 'Nunito', sans-serif;
     text-align: center;
-    height: 55vh;
+    height: 60vh;
     width: auto;
     display: inline-block;
 }
@@ -39,15 +39,15 @@ h2 {
     margin: 0 0 1em 0;
     font-size: 5vw;
 }
-img {
-    margin-bottom: 1em;
+#lacoin-logo {
     border: solid 2px;
     border-color: rgb(185, 143, 2);
+    background-color: rgb(255, 214, 80);
     border-radius: 50%;
-    margin-left: 25%;
-    --img-size: 50%;
-    width: var(--img-size);
-    height: calc(var(--img-size) + 0);
+    margin-left: calc(50% - 7.5em);
+    width: 15em;
+    height: 15em;
+    margin-bottom: 1em;
 }
 ion-button {
     margin: 0 10% 4vh 10%;

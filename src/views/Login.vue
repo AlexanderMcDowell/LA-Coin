@@ -1,46 +1,3 @@
-<script lang="ts">
-import Vue from 'vue'
-import Component from 'vue-class-component'
-import firebase from '@/firebase.config'
-import DenyModal from "@/components/DenyModal.vue";
-
-@Component
-
-export default class Login extends Vue {
-	email: string = "";
-	password: string = "";
-	errMessage: string = "";
-
-	login(e: Event) {
-		firebase.auth.signInWithEmailAndPassword(this.email, this.password).then(user => {
-			if (user.user.emailVerified == true) {
-				this.$router.push('/account');
-			}
-			else {
-				return this.$ionic.modalController
-					.create({
-						component: DenyModal
-					}).then(
-						m => m.present()
-				)
-			}
-		}).catch(error => {
-			alert(error.message);
-			return this.$ionic.modalController
-        .create({
-          component: DenyModal
-        }).then(
-          m => m.present()
-      )
-		})
-		e.preventDefault();
-	}
-	eventChange() {
-      this.$router.push('/')
-  }
-}
-</script>
-
 <template>
 	<div class="ion-page">
 		<ion-header>
@@ -55,7 +12,7 @@ export default class Login extends Vue {
 		</ion-header>
 		<ion-content class="ion-padding">
 			<!--h1 class="error-heading">{{errMessage}}</h1-->
-			<form @submit="login">
+			<form @submit="loginWithPersistence">
 				<ion-item>
 					<ion-label position="floating">Email</ion-label>
 					<ion-input :value="email" @input="email = $event.target.value" type="email" name="email">
@@ -73,6 +30,79 @@ export default class Login extends Vue {
 	</div>
 </template>
 
+<script lang="ts">
+import Vue from 'vue'
+import Component from 'vue-class-component'
+import firebase from '@/firebase.config'
+import DenyModal from "@/components/DenyModal.vue";
+import EmailConfirmModal from "@/components/DenyModal.vue";
+
+@Component
+
+export default class Login extends Vue {
+	email: string = "";
+	password: string = "";
+	errMessage: string = "";
+	isLockedOut: boolean;
+	created() {
+	}
+
+	loginWithPersistence(e: Event) {
+		e.preventDefault();
+		firebase.auth.setPersistence(firebase.Authentication.Auth.Persistence.LOCAL)
+		this.login()
+	}
+	login() {
+		firebase.auth.signInWithEmailAndPassword(this.email, this.password).then(user => {
+			var checkUser = firebase.usersCollection.doc(user.user.uid)
+			/* If isLockedOut is true, the administrator sign out function was toggled.
+			On a case by case basis, users must sign back in */
+			checkUser.get().then(doc => {
+				this.isLockedOut = doc.data().isLockedOut
+				if (user.user.emailVerified == true && this.isLockedOut == false) {
+					this.$router.push('/account');
+				}
+				else if (user.user.emailVerified == false && this.isLockedOut == true) {
+					alert('Re-Authenticate your Account. Check Email.');
+					//Email and unset verification status
+					user.user.sendEmailVerification().then(() => {
+						checkUser.update({
+							isLockedOut: false
+						})
+					})
+					return this.$ionic.modalController
+						.create({
+						component: EmailConfirmModal
+						}).then(
+						m => m.present()
+					)
+					this.$router.push('/');
+				}
+				else {
+					return this.$ionic.modalController
+						.create({
+							component: DenyModal
+						}).then(
+							m => m.present()
+					)
+				}
+			}).catch(error => {
+				alert(error.message);
+				return this.$ionic.modalController
+					.create({
+						component: DenyModal
+					}).then(
+						m => m.present()
+				)
+			})
+		})
+	}
+	eventChange() {
+      this.$router.push('/')
+  }
+}
+</script>
+
 <style scoped>
 ion-title {
 	font-family: 'Nunito', sans-serif;
@@ -87,11 +117,6 @@ ion-title {
 	margin-left: 5vw;
 	width: 8vw;
 	font-size: 7.5vw;
-}
-.error-heading {
-	color: darkred;
-	text-align: center;
-	font-size: 5vw;
 }
 ion-content {
   font-family: 'Nunito', sans-serif;

@@ -16,6 +16,7 @@ firebase.initializeApp(firebaseConfig);
 // firebase utils
 const db = firebase.firestore()
 const auth = firebase.auth()
+const Authentication = firebase.auth;
 const currentUser = auth.currentUser
 const googleAuthProvider = firebase.auth.GoogleAuthProvider
 
@@ -24,20 +25,29 @@ const usersCollection = db.collection('users')
 const eventsCollection = db.collection('events')
 const productsCollection = db.collection('products')
 const photosCollection = db.collection('profilephotos')
+const notifCollection = db.collection('transactionNotifs')
 
 // firebase functions
 const functions = firebase.functions();
-const transfer = firebase.functions().httpsCallable('transfer');
+//const transfer = firebase.functions().httpsCallable('transfer');
+//const helloWorld = firebase.functions().httpsCallable('helloWorld');
+
+/*if (process.env.NODE_ENV === 'development') {
+    firebase.functions().useFunctionsEmulator('http://localhost:8080')
+}*/
 
 export default {
     db,
     auth,
+    Authentication,
     currentUser,
     googleAuthProvider,
     usersCollection,
     eventsCollection,
     productsCollection,
     photosCollection,
-    functions,
-    transfer
+    notifCollection,
+    functions
+    //transfer,
+    //helloWorld
 }

@@ -1,7 +1,7 @@
 <template>
     <ion-card>
         <h1>Congratulations!</h1>
-        <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/Gift.png?alt=media&token=b53fccbe-f5bf-4b9a-9f51-3393c8e345ee"/>
+        <img id="gift-logo" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/Gift.png?alt=media&token=b53fccbe-f5bf-4b9a-9f51-3393c8e345ee"/>
         <p>You won this week's contest!</p>
         <ion-button mode="md" fill="outline" @click="exit()">Exit</ion-button>
     </ion-card>
@@ -31,20 +31,21 @@
 ion-card {
     font-family: 'Nunito', sans-serif;
     text-align: center;
-    height: 45vh;
+    height: 55vh;
     width: auto;
 }
 h1 {
     text-align: center;
 }
-img {
+#gift-logo {
     border: solid 2px;
     border-color: rgb(185, 143, 2);
+    background-color: rgb(255, 214, 80);
     border-radius: 50%;
-    margin-left: 25%;
-    --img-size: 50%;
-    width: var(--img-size);
-    height: calc(var(--img-size) + 0);
+    margin-left: calc(50% - 7.5em);
+    width: 15em;
+    height: 15em;
+    margin-bottom: 1em;
 }
 ion-button {
     margin-bottom: 5vh;

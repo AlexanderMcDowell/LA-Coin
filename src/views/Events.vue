@@ -7,16 +7,16 @@
     </ion-header>
 		<ion-content class="ion-padding">
 
-      <!-- Sumbit code -->
+      <!-- Submit code -->
     <div id="intro-div">
-      <ion-card mode="md" class="intro-card">
+      <ion-card id="intro-card" mode="md">
         <ion-card-header>
           <ion-card-title>Event Signups Here!</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <img src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
+          <img id="lacoin-icon" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
           <p>Easy way to get free LAcoin! Click any games to register. Once registered, find the game code at the event and enter it below.</p>
-          <form id="code-form" @submit="sumbit_code">
+          <form id="code-form" @submit="submitCode">
             <ion-item lines="none">
               <ion-input :value="inputCode" @input="inputCode = $event.target.value" type="text" name="inputCode" placeholder="Enter Event Code" maxlength=12>
               </ion-input>
@@ -29,18 +29,26 @@
 
     <!-- List events-->
     <h1>Events Coming Up</h1>
+      <ion-item>
+        <ion-label mode="md">Event Type</ion-label>
+        <ion-select mode="md" :value="selectedEventType" @ionChange="searchEvents($event.target.value)">
+          <ion-select-option mode="md" value="All">All</ion-select-option>
+          <ion-select-option mode="md" v-for="type in allAvailableEventTypes" v-bind:key="type" :value="type">{{type}}</ion-select-option>
+        </ion-select>
+      </ion-item>
       <ion-list>
-        <ion-card mode="md" class="event-card" v-for="event in events" v-bind:key="event">
+        <ion-card class="event-card" mode="md" v-for="event in selectedEvents" v-bind:key="event" :style="selectBackground(event.data.atLAHS)">
           <ion-card-header>
-            <ion-card-title>{{ event.data.name }}</ion-card-title>
+            <a v-if="event.data.link.length > 0" v-bind:href="event.data.link" style="text-decoration: none;"><ion-card-title>{{ event.data.name }}</ion-card-title></a>
+            <ion-card-title v-else>{{ event.data.name }}</ion-card-title>
             <ion-card-subtitle>{{ event.data.date }}</ion-card-subtitle>
           </ion-card-header>
-          <ion-card-content>
-            <div id="basic-info">
-              <img class="game-icon" v-bind:src="event.data.imgType">
-            </div>
+          <ion-card-content mode="md">
+            <img class="game-icon" v-bind:src="event.data.imgType" v-if="event.data.imgType.length > 0">
             <div class="card-description">
-              <p>{{ event.data.description }}</p>
+              <p><b>Time: </b>{{ event.data.time }}</p>
+              <p><b>Location: </b>{{ event.data.location }}</p>
+              <p><b>Info: </b>{{ event.data.description }}</p>
             </div>
             <div class="register-button">
               <i class="ion-md-add-circle" style="color: rgb(125, 175, 255);" v-if="eventTickets.includes(event.data.gameCode) == false && event.data.userAttendance.includes(confirmId) == false" @click="register(event.data.gameCode, event.data.date)"></i>
@@ -73,8 +81,10 @@
   })
   export default class Events extends Vue {
       events: Array<any> = [];
+      selectedEvents: Array<any> = [];
       eventTickets: string[] = [];
       todayDate: string = "";
+      todayTimestamp: number;
 
       unreadNotif: Array<any> = [];
       transactions: Array<any> = [];
@@ -84,13 +94,16 @@
       inputCode: string = "";
       gameCode: string = "";
       confirmId: string = "";
+
+      allAvailableEventTypes: string[] = [];
+      selectedEventType: string = "";
       
       created() {
         this.confirmId = firebase.auth.currentUser.uid;
-        this.getUsers();
+        this.getUsers(); // Get all users
         this.getDate();
         this.getEvents();
-        this.getUserTickets();
+        this.getUserData(); 
       }
       getDate() {
         var today = new Date();
@@ -98,19 +111,17 @@
         var mm = String(today.getMonth() + 1).padStart(2, '0');
         var yyyy = today.getFullYear();
         this.todayDate = mm + '/' + dd + '/' + yyyy;
+        this.todayTimestamp = (30*Number(mm)) + Number(dd) + (365*Number(String(yyyy).slice(2, 4)))
       }
       getUsers() {
         var users = firebase.usersCollection
         users.get().then(snapshot => {
           snapshot.forEach(doc => {
-          //console.log(doc.data().name)
           this.userDataList.push({id: doc.id, data: doc.data()})
-          //console.log('append ' + this.userDataList)
           })
         })
       }
-      
-      getUserTickets() {
+      getUserData() {
         var userId = firebase.auth.currentUser.uid;
         var user = firebase.usersCollection.doc(userId);
         user.get().then(doc => {
@@ -120,32 +131,44 @@
         });
       }
       getEvents() {
-        var eventdocs = firebase.db.collection('events');
-        eventdocs.get().then(snapshot => {
+        var eventList = firebase.db.collection('events');
+        eventList.get().then(snapshot => {
               snapshot.forEach(doc => {
                   var eventDoc = {id: doc.id, data: doc.data()}
-                  if (eventDoc.data.isActive == true) {
+                  // Check if events are open and will be happening
+                  if (eventDoc.data.isActive == true && this.todayTimestamp <= eventDoc.data.timestamp) {
                     this.events.push(eventDoc);
+                    this.allAvailableEventTypes.push(doc.data().type)
                   }
               })
               this.events = this.events.sort(function(a, b) {
                 return b.data.timestamp - a.data.timestamp
               })
+              this.selectedEvents = this.events;
           })
+      }
+      searchEvents(eventType: string) {
+        // Take searchbar input for events
+        this.selectedEvents = []
+        if (eventType == 'All') {
+          this.selectedEvents = this.events
+        }
+        else {
+          for (var i=0;i<this.events.length;i++) {
+            if (eventType == this.events[i].data.type) {
+              this.selectedEvents.push(this.events[i])
+            }
+          }
+        }
       }
       // Open modal to confirm registration
       register(gameCode: string, eventdate: string) {
-        //console.log('game code ' + gameCode)
         var userId = firebase.auth.currentUser.uid;
         var user = firebase.usersCollection.doc(userId);
         this.eventTickets.push(gameCode)
         var notifdescription = "Event scheduled for " + eventdate + "!"
         var eventNotif = {date:this.todayDate, type:'game_message', sentfrom:'admin', description:notifdescription}
         this.unreadNotif.unshift(eventNotif)
-
-        if (this.unreadNotif.length > 20) {
-          this.unreadNotif.pop()
-        }
 
         user.update({
           eventTickets: this.eventTickets,
@@ -167,17 +190,17 @@
           eventTickets: this.eventTickets
         });
       }
-      sumbit_code(e: Event) {
-        var eventdocs = firebase.db.collection('events');
+      submitCode(e: Event) {
         var userId = firebase.auth.currentUser.uid;
         var user = firebase.usersCollection.doc(userId);
         for (var i=0; i<this.events.length;i++) {
           var event = this.events[i]
+          // Check if user previously registered for event, and that code correct
           if (this.inputCode == event.data.gameCode && this.eventTickets.includes(this.inputCode) == true && event.data.userAttendance.includes(userId) == false) {
             for (var i=0;i<this.userDataList.length;i++){
               var userData = this.userDataList[i]
-              //console.log(userData.id)
               if (userData.id != userId && userData.id != 'admin') {
+                // 3rd party users receive a deduction
                 userData.data.transactions.unshift({date: this.todayDate,
                   amount: Math.round(-1*event.data.coinReturn/this.userDataList.length),
                   description: "Other User Attendance",
@@ -190,11 +213,11 @@
                   });
               }
             }
+            // Failsafe if event price deflated
             var realreturn = Math.round(Number(event.data.coinReturn)/this.userDataList.length)*this.userDataList.length;
             if (Number(realreturn) < 5) {
               realreturn = 5;
             }
-            //console.log(Number(realreturn))
                 
             this.transactions.unshift({date: this.todayDate,
               amount: Number(realreturn),
@@ -234,6 +257,15 @@
           //this.$router.push('/account');
           e.preventDefault();
       }
+      selectBackground(atLAHS: boolean) {
+        // If event on campus, set to default
+        if (atLAHS == false) {
+          return {background: "linear-gradient(to bottom right, lavenderblush, mistyrose)"}
+        }
+        else {
+          return {background: "white"}
+        }
+      }
   }
 </script>
 
@@ -258,7 +290,7 @@ ion-toolbar {
 h1 {
   font-family: 'Nunito', sans-serif;
 }
-.intro-card ion-card-content {
+#intro-card ion-card-content {
   font-family: 'Nunito', sans-serif;
   display:inline-block;
   margin: 0;
@@ -289,15 +321,15 @@ ion-card-title {
   font-size: 7vw;
 }
 .game-icon {
-  width: 12.5em;
+  width: 6em;
+  height: 6em;
   border: 1px solid gray;
-  height: auto;
   background-color: aquamarine;
-  border-radius:50%;
+  border-radius: 50%;
   box-shadow: 0px 0.25em 0.25em #16161611;
 }
 .card-description {
-  width: 100vw;
+  width: auto;
   height: 20vw;
   padding-left: 2.5vw;
   padding-right: 2vw;
@@ -326,25 +358,26 @@ ion-card-title {
   width: 40vw;
   height: 40vw;
 }
-.intro-card ion-card-title{
+#intro-card ion-card-title{
   font-weight: normal;
   margin-left: 0;
   text-align: center;
 }
-.intro-card ion-card-content {
+#intro-card ion-card-content {
   display: inline-block;
 }
-.intro-card img {
+#lacoin-icon {
   border: solid 2px;
   border-color: rgb(185, 143, 2);
   border-radius: 50%;
   background-color: rgb(255, 214, 80);
-  margin-left: 25%;
+  margin-left: auto;
+	margin-right: auto;
   margin-bottom: 5vw;
-  width: 50%;
-  height: 50%;
+  width: 10em;
+  height: 10em;
 }
-.intro-card p {
+#intro-card p {
   text-align: center;
 }
 .info-card form {

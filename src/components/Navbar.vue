@@ -1,5 +1,5 @@
 <template>
-    <div class="button-container">
+    <div id="button-container">
         <div class="button-div" :style="accountStyle">
             <i class="ion-md-contact" type="button" @click="accountChange()"></i>
             <h6>Account</h6>
@@ -36,6 +36,7 @@
         
         created() {
             // Note -- the current path start index is denoted at 24. This may change
+            // Assumption that path always ends in filename -- parse path for page
             if (this.currentPath.slice(this.currentPath.length-7, this.currentPath.length) == 'account') {
                 this.accountStyle.color = 'navy'
             }
@@ -68,7 +69,7 @@
 </script>
 
 <style scoped>
-.button-container {
+#button-container {
     padding-top: 2vw;
     padding-bottom: 2vw;
     width: 100vw;

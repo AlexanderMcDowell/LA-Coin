@@ -1,8 +1,8 @@
 <template>
     <ion-card>
-        <h1>Check your Email!</h1>
-        <h2>Confirmation link sent to your email. Log in after you're confirmed!</h2>
-        <img id="email-logo" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
+        <h1>Gift Request Received!</h1>
+        <h2>Your request has been sent to us with your address.</h2>
+        <img id="gift-logo" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/Gift.png?alt=media&token=b53fccbe-f5bf-4b9a-9f51-3393c8e345ee"/>
         <!--ion-button mode="md" fill="outline" @click="exit()">Exit</ion-button-->
         <i class="ion-ios-close-circle-outline" type="button" @click="exit()"></i>
     </ion-card>
@@ -15,7 +15,7 @@
 
     @Component
     
-    export default class EmailConfirmModal extends Vue {
+    export default class EventModal extends Vue {
         exit() {
             this.$ionic.modalController.dismiss()
         }
@@ -38,9 +38,9 @@ h1 {
 h2 {
     color: gray;
     margin: 0 0 1em 0;
-    font-size: 4vw;
+    font-size: 5vw;
 }
-#email-logo {
+#gift-logo {
     border: solid 2px;
     border-color: rgb(185, 143, 2);
     background-color: rgb(255, 214, 80);

@@ -10,11 +10,11 @@
                     <h2>{{notification.description}}</h2>
                 </div>
                 <div id="notif-button">
-                    <i class="ion-md-checkmark-circle" style="font-size: 1.75em" v-if="notification.type != 'friend' && notification.type != 'transfer'" @click="removeNotif(notification)"></i>
-                    <i class="ion-md-checkmark-circle" style="font-size: 1.75em" v-if="notification.type == 'friend'" @click="reward(notification, 'friend')"></i>
-                    <i class="ion-md-close-circle-outline" style="font-size: 1.75em" v-if="notification.type == 'friend'" @click="denyFriend(notification)"></i>
-                    <i class="ion-md-checkmark-circle" style="font-size: 1.75em" v-if="notification.type == 'transfer'" @click="approveTransaction(notification)"></i>
-                    <i class="ion-md-close-circle-outline" style="font-size: 1.75em" v-if="notification.type == 'transfer'" @click="denyTransaction(notification)"></i>
+                    <i class="ion-md-checkmark-circle" v-if="notification.type != 'friend' && notification.type != 'transfer'" @click="removeNotif(notification)"></i>
+                    <i class="ion-md-checkmark-circle" v-if="notification.type == 'friend'" @click="reward(notification, 'friend')"></i>
+                    <i class="ion-md-close-circle-outline" v-if="notification.type == 'friend'" @click="denyFriend(notification)"></i>
+                    <i class="ion-md-checkmark-circle" v-if="notification.type == 'transfer'" @click="approveTransaction(notification)"></i>
+                    <i class="ion-md-close-circle-outline" v-if="notification.type == 'transfer'" @click="denyTransaction(notification)"></i>
                 </div>
             </ion-item>
 		</ion-card-content>
@@ -55,9 +55,9 @@
         senduserTransactions: Array<any> = [];
         
         created() {
-            this.getDate();
+            this.getDate(); // Get today's date
             this.getUserData();
-            this.getUsers();
+            this.getUsers(); // Get list of all users
         }
         getDate() {
             var today = new Date();
@@ -75,6 +75,12 @@
                 this.friends = doc.data().friends;
                 this.transactions = doc.data().transactions;
                 this.balance = this.getBalance(doc.data().transactions);
+                
+                // Check if notif field length greater than 20; if so, archive the last message
+                if (this.unreadNotif.length > 20) {
+                    this.archiveNotif(this.unreadNotif[20])
+                    this.unreadNotif.pop()
+                }
             });
         }
         getUsers() {
@@ -86,35 +92,36 @@
             })
         }
         getBalance(transactionDoc: Array<any>) {
-        var startBalance = 0;
-        //console.log('transactions: ' + transactionDoc)
-            for (var i = 0; i < transactionDoc.length; i++) {
-        var transaction = transactionDoc[i];
-        //console.log('Balance')
-        //console.log(transaction)
-            startBalance = startBalance + transaction.amount;
+            // Express balance as sum of transactions
+            var startBalance = 0;
+                for (var i = 0; i < transactionDoc.length; i++) {
+            var transaction = transactionDoc[i];
+                startBalance = startBalance + transaction.amount;
+            }
+            return startBalance;
         }
-        return startBalance;
-    }
         reward(Notification: any, type: string) {
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
             var senduser = firebase.usersCollection.doc(Notification.sentfrom);
-            // THIS IS A TO BE CLOUD FUNCTION
+
+           // Check whether or not the notification is a friend/red envelope request
             if (type == 'friend') {
                 var friendReturn = 10;
             }
             else {
                 var friendReturn = Number(Notification.redEnvelope);
             }
+
+            // Set up info on share
             var percentOfTotalCoin = (2*friendReturn)/(250*(this.userDataList.length-3))
             var recordTotalAmtRetracted = 0; //Track how much money has been retracted from the system
             
-            //console.log('list ' + this.userDataList)
-            //console.log('len ' + this.userDataList.length)
+            // Ierate through users, take out certain balance amt to keep lacoin total constant
             for (var i=0;i<this.userDataList.length;i++){
                 var userData = this.userDataList[i]
                 if (userData.id == Notification.sentfrom) {
+                    // Get data of user where notif is to be sent
                     this.senduserFriends = userData.data.friends;
                     this.sendusername = userData.data.name;
                     this.senduserUnreadNotif = userData.data.unreadNotif;
@@ -127,6 +134,7 @@
                     }
                 }
                 else if (userData.id != userId && userData.id != 'admin') {
+                    // Other 3rd party user
                     if (type == 'friend') {
                         var outsideMessage = "Some users friended";
                     }
@@ -136,16 +144,16 @@
                     var userBalance = this.getBalance(userData.data.transactions);
                     var subtractBalance = Math.round(userBalance*percentOfTotalCoin);
                     recordTotalAmtRetracted = recordTotalAmtRetracted + subtractBalance;
-                    //console.log('data ' + userData)
+
                     userData.data.transactions.unshift({date: this.todayDate,
                         amount: -1*subtractBalance,
                         description: outsideMessage,
-                        fromId: "admin", //admin means you take from everyone elses
+                        fromId: "admin", 
                         toId: userData.id,
                         type: 'deduction'
                         })
-                    var outside_user = firebase.usersCollection.doc(userData.id);
-                    outside_user.update({
+                    var outsideUser = firebase.usersCollection.doc(userData.id);
+                    outsideUser.update({
                         transactions: userData.data.transactions
                     });
                 }
@@ -157,10 +165,6 @@
                 this.senduserFriends.push(userId)
                 this.unreadNotif.unshift(friendNotif)
                 this.senduserUnreadNotif.unshift(friendNotif)
-
-                if (this.unreadNotif.length > 20) {
-                    this.unreadNotif.pop()
-                }
 
                 senduser.update({
                     friends: this.senduserFriends,
@@ -276,10 +280,22 @@
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
             var index = this.unreadNotif.indexOf(Notification);
+            this.archiveNotif(Notification)
             this.unreadNotif.splice(index, 1);
             user.update({
                 unreadNotif: this.unreadNotif
             });
+        }
+        archiveNotif(Notification: object) {
+            //Add deleted, removed notifications to archives
+            var allNotifs = firebase.notifCollection.doc('allNotifs')
+                allNotifs.get().then(doc => {
+                    var allNotifItems = doc.data().notifList
+                    allNotifItems.push(Notification)
+                    allNotifs.update({
+                    notifList: allNotifItems
+                })
+            })
         }
         modalConfirm() {
             return this.$ionic.modalController
@@ -340,5 +356,6 @@ ion-card-content {
 }
 #notif-button i {
     margin-left: 0.5em;
+    font-size: 1.75em;
 }
 </style>

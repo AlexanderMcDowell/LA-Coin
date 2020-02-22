@@ -88,113 +88,77 @@
 		}
 		// User condition -- sign up
 		signup(e: Event) {
-			/*var colorList = firebase.photosCollection.doc('colorList')
-			colorList.get().then(doc => {
-				this.cardColorChoices = doc.data().colors
-			})
-			firebase.auth.createUserWithEmailAndPassword(this.email, this.password).then((user) => {
-				
-				// Set up Firebase User calling
-				var newUser = firebase.usersCollection.doc(user.user.uid);
-				// Profile image array
-				var profileChoices = ["https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileOne.jpg?alt=media&token=d0e7524d-9e7b-43e5-b4ca-e0150a8a0544",
-									"https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileTwo.jpg?alt=media&token=f58c01a6-68dc-42ad-9a2f-f7da1aafa3a5",
-									"https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileThree.jpg?alt=media&token=967d4034-126d-44d1-b604-29930fe14e6d",
-									"https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/ProfileFour.jpg?alt=media&token=102b0ce2-69f0-4bd8-ac3f-ce15479277c1"
-									];
-				// Set new user display name
-				user.user.updateProfile({
-					displayName: this.name
-				});
-				//console.log(this.unreadNotif)
-				//console.log(this.transactions)
-				// Set new user fields
-				newUser.set({
-					name: this.name,
-					signOnDate: this.todayDate,
-					bio: this.bio,
-					profilePhoto: profileChoices[Math.floor(Math.random()*profileChoices.length)],
-					eventTickets: this.eventTickets,
-					unreadNotif: [{date:this.todayDate, type:'welcome_message', sentfrom:'admin', description:"Welcome to LAcoin!"}],
-					transactions: [{date:this.todayDate, amount:250, description:"Welcome to LAcoin!", sender_id: 'admin'}],
-					//balance: this.balance,
-					friends: this.friends,
-					graphSpec: this.graphSpec,
-					isSelected: false,
-					seenSelectedNotif: false,
-					winRate: 0,
-					cardColor: this.cardColorChoices[0]
-				})
-				// Send data to new page
-				this.$router.push('/account');
-			}).catch(err => {
-				this.errMessage = err.message
-				return this.$ionic.modalController
-					.create({
-					component: DenyModal
-					}).then(
-					m => m.present()
-				)
-			})
-			// Cleanup
-			e.preventDefault();*/
-			firebase.auth.createUserWithEmailAndPassword(this.email, this.password).then(user => {
+			e.preventDefault();
+			if (this.email.includes('@mvla.net') == true) {
+				firebase.auth.createUserWithEmailAndPassword(this.email, this.password).then(user => {
 ​
-			user.user.sendEmailVerification().then(() => {
+				user.user.sendEmailVerification().then(() => {
 
-				var newUser = firebase.usersCollection.doc(user.user.uid);
-				// Set new user display name
-				user.user.updateProfile({
-					displayName: this.name
+					var newUser = firebase.usersCollection.doc(user.user.uid);
+					// Set new user display name
+					user.user.updateProfile({
+						displayName: this.name
+					});
+					//console.log(this.unreadNotif)
+					//console.log(this.transactions)
+					// Set new user fields
+					newUser.set({
+						name: this.name,
+						signOnDate: this.todayDate,
+						bio: this.bio,
+						profilePhoto: this.profileLinks[Math.floor(Math.random()*this.profileLinks.length)],
+						eventTickets: this.eventTickets,
+						unreadNotif: [{date:this.todayDate, type:'Welcome', sentfrom:'admin', description:"Welcome to LAcoin!"}],
+						transactions: [{date:this.todayDate, amount:250, description:"Welcome to LAcoin!", sentfrom: 'admin'}],
+						//balance: this.balance,
+						friends: this.friends,
+						graphSpec: this.graphSpec,
+						isSelected: false,
+						seenSelectedNotif: false,
+						winRate: 0,
+						cardColor: this.cardColorChoices[0],
+						islockedOut: false
+					})
+					
+					return this.$ionic.modalController
+						.create({
+						component: EmailConfirmModal
+						}).then(
+						m => m.present()
+					)
+					// Send data to new page
+					this.$router.push('/');
+
+				}).catch(error => {
+					alert(error.message);
+					return this.$ionic.modalController
+						.create({
+						component: DenyModal
+						}).then(
+						m => m.present()
+					)
 				});
-				//console.log(this.unreadNotif)
-				//console.log(this.transactions)
-				// Set new user fields
-				newUser.set({
-					name: this.name,
-					signOnDate: this.todayDate,
-					bio: this.bio,
-					profilePhoto: this.profileLinks[Math.floor(Math.random()*this.profileLinks.length)],
-					eventTickets: this.eventTickets,
-					unreadNotif: [{date:this.todayDate, type:'welcome_message', sentfrom:'admin', description:"Welcome to LAcoin!"}],
-					transactions: [{date:this.todayDate, amount:250, description:"Welcome to LAcoin!", sender_id: 'admin'}],
-					//balance: this.balance,
-					friends: this.friends,
-					graphSpec: this.graphSpec,
-					isSelected: false,
-					seenSelectedNotif: false,
-					winRate: 0,
-					cardColor: this.cardColorChoices[0]
+			​
+				}).catch(error => {
+					alert(error.message);
+					return this.$ionic.modalController
+						.create({
+						component: DenyModal
+						}).then(
+						m => m.present()
+					)
 				})
-				
-				return this.$ionic.modalController
-					.create({
-					component: EmailConfirmModal
-					}).then(
-					m => m.present()
-				)
-				// Send data to new page
-				this.$router.push('/');
-
-			}).catch(error => {
-				alert(error.message);
+			}
+			else {
+				alert('Your email must be an MVLA account');
 				return this.$ionic.modalController
 					.create({
 					component: DenyModal
 					}).then(
 					m => m.present()
 				)
-			});
-		​
-			}).catch(error => {
-				alert(error.message);
-				return this.$ionic.modalController
-					.create({
-					component: DenyModal
-					}).then(
-					m => m.present()
-				)
-			})
+				e.preventDefault();
+			}
 			e.preventDefault();
 		}
 		

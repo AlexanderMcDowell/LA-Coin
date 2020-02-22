@@ -1,19 +1,19 @@
 <template>
-    <ion-card mode="md" id="graph-container">
+    <ion-card id="graph-container" mode="md">
         <ion-card-header>
             <ion-card-title>Your Balance By Day</ion-card-title>
         </ion-card-header>
         <ion-card-content>
             <area-chart :data="chartData.slice(chartData.length - graphSpec, chartData.length)" height="75vw"></area-chart>
             <ion-list id="transaction-container">
-                <ion-item v-for="transaction in transactions" v-bind:key="transaction">
+                <ion-item v-for="transaction in showTransactions" v-bind:key="transaction">
                     <ion-label v-if="transaction.amount > 0" color="success">
                         +{{ transaction.amount }}
                     </ion-label>
                     <ion-label v-else color="danger">
                         {{ transaction.amount }}
                     </ion-label>
-                    <h6 id="transaction-description">
+                    <h6 class="transaction-description">
                         {{ transaction.description }}
                     </h6>
                 </ion-item>
@@ -34,6 +34,7 @@
 
     export default class Graph extends Vue {
         transactions: Array<any> = [];
+        showTransactions: Array<any> = [];
         
         truncatedTransactions: Array<any> = [];
         chartData: object[] = [];
@@ -41,7 +42,6 @@
 
         created() {
             this.graphData();
-            this.transactions = this.transactions.reverse()
         }
         graphData() {
             var userId = firebase.auth.currentUser.uid;
@@ -50,35 +50,44 @@
                 this.transactions = doc.data().transactions
                 this.graphSpec = doc.data().graphSpec
 
-                if (this.transactions.length >= 50 && this.transactions[49].type == 'Closing') {
-                    this.transactions[49].amount = this.transactions[49].amount + this.transactions[48].amount
-                    this.transactions[48] = this.transactions[49]
+                /* If the transaction list greater than or equal to 75 item, 
+                shift info for the second-to-last transaction onto a "closing" cap transaction
+                */
+                if (this.transactions.length >= 76 && this.transactions[75].type == 'Closing') {
+                    this.transactions[75].amount = this.transactions[75].amount + this.transactions[74].amount
+                    this.transactions[75].date = this.transactions[74].date
+                    this.transactions[74] = this.transactions[75]
                     this.transactions.pop()
                     user.update({
                         transactions: this.transactions
                     })
                 }
-                else if (this.transactions.length >= 50) {
-                    this.transactions[49].type = 'Closing'
-                    this.transactions[49].sentfrom = 'admin'
-                    this.transactions[49].description = 'No further transactions are available! Sorry for the inconvenience.'
+                // If transaction list length reaches 75, create closing cap transaction
+                else if (this.transactions.length >= 75) {
+                    this.transactions[74].type = 'Closing'
+                    this.transactions[74].sentfrom = 'admin'
+                    this.transactions[74].description = 'No previous transactions are available! Sorry for the inconvenience.'
                     user.update({
                         transactions: this.transactions
                     })
                 }
+
+                // If amt of data pts user wants is greater than transaction list length, reset
                 if (this.graphSpec >= this.transactions.length) {
                     this.graphSpec = this.transactions.length;
                 }
+                this.showTransactions = this.transactions.slice(0, this.graphSpec);
+                this.transactions = this.transactions.reverse()
 
-                this.transactions = this.transactions.slice(0, this.graphSpec)
-
+                // Get balance as sum of transactions
                 var compiledBalance = 0;
                 for (var i = 0; i < this.transactions.length; i++) {
-                    var transaction = this.transactions.reverse()[i];
+                    var transaction = this.transactions[i];
                     var date = transaction.date;
                     compiledBalance = compiledBalance + transaction.amount;
                     this.chartData.push([date, compiledBalance])
                 }
+                this.chartData.slice(0, this.graphSpec)
             });
         }
     }
@@ -100,10 +109,10 @@ area-chart {
     margin: 0;
     padding: 0;
 }
-ion-label, #transaction-description{
+ion-label, .transaction-description{
     font-family: 'Nunito', sans-serif;
 }
-#transaction-description {
+.transaction-description {
     color: gray;
 }
 </style>

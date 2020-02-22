@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import { IonicVueRouter } from '@ionic/vue'
 import Home from './views/Home.vue'
+import Account from './views/Account.vue'
 
 Vue.use(IonicVueRouter)
 
@@ -24,7 +25,7 @@ export default new IonicVueRouter({
     {
       path: '/account',
       name: 'account',
-      component: () => import('./views/Account.vue')
+      component: Account
     },
     {
       path: '/people',

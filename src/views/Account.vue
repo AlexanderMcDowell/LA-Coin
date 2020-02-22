@@ -9,9 +9,9 @@
       <h1>Welcome Back!</h1>
 
       <!--Card with user's name, photo, balance and sign on date-->
-      <ion-card mode="md" class="profile-card" :style="{background: cardColor}" @click="changeColor">
+      <ion-card id="profile-card" mode="md" :style="{background: cardColor}" @click="changeColor">
         <ion-card-header>
-          <div class="greeting-div">
+          <div id="greeting-div">
             <ion-card-title v-if="name.length < 8">Hello, {{ name }}</ion-card-title>
             <ion-card-title v-else>Hi, {{ name }}</ion-card-title>
           </div>
@@ -19,10 +19,10 @@
             <p>⬜️ ⬜️</p>
           </div>
         </ion-card-header>
-        <ion-card-content>
-          <div class="top-info">
-            <div class="icon-div">
-              <img v-bind:src="profilePhoto">
+        <ion-card-content mode="md">
+          <div id="top-info">
+            <div id="icon-div">
+              <img id v-bind:src="profilePhoto">
               <p>User Since {{ signOnDate }}!</p>
             </div>
             <h2 class="balance-label" v-if="isNaN(balance) == false && balance < 1000">{{balance}}.00</h2>
@@ -30,7 +30,7 @@
           </div>
         </ion-card-content>
       </ion-card>
-      <h2 class="profile-card-caption">Click the card to change color!</h2>
+      <h2 id="profile-card-caption">Click the card to change color!</h2>
       <!--User's balance over time-->
       <Graph style="overflow: scroll;"/>
       <!--User's unread notifications-->
@@ -77,7 +77,7 @@
 
     created() {
       this.getDate(); //Get today's date
-      this.getUserInfo(); //Get all user attributes
+      this.getUserData(); //Get all user data
     }
     getDate() {
       var today = new Date();
@@ -86,7 +86,7 @@
       var yyyy = today.getFullYear();
       this.todayDate = mm + '/' + dd + '/' + yyyy;
     }
-    getUserInfo() {
+    getUserData() {
       var userId = firebase.auth.currentUser.uid;
       var user = firebase.usersCollection.doc(userId);
       user.get().then(doc => {
@@ -172,7 +172,7 @@ ion-toolbar {
 ion-card-header {
   display: flex;
 }
-ion-card-header .greeting-div {
+#greeting-div {
   /*border: 2px solid red;*/
   float: left;
   padding: 0;
@@ -189,7 +189,7 @@ ion-card-header #icons {
   margin-top: 0;
   font-size: 7.5vw;
 }
-.top-info {
+#top-info {
   position: absolute;
   top: -3vw;
   display: flex;
@@ -197,14 +197,14 @@ ion-card-header #icons {
 /*.icon-div {
   margin-top: -5vw; 
 }*/
-.icon-div img {
+#icon-div img {
   width: 33vw;
   height: 33vw;
   border-radius: 50%;
   border: 2px solid lightgray;
   background-color: aquamarine;
 }
-.icon-div p { 
+#icon-div p { 
   width: 300%;
   font-size: 4vw;
   font-weight: bold;
@@ -215,14 +215,14 @@ ion-card-header #icons {
 		1px 1px 0 rgb(194, 199, 228);*/
 }
 .balance-label {
-  margin-left: -4vw;
-  /*font-size: 9vw;*/
-  font-size: 8vw;
+  margin-left: 0;
+  /*font-size: 10vw;*/
+  font-size: 9vw;
   overflow: hidden;
 }
 .long-balance-label {
-  margin-left: -4vw;
-  font-size: 6vw;
+  margin-left: 0;
+  font-size: 7.5vw;
   overflow: auto;
 }
 .balance-label, .long-balance-label, ion-card-title {
@@ -233,10 +233,10 @@ ion-card-header #icons {
 		-1px 1px 0 rgb(194, 199, 228),
 		1px 1px 0 rgb(194, 199, 228);
 }
-.profile-card a {
+#profile-card a {
   text-decoration: none;
 }
-.profile-card-caption {
+#profile-card-caption {
   font-size: 4vw;
   color: gray;
 }
