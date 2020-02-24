@@ -17,13 +17,14 @@
                 <div class="product-choice-div" v-for="product in products" v-bind:key="product">
                     <h3>{{product.data.name}}</h3>
                     <div class="description-container">
-                        <img class="choice-img" v-bind:src="product.data.photo" @click="select(product.data.name, product.data.popularity, product.id)"/>
+                        <img v-if="isSelected == false" class="choice-img" v-bind:src="product.data.photo">
+                        <img v-if="isSelected == true" class="choice-img" v-bind:src="product.data.photo" @click="select(product.data.name, product.data.popularity, product.id)"/>
                         <div class="description-tags">
                             <p v-if="isSelected == true">{{product.data.description}}</p>
                             <p v-if="isSelected == false">Win to get access to gifts!</p>
                         </div>
                     </div>
-                    <h4>Click image to select</h4>
+                    <h4 v-if="isSelected == true">Click image to select</h4>
                     <!--v-if="isSelected == true"-->
                     <!--ion-button mode="md" class="form-button" fill="outline" @click="select(product.data.name, product.data.popularity, product.id)">Select this Product?</ion-button-->
                 </div>
