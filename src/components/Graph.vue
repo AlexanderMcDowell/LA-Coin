@@ -1,5 +1,5 @@
 <template>
-    <ion-card id="graph-container" mode="md">
+    <ion-card id="graph-card" mode="md">
         <ion-card-header>
             <ion-card-title>Your Balance By Day</ion-card-title>
         </ion-card-header>
@@ -94,10 +94,13 @@
 </script>
 
 <style scoped>
-#graph-container {
+#graph-card {
     font-family: 'Nunito', sans-serif;
-    height: 100vw;
-    overflow: auto;
+    height: 140vw;
+    padding: 0;
+}
+#transaction-container {
+    height: 45vw;
     overflow-y: scroll;
 }
 ion-card-title {

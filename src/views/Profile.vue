@@ -46,21 +46,27 @@
             <div id="profile-buttons">
                 <!-- Friend Button -->
                 <ion-button mode="md" id="friend" color="success" fill="solid" @click="friend(UserData.id)" v-if="UserData.data.name != name && friends.includes(UserData.id) == false && userCanFriend == true">Friend {{UserData.data.name}}?</ion-button>
-                <!-- Transaction fillout-->
                 <form id="transfer-form" v-if="UserData.data.name != name" @submit="transfer">
-                    <ion-button mode="md" id="transfer" v-if="lastRedEnvelope != todayDate && setRedEnvelope == false" color="danger" fill="solid" expand="block" @click="setRedEnvelope = true">Red Envelope?</ion-button>
-                    <ion-button mode="md" id="transfer" v-if="lastRedEnvelope != todayDate && setRedEnvelope == true" color="success" fill="solid" expand="block" @click="setRedEnvelope = false">Reset Red Envelope?</ion-button>
-                    <p style="text-align: center; color: gray; margin: 1em;">Just click the button and transfer {{UserData.data.name}} any amount of LAcoin!</p>
                     <ion-button mode="md" id="transfer" color="medium" fill="solid" type="submit" expand="block" >Transfer LAcoin to {{UserData.data.name}}?</ion-button>
-                    <ion-item>
-                        <ion-label position="floating">Transfer Amount</ion-label>
-                        <ion-input id="transfer-amount" :value="transferAmount" @input="transferAmount = $event.target.value" name="transferAmount" placeholder="Transaction amount">
-                        </ion-input>
-                        <ion-label position="floating">Transfer Description</ion-label>
-                        <ion-input id="transfer-description" :value="transferDescription" @input="transferDescription = $event.target.value" name="transferDescription" placeholder="Transaction Description" maxlength=20>
-                        </ion-input>
-                    </ion-item>
+                    <ion-grid>
+                        <ion-row>
+                            <ion-col class="input-col">
+                                <ion-label mode="md" style="margin-left: 8px;"><b>Select amount</b></ion-label>
+                                <ion-input mode="md" @input="transferAmount = $event.target.value" name="transferAmount" placeholder="Transaction amount"></ion-input>
+                            </ion-col>
+                            <ion-col class="input-col">
+                                <ion-label mode="md" style="margin-left: 8px;"><b>Select message</b></ion-label>
+                                <ion-select mode="md" style="margin-left: -8px;" :value="transferDescription">
+                                    <ion-select-option mode="md" v-for="type in allTransferDescriptions" v-bind:key="type" :value="type">{{type}}</ion-select-option>
+                                </ion-select>
+                            </ion-col>
+                        </ion-row>
+                    </ion-grid>
+                    <ion-button mode="md" class="red-envelope-set" v-if="lastRedEnvelope != todayDate && setRedEnvelope == false" color="danger" fill="solid" expand="block" @click="setRedEnvelope = true">Red Envelope?</ion-button>
+                    <ion-button mode="md" class="red-envelope-set" v-if="lastRedEnvelope != todayDate && setRedEnvelope == true" color="success" fill="solid" expand="block" @click="setRedEnvelope = false">Reset Red Envelope?</ion-button>
                 </form>
+                
+                <!-- Transaction fillout-->
             </div>
         </ion-content>
         <ion-footer>
@@ -97,11 +103,13 @@
         setRedEnvelope: boolean = false;
         unreadNotif: Array<any> = [];
         userCanFriend: boolean = false;
+        isSelected: boolean = true;
 
         recipientUnreadNotif: Array<any> = []; // hah got eem
+        allTransferDescriptions: string[] = [];
         
         transferAmount: number = 0;
-        transferDescription: string = "";
+        transferDescription: string = "[No Message]";
         userFriendsPlaceholder: Array<any> = [];
 
         created() {
@@ -143,16 +151,23 @@
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
             var recipientUser = firebase.usersCollection.doc(this.UserData.id);
+            var descriptionsList = firebase.descriptionCollection.doc('allDescriptions');
             user.get().then(doc => {
                 this.name = doc.data().name;
                 this.friends = doc.data().friends;
                 this.unreadNotif = doc.data().unreadNotif;
-                this.lastRedEnvelope = doc.data().lastRedEnvelope
+                this.lastRedEnvelope = doc.data().lastRedEnvelope;
+                this.isSelected = doc.data().isSelected;
             });
             recipientUser.get().then(doc => {
                 this.recipientUnreadNotif = doc.data().unreadNotif;
                 this.verifyFriendReq(this.recipientUnreadNotif);
             });
+            descriptionsList.get().then(doc => {
+                this.allTransferDescriptions = doc.data().descriptionItems
+                console.log(this.allTransferDescriptions)
+            })
+
         }
         verifyFriendReq(recipientUnreadNotif: Array<any>) {
             var userId = firebase.auth.currentUser.uid;
@@ -191,11 +206,11 @@
             // If transfer notif received, send with transfer amount
             if (reqType == 'transfer') {
                 var notifdescription = this.name + " " + this.transferAmount + " LACoin Request";
-                if (this.transferDescription.length > 0) {
+                if (this.transferDescription != 'No Message') {
                     notifdescription = notifdescription + " - " + this.transferDescription
                 }
                 // Check if transfer amt is a number, send
-                if (isNaN(this.transferAmount) == false) {
+                if (isNaN(this.transferAmount) == false && this.isSelected == false) {
                     if (this.setRedEnvelope == true) {
                         var transferReq = {date:this.todayDate, type:reqType, 
                             sentfrom:userId, 
@@ -382,12 +397,20 @@
         padding-top: 1em;
         padding-left: 1em;
     }
-    #friend, #transfer {
+    #friend, #transfer, .red-envelope-set {
         margin-top: 5vw;
         margin-left: 8px;
         width: calc(100vw - 16px);
         height: 15vw;
         font-size: 5vw;
+    }
+    .padded-input {
+        width: 50vw;
+    }
+    .input-col {
+        margin: 0.5em; 
+        border-radius: 5px; 
+        background-color:lightgray;
     }
     ion-item {
         margin: 0;

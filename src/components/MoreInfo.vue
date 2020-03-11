@@ -48,7 +48,7 @@ ion-card {
     font-family: 'Nunito', sans-serif;
     text-align: center;
     padding-bottom: 1em;
-    height: 75vh;
+    height: 100vh;
     width: auto;
     overflow: scroll;
 }

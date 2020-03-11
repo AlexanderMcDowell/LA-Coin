@@ -13,7 +13,7 @@
         <ion-card-header>
           <div id="greeting-div">
             <ion-card-title v-if="name.length < 8">Hello, {{ name }}</ion-card-title>
-            <ion-card-title v-else>Hi, {{ name }}</ion-card-title>
+            <ion-card-title id="longname-title" v-else>Hi, {{ name }}</ion-card-title>
           </div>
           <div id="icons">
             <p>⬜️ ⬜️</p>
@@ -32,9 +32,9 @@
       </ion-card>
       <h2 id="profile-card-caption">Click the card to change color!</h2>
       <!--User's balance over time-->
-      <Graph style="overflow: scroll;"/>
+      <Graph />
       <!--User's unread notifications-->
-      <Notifications style="overflow: scroll;"/>
+      <Notifications />
     </ion-content>
     <ion-footer>
       <ion-toolbar>
@@ -162,6 +162,9 @@ ion-card-title {
   text-transform: uppercase;
   padding-bottom: 2.5vw;
   font-size: 6vw;
+}
+#longname-title {
+  font-size: 5.6vw;
 }
 ion-footer {
   background-color: rgb(250, 250, 250);

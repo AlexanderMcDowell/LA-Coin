@@ -31,7 +31,7 @@
           <ion-label position="floating">Description</ion-label>
 					<ion-input :value="bio" @input="bio = $event.target.value" type="text" name="newBio" placeholder="Enter a brief description (50 Char Max)" maxlength=50>
 					</ion-input>
-          <ion-label position="floating">Balance Graph Data Points</ion-label>
+          <ion-label position="floating">How far back do you want to see?</ion-label>
           <ion-input :value="graphSpec" @input="graphSpec = $event.target.value" type="text" name="graphSpec" placeholder="Data pts in Balance Record? (Deft. 8)" maxlength=50>
 					</ion-input>
 				</ion-item>

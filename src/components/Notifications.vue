@@ -1,5 +1,5 @@
 <template>
-	<ion-card mode="md" id="notif-container">
+	<ion-card mode="md" id="notif-card">
 		<ion-card-header>
             <ion-card-title>Notifications</ion-card-title>
             <ion-card-subtitle>Click the notification to remove.</ion-card-subtitle>
@@ -78,7 +78,7 @@
                 
                 // Check if notif field length greater than 20; if so, archive the last message
                 if (this.unreadNotif.length > 20) {
-                    this.archiveNotif(this.unreadNotif[20])
+                    //this.archiveNotif(this.unreadNotif[20])
                     this.unreadNotif.pop()
                 }
             });
@@ -280,13 +280,13 @@
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
             var index = this.unreadNotif.indexOf(Notification);
-            this.archiveNotif(Notification)
+            //this.archiveNotif(Notification)
             this.unreadNotif.splice(index, 1);
             user.update({
                 unreadNotif: this.unreadNotif
             });
         }
-        archiveNotif(Notification: object) {
+        /*archiveNotif(Notification: object) {
             //Add deleted, removed notifications to archives
             var allNotifs = firebase.notifCollection.doc('allNotifs')
                 allNotifs.get().then(doc => {
@@ -296,7 +296,7 @@
                     notifList: allNotifItems
                 })
             })
-        }
+        }*/
         modalConfirm() {
             return this.$ionic.modalController
                     .create({
@@ -331,12 +331,13 @@ ion-card-title {
     font-size: 5vw;
 }
 ion-card-content {
+    height: 42.5vw;
     font-family: 'Nunito', sans-serif;
+    overflow-y: scroll;
 }
-#notif-container {
+#notif-card {
     font-family: 'Nunito', sans-serif;
-    height: 50vw;
-    overflow: auto;
+    height: 67.5vw;
 }
 #notif-block {
     display: flex;

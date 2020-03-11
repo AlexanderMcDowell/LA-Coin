@@ -1,10 +1,10 @@
 <template>
   <div class="ion-page">
-	  <ion-header v-if="notSignedIn == true">
-      <ion-toolbar mode="ios">
-		<ion-title>Welcome!</ion-title>
-      </ion-toolbar>
-    </ion-header>
+	  	<ion-header v-if="notSignedIn == true">
+			<ion-toolbar mode="ios">
+				<ion-title>Welcome!</ion-title>
+			</ion-toolbar>
+    	</ion-header>
 		<ion-content class="ion-padding">
 
 			<!-- Welcome icon and description -->
@@ -19,8 +19,8 @@
 		<!-- Log in, Sign in Buttons -->
 		<ion-footer class="ion-padding">
 			<ion-list>
-				<ion-button v-if="notSignedIn == true" mode="md" expand="block" color="dark" fill="outline" onclick="location.href='#/signup'">Get Started!</ion-button>
-				<ion-button v-if="notSignedIn == true" mode="md" expand="block" color="dark" onclick="location.href='#/login'">Login</ion-button>
+				<ion-button v-if="notSignedIn == true && accountCreated == false" mode="md" expand="block" color="dark" fill="outline" onclick="location.href='#/signup'">Get Started!</ion-button>
+				<ion-button v-if="notSignedIn == true && accountCreated == true" mode="md" expand="block" color="dark" onclick="location.href='#/login'">Login</ion-button>
 			</ion-list>
 		</ion-footer>
   </div>
@@ -40,12 +40,18 @@
 
 	export default class Home extends Vue{
 		notSignedIn: boolean = false;
+		accountCreated: boolean = false;
 		created() {
 			var self = this
 			firebase.auth.onAuthStateChanged(function(user) {
 				if (user && user.emailVerified == true) {
 					self.$router.push('/account');
-				} else {
+				} 
+				else if (user && user.emailVerified == false) {
+					self.notSignedIn = true;
+					self.accountCreated == false;
+				}
+				else {
 					console.log('HI')
 					self.notSignedIn = true;
 					console.log(self.notSignedIn)

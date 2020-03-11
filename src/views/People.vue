@@ -6,35 +6,46 @@
       </ion-toolbar>
     </ion-header>
 		<ion-content class="ion-padding">
-
       <!-- Instructions -->
 
       <ion-card id="intro-card" mode="md" type="button" @click="moreInfo()">
           <ion-card-header>
             <ion-card-title>Welcome to the LAcoin Community!</ion-card-title>
           </ion-card-header>
-          <ion-card-content id="content-text">
+          <ion-card-content>
             <img id="lacoin-logo" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
             <p>Click on any user's name to reach out, make a transaction, and more!</p>
             <p><b>Click here for more info!</b></p>
           </ion-card-content>
         </ion-card>
       <!-- Admin Card ADD v-if later!!!!!-->
-      <ion-card id="admin-info-card" mode="md" type="button" @click="requestGift()">
-          <ion-card-header>
-              <ion-card-title>{{ adminInfo.data.name }}</ion-card-title>
-          </ion-card-header>
-          <ion-card-content mode="md">
-            <img class="profile-icon" v-if="isSelected == false" v-bind:src="adminInfo.data.profilePhoto">
-            <img class="profile-icon" v-else v-bind:src="adminInfo.data.selectedProfilePhoto">
-            <div class="card-description">
-              <p v-if="isSelected == false">{{ adminInfo.data.bio }}</p>
-              <p v-else>{{ adminInfo.data.selectedBio }}</p>
-            </div>
-          </ion-card-content>
+        <ion-card id="admin-info-card" mode="md" type="button" @click="requestGift()">
+            <ion-card-header>
+                <ion-card-title>{{ adminInfo.data.name }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content mode="md">
+              <img class="profile-icon" v-if="isSelected == false" v-bind:src="adminInfo.data.profilePhoto">
+              <img class="profile-icon" v-else v-bind:src="adminInfo.data.selectedProfilePhoto">
+              <div>
+                <p class="admin-bio" v-if="isSelected == false">{{ adminInfo.data.bio }}</p>
+                <p class="admin-bio" v-else>{{ adminInfo.data.selectedBio }}</p>
+              </div>
+              <!--div class="card-description">
+                <p class="bio" v-if="isSelected == false">{{ adminInfo.data.bio }}</p>
+                <p class="bio" v-else>{{ adminInfo.data.selectedBio }}</p>
+              </div-->
+            </ion-card-content>
         </ion-card>
+
+      <ion-buttons id="button-container">
+        <ion-button class="select-user-opt-button" mode="md" color="primary" v-if="checkFriends == true" @click="checkFriends = false" fill="solid" expand="block">All Users</ion-button>
+        <ion-button class="select-user-opt-button" mode="md" color="success" v-else fill="solid" expand="block">All Users</ion-button>
+        <ion-button class="select-user-opt-button" mode="md" color="primary" v-if="checkFriends == false" @click="checkFriends = true" fill="solid" expand="block">Friends</ion-button>
+        <ion-button class="select-user-opt-button" mode="md" color="success" v-else fill="solid" expand="block">Friends</ion-button>
+      </ion-buttons>
+
       <!-- List of your Friends-->
-      <div v-if="friends.length > 0">
+      <ion-list style="padding: 0;" v-if="friends.length > 0 && checkFriends == true">
         <h1>Your friends</h1>
         <ion-card class="friend-info-card" mode="md" v-for="friend in friends" v-bind:key="friend">
           <ion-card-header>
@@ -53,18 +64,17 @@
           </ion-card-content>
           </router-link>
         </ion-card>
-      </div>
+      </ion-list>
 
-      <ion-list>
+      <ion-list v-if="checkFriends == false">
         <!-- List of all users, no friends yet-->
+        <h1>Users</h1>
         <ion-item>
-          <!--ion-label mode="md" color="primary" fixed><b>Search User</b></ion-label-->
+          <!--ion-searchbar @change="searchUsers" :v-model="searchName" show-cancel-button="never"></ion-searchbar-->
+
           <ion-input mode="md" :v-model="searchName" @input="searchName = $event.target.value" placeholder="Search User (Blank for All)" ></ion-input>
-          <!--ion-button mode="md" type="submit" color="success">Search</ion-button-->
           <i id="search-icon" class="ion-md-arrow-round-down" v-on:click="searchUsers"></i>
         </ion-item>
-
-        <h1>Users</h1>
         <ion-card v-if="selectedPeople.length == 0" class="info-card" mode="md">
           <ion-card-header>
             <ion-card-title>Sorry!</ion-card-title>
@@ -131,6 +141,7 @@
     isSelected: boolean;
 
     searchName: string = "";
+    checkFriends: boolean = false;
 
     created() {
       this.getPeople();
@@ -160,7 +171,13 @@
                   this.friends.push(userInfo)
                 }
             })
-        })
+          /*this.selectedPeople = this.selectedPeople.sort(function(a, b) {
+            return Math.random()-0.5;
+          })
+          if (this.selectedPeople.length > 50) {
+            this.selectedPeople = this.selectedPeople.slice(0, 50)
+          }*/
+          })
     }
     getBalance(transactionDoc: Array<any>) {
       var startBalance = 0;
@@ -201,6 +218,9 @@
           }
         }
       }
+      /*this.selectedPeople = this.selectedPeople.sort(function(a, b) {
+        return a.data.name.toLowerCase - b.data.name.toLowerCase;
+      })*/
       e.preventDefault()
     }
   }
@@ -220,6 +240,10 @@ ion-content {
 }
 h1 {
   font-family: 'Nunito', sans-serif;
+}
+.select-user-opt-button {
+  margin: 0.5em;
+  width: calc(50% - 1em);
 }
 .info-card, .friend-info-card, #admin-info-card {
   display: inline-block;
@@ -243,12 +267,12 @@ h1 {
 #admin-info-card {
   background: rgb(235, 235, 235);
 }
-ion-card-content{
+ #admin-info-card ion-card-content, .friend-info-card ion-card-content, .info-card ion-card-content {
     font-family: 'Nunito', sans-serif;
     padding-top: 0;
     margin-left:-2%;
     display:flex;
-  }
+}
 ion-card-header {
     font-family: 'Nunito', sans-serif;
     text-transform: uppercase;
@@ -293,6 +317,12 @@ ion-toolbar {
   color: rgb(47, 69, 79);
   overflow: auto;
 }
+.admin-bio {
+  width: 40vw; 
+  padding-left: 1em;
+  height: 3em;
+  color: rgb(47, 69, 79);
+}
 .balance, .long-balance {
   color: rgb(47, 69, 79);
   font-family: 'Nunito', sans-serif;
@@ -311,7 +341,7 @@ ion-toolbar {
 #intro-card {
   text-align: center;
 }
-#content-text {
+#intro-card ion-card-content {
   display: inline-block;
 }
 #lacoin-logo {

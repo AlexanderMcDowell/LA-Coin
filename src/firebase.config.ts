@@ -25,7 +25,7 @@ const usersCollection = db.collection('users')
 const eventsCollection = db.collection('events')
 const productsCollection = db.collection('products')
 const photosCollection = db.collection('profilephotos')
-const notifCollection = db.collection('transactionNotifs')
+const descriptionCollection = db.collection('descriptions')
 
 // firebase functions
 const functions = firebase.functions();
@@ -46,7 +46,7 @@ export default {
     eventsCollection,
     productsCollection,
     photosCollection,
-    notifCollection,
+    descriptionCollection,
     functions
     //transfer,
     //helloWorld

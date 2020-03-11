@@ -14,7 +14,7 @@
           <ion-card-title>Event Signups Here!</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <img id="lacoin-icon" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
+          <img id="lacoin-logo" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
           <p>Easy way to get free LAcoin! Click any games to register. Once registered, find the game code at the event and enter it below.</p>
           <form id="code-form" @submit="submitCode">
             <ion-item lines="none">
@@ -26,6 +26,11 @@
         </ion-card-content>
       </ion-card>
     </div>
+
+    <!--div id="your-events-header">
+      <h1>Your Events</h1>
+      <i class="ion-md-arrow-round-down" type="button" v-on:click="eventChange()"></i>
+    </div-->
 
     <!-- List events-->
     <h1>Events Coming Up</h1>
@@ -47,14 +52,22 @@
             <img class="game-icon" v-bind:src="event.data.imgType" v-if="event.data.imgType.length > 0">
             <div class="card-description">
               <p><b>Time: </b>{{ event.data.time }}</p>
-              <p><b>Location: </b>{{ event.data.location }}</p>
-              <p><b>Info: </b>{{ event.data.description }}</p>
+              <p><b>Location: </b>{{ event.data.location }}</p>  
             </div>
-            <div class="register-button">
-              <i class="ion-md-add-circle" style="color: rgb(125, 175, 255);" v-if="eventTickets.includes(event.data.gameCode) == false && event.data.userAttendance.includes(confirmId) == false" @click="register(event.data.gameCode, event.data.date)"></i>
-              <i class="ion-md-close-circle" style="color: rgb(125, 225, 125);" v-if="eventTickets.includes(event.data.gameCode) == true && event.data.userAttendance.includes(confirmId) == false" @click="unregister(event.data.gameCode)" color="success"></i>
+            <div class="register-button" v-if="event.data.userAttendance.includes(confirmId) == false">
+              <i class="ion-md-add-circle" style="color: rgb(125, 175, 255);" v-if="eventTickets.includes(event.data.gameCode) == false" @click="register(event.data.gameCode, event.data.date)"></i>
+              <i class="ion-md-close-circle" style="color: rgb(125, 225, 125);" v-if="eventTickets.includes(event.data.gameCode) == true" @click="unregister(event.data.gameCode)" color="success"></i>
             </div>
           </ion-card-content>
+          <ion-card-footer>
+            <div class="info-footer">
+              <p v-if="event.showInfo == true"><b>Info: </b>{{ event.data.description }}</p>
+              <div class="info-buttons">
+                <i v-if="event.showInfo == false" class="ion-md-arrow-round-down" @click="event.showInfo = true" color="gray"></i>
+                <i v-else class="ion-md-arrow-round-up" @click="event.showInfo = false" color="gray"></i>
+              </div>
+            </div>
+          </ion-card-footer>
         </ion-card>
       </ion-list>
 	  </ion-content>
@@ -134,7 +147,7 @@
         var eventList = firebase.db.collection('events');
         eventList.get().then(snapshot => {
               snapshot.forEach(doc => {
-                  var eventDoc = {id: doc.id, data: doc.data()}
+                  var eventDoc = {id: doc.id, data: doc.data(), showInfo: false}
                   // Check if events are open and will be happening
                   if (eventDoc.data.isActive == true && this.todayTimestamp <= eventDoc.data.timestamp) {
                     this.events.push(eventDoc);
@@ -221,7 +234,7 @@
                 
             this.transactions.unshift({date: this.todayDate,
               amount: Number(realreturn),
-              description: "Game Attended",
+              description: "Event Attended",
               fromId: "admin", //admin means you take from everyone elses
               toId: userId,
               type: 'attendance'
@@ -260,10 +273,17 @@
       selectBackground(atLAHS: boolean) {
         // If event on campus, set to default
         if (atLAHS == false) {
-          return {background: "linear-gradient(to bottom right, lavenderblush, mistyrose)"}
+          //return {color: "red"}
+          return {
+            border: "solid 2px pink"
+            //background: "linear-gradient(to bottom right, salmon, mistyrose)"
+          }
         }
         else {
-          return {background: "white"}
+          return {
+            border: "solid 2px skyblue"
+            //background: "linear-gradient(to bottom right, salmon, mistyrose)"
+          }
         }
       }
   }
@@ -299,7 +319,7 @@ h1 {
 .event-card {
     display: inline-block;
     width: 80vw;
-    height: 55vw;
+    height: auto; /*55vw*/
   }
 .event-card ion-card-title {
   font-size: 5vw;
@@ -330,7 +350,9 @@ ion-card-title {
 }
 .card-description {
   width: auto;
-  height: 20vw;
+  max-height: 25vw;
+  font-family: 'Nunito', sans-serif;
+  font-size: 5vw;
   padding-left: 2.5vw;
   padding-right: 2vw;
   overflow: auto;
@@ -342,6 +364,18 @@ ion-card-title {
   margin-top: -1vh;
   float: right;
   font-size: 3em;
+}
+.info-footer {
+  padding: 0 1em 0.25em 1em;
+  text-align: justify;
+}
+.info-footer p {
+  max-height: 28vw;
+  overflow: auto;
+}
+.info-buttons {
+  text-align: center;
+  font-size: 2em;
 }
 #scan-button {
   margin-left: 25vw;
@@ -363,10 +397,7 @@ ion-card-title {
   margin-left: 0;
   text-align: center;
 }
-#intro-card ion-card-content {
-  display: inline-block;
-}
-#lacoin-icon {
+#lacoin-logo {
   border: solid 2px;
   border-color: rgb(185, 143, 2);
   border-radius: 50%;
