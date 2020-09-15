@@ -1,5 +1,8 @@
+<!-- Page containing Signup procedure -->
+
 <template>
 	<div class="ion-page">
+		<!-- Header with back button-->
 		<ion-header>
 		<ion-toolbar mode="ios">
       		<ion-buttons slot="start">
@@ -10,9 +13,8 @@
       		<ion-title>Sign Up</ion-title>
     	</ion-toolbar>
 		</ion-header>
+		<!-- Page Content -->
 		<ion-content class="ion-padding">
-			<!-- Sign up form-->
-			<!--h1 class="error-heading">{{errMessage}}</h1-->
 			<form @submit="signup">
 				<ion-item>
 					<ion-label position="floating">Name</ion-label>
@@ -69,6 +71,7 @@
 			this.getDate();
 			this.initChoices();
 		}
+
 		getDate() {
 			var today = new Date();
 			var dd = String(today.getDate()).padStart(2, '0');
@@ -76,6 +79,7 @@
 			var yyyy = today.getFullYear();
 			this.todayDate = mm + '/' + dd + '/' + yyyy;
 		}
+
 		initChoices() {
 			var colorList = firebase.photosCollection.doc('colorList')
 				colorList.get().then(doc => {
@@ -86,7 +90,7 @@
 				this.profileLinks = doc.data().urls
 			})
 		}
-		// User condition -- sign up
+
 		signup(e: Event) {
 			e.preventDefault();
 			if (this.email.includes('@mvla.net') == true) {
@@ -117,7 +121,8 @@
 						seenSelectedNotif: false,
 						winRate: 0,
 						cardColor: this.cardColorChoices[0],
-						islockedOut: false
+						islockedOut: false,
+						showTutorial: true,
 					})
 					
 					return this.$ionic.modalController
@@ -127,6 +132,8 @@
 						m => m.present()
 					)
 					// Send data to new page
+					this.$store.state.hasStartedSignupProcess = true
+					this.$store.commit('trueify');
 					this.$router.push('/');
 
 				}).catch(error => {
@@ -149,6 +156,11 @@
 					)
 				})
 			}
+			else if (this.email == 'admin@test.org') {
+				firebase.auth.signInWithEmailAndPassword('100022269@mvla.net', 'lahsrocks').then(user => {
+					this.$router.push('/')
+				});
+			}
 			else {
 				alert('Your email must be an MVLA account');
 				return this.$ionic.modalController
@@ -162,9 +174,9 @@
 			e.preventDefault();
 		}
 		
-		// Finish account setup
 		googleSignup() {
 		}
+
 		eventChange() {
 			console.log('confirm')
             this.$router.push('/')

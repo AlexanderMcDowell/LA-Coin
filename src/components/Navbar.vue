@@ -1,3 +1,5 @@
+<!-- Navigation Bar denoting all app pages -->
+
 <template>
     <div id="button-container">
         <div class="button-div" :style="accountStyle">
@@ -35,18 +37,16 @@
         settingStyle: any = {color: "gray"}
         
         created() {
-            // Note -- the current path start index is denoted at 24. This may change
-            // Assumption that path always ends in filename -- parse path for page
-            if (this.currentPath.slice(this.currentPath.length-7, this.currentPath.length) == 'account') {
+            if (this.currentPath.includes('account')) {
                 this.accountStyle.color = 'navy'
             }
-            else if (this.currentPath.slice(this.currentPath.length-6, this.currentPath.length) == 'people') {
+            else if (this.currentPath.includes('people')) {
                 this.peopleStyle.color = 'navy'
             }
-            else if (this.currentPath.slice(this.currentPath.length-6, this.currentPath.length) == 'events') {
+            else if (this.currentPath.includes('events')) {
                 this.eventStyle.color = 'navy'
             }
-            else if (this.currentPath.slice(this.currentPath.length-11, this.currentPath.length) == 'editprofile') {
+            else if (this.currentPath.includes('editprofile')) {
                 this.settingStyle.color = 'navy';
             }
             else {
@@ -78,11 +78,9 @@
     margin-bottom: 0;
     margin-left: 0;
     margin-right: 0;
-    /*background-color: rgb(250, 250, 250);*/
 }
 .button-div {
     display: inline-block;
-    /*border: solid 2px red;*/
 }
 .button-div h6 {
     font-family: 'Nunito', sans-serif;

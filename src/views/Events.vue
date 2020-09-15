@@ -1,39 +1,44 @@
+<!-- Page containing all Events -->
+
 <template>
+<!-- Page Header -->
 	<div class="ion-page">
     <ion-header>
       <ion-toolbar mode="ios">
         <ion-title>Events</ion-title>
       </ion-toolbar>
     </ion-header>
+    <!-- Page Content -->
 		<ion-content class="ion-padding">
-
-      <!-- Submit code -->
-    <div id="intro-div">
-      <ion-card id="intro-card" mode="md">
-        <ion-card-header>
-          <ion-card-title>Event Signups Here!</ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          <img id="lacoin-logo" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
-          <p>Easy way to get free LAcoin! Click any games to register. Once registered, find the game code at the event and enter it below.</p>
-          <form id="code-form" @submit="submitCode">
-            <ion-item lines="none">
-              <ion-input :value="inputCode" @input="inputCode = $event.target.value" type="text" name="inputCode" placeholder="Enter Event Code" maxlength=12>
-              </ion-input>
-            </ion-item>
-            <ion-button mode="md" color="dark" type="submit" expand="block">Continue</ion-button>
-          </form>
-        </ion-card-content>
-      </ion-card>
-    </div>
-
-    <!--div id="your-events-header">
-      <h1>Your Events</h1>
-      <i class="ion-md-arrow-round-down" type="button" v-on:click="eventChange()"></i>
-    </div-->
-
-    <!-- List events-->
-    <h1>Events Coming Up</h1>
+    <!-- Informational Card with info on Events -->
+      <div id="intro-div">
+        <ion-card id="intro-card" mode="md">
+          <ion-card-header>
+            <ion-card-title>Event Signups Here!</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <img id="lacoin-logo" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
+            <p>Click any event button to register. Click title for the link (zoom, etc). Red is off campus, blue on-campus. Once registered, find the event code at the event and enter it below.</p>
+            <!-- Submit code -->
+            <form id="code-form" @submit="submitCode">
+              <ion-item lines="none">
+                <ion-input :value="inputCode" @input="inputCode = $event.target.value" type="text" name="inputCode" placeholder="Enter Event Code" maxlength=12>
+                </ion-input>
+              </ion-item>
+              <ion-button mode="md" color="dark" type="submit" expand="block">Continue</ion-button>
+            </form>
+          </ion-card-content>
+        </ion-card>
+      </div>
+      <h1>Events Coming Up</h1>
+      <!-- Toggle between registered and unregistered-->
+      <ion-buttons id="button-container">
+        <ion-button class="select-user-opt-button" mode="md" color="primary" v-if="showOnlyRegisteredEvents == true" @click="showOnlyRegisteredEvents = false" fill="solid" expand="block">All Events</ion-button>
+        <ion-button class="select-user-opt-button" mode="md" color="success" v-else fill="solid" expand="block">All Events</ion-button>
+        <ion-button class="select-user-opt-button" mode="md" color="primary" v-if="showOnlyRegisteredEvents == false" @click="showOnlyRegisteredEvents = true" fill="solid" expand="block">Registered</ion-button>
+        <ion-button class="select-user-opt-button" mode="md" color="success" v-else fill="solid" expand="block">Registered</ion-button>
+      </ion-buttons>
+      <!-- Look up specific Events -->
       <ion-item>
         <ion-label mode="md">Event Type</ion-label>
         <ion-select mode="md" :value="selectedEventType" @ionChange="searchEvents($event.target.value)">
@@ -41,34 +46,42 @@
           <ion-select-option mode="md" v-for="type in allAvailableEventTypes" v-bind:key="type" :value="type">{{type}}</ion-select-option>
         </ion-select>
       </ion-item>
+      <!-- All Events -->
       <ion-list>
-        <ion-card class="event-card" mode="md" v-for="event in selectedEvents" v-bind:key="event" :style="selectBackground(event.data.atLAHS)">
-          <ion-card-header>
-            <a v-if="event.data.link.length > 0" v-bind:href="event.data.link" style="text-decoration: none;"><ion-card-title>{{ event.data.name }}</ion-card-title></a>
-            <ion-card-title v-else>{{ event.data.name }}</ion-card-title>
-            <ion-card-subtitle>{{ event.data.date }}</ion-card-subtitle>
-          </ion-card-header>
-          <ion-card-content mode="md">
-            <img class="game-icon" v-bind:src="event.data.imgType" v-if="event.data.imgType.length > 0">
-            <div class="card-description">
-              <p><b>Time: </b>{{ event.data.time }}</p>
-              <p><b>Location: </b>{{ event.data.location }}</p>  
-            </div>
-            <div class="register-button" v-if="event.data.userAttendance.includes(confirmId) == false">
-              <i class="ion-md-add-circle" style="color: rgb(125, 175, 255);" v-if="eventTickets.includes(event.data.gameCode) == false" @click="register(event.data.gameCode, event.data.date)"></i>
-              <i class="ion-md-close-circle" style="color: rgb(125, 225, 125);" v-if="eventTickets.includes(event.data.gameCode) == true" @click="unregister(event.data.gameCode)" color="success"></i>
-            </div>
-          </ion-card-content>
-          <ion-card-footer>
-            <div class="info-footer">
-              <p v-if="event.showInfo == true"><b>Info: </b>{{ event.data.description }}</p>
-              <div class="info-buttons">
-                <i v-if="event.showInfo == false" class="ion-md-arrow-round-down" @click="event.showInfo = true" color="gray"></i>
-                <i v-else class="ion-md-arrow-round-up" @click="event.showInfo = false" color="gray"></i>
+        <div v-for="event in selectedEvents" v-bind:key="event">
+          <ion-card class="event-card" mode="md" v-if="showOnlyRegisteredEvents == false || (showOnlyRegisteredEvents == eventTickets.includes(event.data.gameCode))" :style="selectBackground(event.data.atLAHS)">
+            <!-- Event Name -->
+            <ion-card-header>
+              <a v-if="event.data.link.length > 0" v-bind:href="event.data.link" style="text-decoration: none;"><ion-card-title>{{ event.data.name }}</ion-card-title></a>
+              <ion-card-title v-else>{{ event.data.name }}</ion-card-title>
+              <ion-card-subtitle>{{ event.data.date }}</ion-card-subtitle>
+            </ion-card-header>
+            <ion-card-content mode="md">
+              <!-- Event Photo -->
+              <img class="game-icon" v-bind:src="event.data.imgType" v-if="event.data.imgType.length > 0">
+              <!-- Event Info -->
+              <div class="card-description">
+                <p><b>Time: </b>{{ event.data.time }}</p>
+                <p><b>Location: </b>{{ event.data.location }}</p>  
               </div>
-            </div>
-          </ion-card-footer>
-        </ion-card>
+              <!-- Register/Unregister Buttons -->
+              <div class="register-button" v-if="event.data.userAttendance.includes(confirmId) == false">
+                <i class="ion-md-add-circle" style="color: rgb(125, 175, 255);" v-if="eventTickets.includes(event.data.gameCode) == false && event.data.type != 'Broken Box' && event.data.type != 'Dances and Events'" @click="register(event.data.gameCode, event.data.date, event.data.timestamp, event.data.lowerVerificationLimit, event.data.upperVerificationLimit)"></i>
+                <i class="ion-md-close-circle" style="color: rgb(125, 225, 125);" v-if="eventTickets.includes(event.data.gameCode) == true" @click="unregister(event.data.gameCode)" color="success"></i>
+              </div>
+            </ion-card-content>
+            <!-- Full Event Description -->
+            <ion-card-footer>
+              <div class="info-footer">
+                <p v-if="event.showInfo == true"><b>Info: </b>{{ event.data.description }}</p>
+                <div class="info-buttons">
+                  <i v-if="event.showInfo == false" class="ion-md-arrow-round-down" @click="event.showInfo = true" color="gray"></i>
+                  <i v-else class="ion-md-arrow-round-up" @click="event.showInfo = false" color="gray"></i>
+                </div>
+              </div>
+            </ion-card-footer>
+          </ion-card>
+        </div>
       </ion-list>
 	  </ion-content>
     <ion-footer>
@@ -98,6 +111,8 @@
       eventTickets: string[] = [];
       todayDate: string = "";
       todayTimestamp: number;
+      hours: number;
+      minutes: number;
 
       unreadNotif: Array<any> = [];
       transactions: Array<any> = [];
@@ -110,6 +125,10 @@
 
       allAvailableEventTypes: string[] = [];
       selectedEventType: string = "";
+
+      currtTime: number
+
+      showOnlyRegisteredEvents: boolean = false;
       
       created() {
         this.confirmId = firebase.auth.currentUser.uid;
@@ -118,6 +137,7 @@
         this.getEvents();
         this.getUserData(); 
       }
+
       getDate() {
         var today = new Date();
         var dd = String(today.getDate()).padStart(2, '0');
@@ -126,6 +146,7 @@
         this.todayDate = mm + '/' + dd + '/' + yyyy;
         this.todayTimestamp = (30*Number(mm)) + Number(dd) + (365*Number(String(yyyy).slice(2, 4)))
       }
+
       getUsers() {
         var users = firebase.usersCollection
         users.get().then(snapshot => {
@@ -134,6 +155,7 @@
           })
         })
       }
+
       getUserData() {
         var userId = firebase.auth.currentUser.uid;
         var user = firebase.usersCollection.doc(userId);
@@ -143,6 +165,7 @@
           this.transactions = doc.data().transactions;
         });
       }
+
       getEvents() {
         var eventList = firebase.db.collection('events');
         eventList.get().then(snapshot => {
@@ -160,6 +183,7 @@
               this.selectedEvents = this.events;
           })
       }
+
       searchEvents(eventType: string) {
         // Take searchbar input for events
         this.selectedEvents = []
@@ -174,26 +198,41 @@
           }
         }
       }
-      // Open modal to confirm registration
-      register(gameCode: string, eventdate: string) {
-        var userId = firebase.auth.currentUser.uid;
-        var user = firebase.usersCollection.doc(userId);
-        this.eventTickets.push(gameCode)
-        var notifdescription = "Event scheduled for " + eventdate + "!"
-        var eventNotif = {date:this.todayDate, type:'game_message', sentfrom:'admin', description:notifdescription}
-        this.unreadNotif.unshift(eventNotif)
 
-        user.update({
-          eventTickets: this.eventTickets,
-          unreadNotif: this.unreadNotif
-        });
-        return this.$ionic.modalController
+      register(gameCode: string, eventdate: string, eventTimestamp: number, lowerVerificationLimit: number, upperVerificationLimit: number) {
+        var today = new Date();
+        this.hours = today.getHours()
+        this.minutes = today.getMinutes()
+        var exactTime = (this.hours*60)+this.minutes
+
+        if (exactTime >= lowerVerificationLimit && this.todayTimestamp >= eventTimestamp) {
+          return this.$ionic.modalController
           .create({
-            component: ConfirmModal
+            component: DenyModal
           }).then(
             m => m.present()
           )
+        } else {
+          var userId = firebase.auth.currentUser.uid;
+          var user = firebase.usersCollection.doc(userId);
+          this.eventTickets.push(gameCode)
+          var notifdescription = "Event scheduled for " + eventdate + "!"
+          var eventNotif = {date:this.todayDate, type:'game_message', sentfrom:'admin', description:notifdescription}
+          this.unreadNotif.unshift(eventNotif)
+
+          user.update({
+            eventTickets: this.eventTickets,
+            unreadNotif: this.unreadNotif
+          });
+          return this.$ionic.modalController
+            .create({
+              component: ConfirmModal
+            }).then(
+              m => m.present()
+            )
+        }
       }
+
       unregister(gameCode: string) {
         var userId = firebase.auth.currentUser.uid;
         var user = firebase.usersCollection.doc(userId);
@@ -203,13 +242,19 @@
           eventTickets: this.eventTickets
         });
       }
+
       submitCode(e: Event) {
+        var today = new Date();
+        this.hours = today.getHours()
+        this.minutes = today.getMinutes()
+
+        var exactTime = (this.hours*60)+this.minutes
         var userId = firebase.auth.currentUser.uid;
         var user = firebase.usersCollection.doc(userId);
         for (var i=0; i<this.events.length;i++) {
           var event = this.events[i]
           // Check if user previously registered for event, and that code correct
-          if (this.inputCode == event.data.gameCode && this.eventTickets.includes(this.inputCode) == true && event.data.userAttendance.includes(userId) == false) {
+          if (this.inputCode == event.data.gameCode && this.eventTickets.includes(this.inputCode) == true && event.data.userAttendance.includes(userId) == false && exactTime >= event.data.lowerVerificationLimit && exactTime <= event.data.upperVerificationLimit && this.todayTimestamp == event.data.timestamp) {
             for (var i=0;i<this.userDataList.length;i++){
               var userData = this.userDataList[i]
               if (userData.id != userId && userData.id != 'admin') {
@@ -242,7 +287,7 @@
             user.update({
               transactions: this.transactions
             });
-            //console.log(event.id)
+
             var updateGame = firebase.db.collection('events').doc(event.id)
             event.data.userAttendance.push(userId)
             updateGame.update({
@@ -270,19 +315,17 @@
           //this.$router.push('/account');
           e.preventDefault();
       }
+
       selectBackground(atLAHS: boolean) {
         // If event on campus, set to default
         if (atLAHS == false) {
-          //return {color: "red"}
           return {
             border: "solid 2px pink"
-            //background: "linear-gradient(to bottom right, salmon, mistyrose)"
           }
         }
         else {
           return {
             border: "solid 2px skyblue"
-            //background: "linear-gradient(to bottom right, salmon, mistyrose)"
           }
         }
       }
@@ -315,6 +358,9 @@ h1 {
   display:inline-block;
   margin: 0;
   padding: 1em;
+}
+#button-container ion-button {
+  min-width: 50%;
 }
 .event-card {
     display: inline-block;

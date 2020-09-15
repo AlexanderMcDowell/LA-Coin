@@ -20,7 +20,12 @@ export default new IonicVueRouter({
     {
       path: '/signup',
       name: 'signup',
-      component: () => import('./views/Signup.vue')
+      component: () => import('./views/Signup.vue') //TermsConditions
+    },
+    {
+      path: '/termsConditions',
+      name: 'termsConditions',
+      component: () => import('./views/TermsConditions.vue')
     },
     {
       path: '/account',

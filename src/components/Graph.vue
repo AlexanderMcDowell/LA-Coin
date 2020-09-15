@@ -1,11 +1,17 @@
+<!-- Graph of LAcoin user has accumulated over time -->
+
 <template>
     <ion-card id="graph-card" mode="md">
+        <!-- Card Header -->
         <ion-card-header>
             <ion-card-title>Your Balance By Day</ion-card-title>
         </ion-card-header>
-        <ion-card-content>
+        <!-- Card Content -->
+        <ion-card-content mode="md">
+            <!-- Graph of User's Balance -->
             <area-chart :data="chartData.slice(chartData.length - graphSpec, chartData.length)" height="75vw"></area-chart>
-            <ion-list id="transaction-container">
+            <!-- List of all User's Transactions -->
+            <ion-list id="transaction-container" mode="md">
                 <ion-item v-for="transaction in showTransactions" v-bind:key="transaction">
                     <ion-label v-if="transaction.amount > 0" color="success">
                         +{{ transaction.amount }}
@@ -30,6 +36,7 @@
     import firebase from "@/firebase.config";
 
     Vue.use(Chartkick.use(Chart))
+    
     @Component
 
     export default class Graph extends Vue {

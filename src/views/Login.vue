@@ -1,5 +1,8 @@
+<!-- Page containing Login procedure -->
+
 <template>
 	<div class="ion-page">
+		<!-- Header with back button-->
 		<ion-header>
 		<ion-toolbar mode="ios">
       <ion-buttons slot="start">
@@ -10,8 +13,8 @@
       <ion-title>Login</ion-title>
     </ion-toolbar>
 		</ion-header>
+		<!-- Page Content -->
 		<ion-content class="ion-padding">
-			<!--h1 class="error-heading">{{errMessage}}</h1-->
 			<form @submit="loginWithPersistence">
 				<ion-item>
 					<ion-label position="floating">Email</ion-label>
@@ -44,14 +47,13 @@ export default class Login extends Vue {
 	password: string = "";
 	errMessage: string = "";
 	isLockedOut: boolean;
-	created() {
-	}
 
 	loginWithPersistence(e: Event) {
 		e.preventDefault();
 		firebase.auth.setPersistence(firebase.Authentication.Auth.Persistence.LOCAL)
 		this.login()
 	}
+
 	login() {
 		firebase.auth.signInWithEmailAndPassword(this.email, this.password).then(user => {
 			var checkUser = firebase.usersCollection.doc(user.user.uid)
@@ -97,6 +99,7 @@ export default class Login extends Vue {
 			})
 		})
 	}
+	
 	eventChange() {
       this.$router.push('/')
   }

@@ -1,7 +1,9 @@
+<!-- Alert modal whenever user wins gift contest -->
+
 <template>
     <ion-card>
         <h1>Congratulations!</h1>
-        <h2>You won this week's contest!</h2>
+        <h2>You've been selected for our prize this month. Go to the People Page and select your gift!</h2>
         <img id="gift-logo" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/Gift.png?alt=media&token=b53fccbe-f5bf-4b9a-9f51-3393c8e345ee"/>
         <i class="ion-ios-close-circle-outline" type="button" @click="exit()"></i>
     </ion-card>

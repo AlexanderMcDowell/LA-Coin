@@ -1,16 +1,20 @@
+<!-- Page containing all User Data -->
+
 <template>
   <div class="ion-page">
+    <!-- Page Header -->
     <ion-header>
       <ion-toolbar mode="ios">
         <ion-title>Account</ion-title>
       </ion-toolbar>
     </ion-header>
+    <!-- Page Content -->
     <ion-content class="ion-padding">
       <h1>Welcome Back!</h1>
-
       <!--Card with user's name, photo, balance and sign on date-->
       <ion-card id="profile-card" mode="md" :style="{background: cardColor}" @click="changeColor">
         <ion-card-header>
+          <!-- User name -->
           <div id="greeting-div">
             <ion-card-title v-if="name.length < 8">Hello, {{ name }}</ion-card-title>
             <ion-card-title id="longname-title" v-else>Hi, {{ name }}</ion-card-title>
@@ -20,6 +24,7 @@
           </div>
         </ion-card-header>
         <ion-card-content mode="md">
+          <!-- User profile info -->
           <div id="top-info">
             <div id="icon-div">
               <img id v-bind:src="profilePhoto">
@@ -79,6 +84,7 @@
       this.getDate(); //Get today's date
       this.getUserData(); //Get all user data
     }
+
     getDate() {
       var today = new Date();
       var dd = String(today.getDate()).padStart(2, '0');
@@ -86,6 +92,7 @@
       var yyyy = today.getFullYear();
       this.todayDate = mm + '/' + dd + '/' + yyyy;
     }
+
     getUserData() {
       var userId = firebase.auth.currentUser.uid;
       var user = firebase.usersCollection.doc(userId);
@@ -112,6 +119,7 @@
         this.cardColorChoices = doc.data().colors
       })
     }
+
     getBalance(transactionDoc: Array<any>) {
       var startBalance = 0;
       // Express balance as a sum of all transactions
@@ -121,8 +129,8 @@
       }
       return startBalance;
     }
+
     changeColor() {
-      //console.log(this.cardColor)
       var userId = firebase.auth.currentUser.uid;
       var user = firebase.usersCollection.doc(userId);
       var startIndex = this.cardColorChoices.indexOf(this.cardColor)

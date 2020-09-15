@@ -1,14 +1,20 @@
+<!-- All of User's notifications that have not been read -->
+
 <template>
 	<ion-card mode="md" id="notif-card">
+        <!-- Card Header -->
 		<ion-card-header>
             <ion-card-title>Notifications</ion-card-title>
             <ion-card-subtitle>Click the notification to remove.</ion-card-subtitle>
 		</ion-card-header>
-		<ion-card-content v-if="unreadNotif.length > 0">
+        <!-- Card Content -->
+		<ion-card-content mode="md" v-if="unreadNotif.length > 0">
+            <!-- List of all User's Notifications -->
 			<ion-item id="notif-block" v-for="notification in unreadNotif" v-bind:key="notification">
                 <div id="notif-description">
                     <h2>{{notification.description}}</h2>
                 </div>
+                <!-- Accept/Delete Notification Buttons -->
                 <div id="notif-button">
                     <i class="ion-md-checkmark-circle" v-if="notification.type != 'friend' && notification.type != 'transfer'" @click="removeNotif(notification)"></i>
                     <i class="ion-md-checkmark-circle" v-if="notification.type == 'friend'" @click="reward(notification, 'friend')"></i>
@@ -31,13 +37,15 @@
     import ConfirmModal from "@/components/ConfirmModal.vue";
     import DenyModal from "@/components/DenyModal.vue";
     import RedEnvelope from "@/components/RedEnvelope.vue";
+
     @Component({
-    components: {
-        ConfirmModal,
-        DenyModal,
-        RedEnvelope
-    }
+        components: {
+            ConfirmModal,
+            DenyModal,
+            RedEnvelope
+        }
     })
+
     export default class Notifications extends Vue {
         todayDate: string = "";
         friendSubstring: string = "";
@@ -59,6 +67,7 @@
             this.getUserData();
             this.getUsers(); // Get list of all users
         }
+
         getDate() {
             var today = new Date();
             var dd = String(today.getDate()).padStart(2, '0');
@@ -66,6 +75,7 @@
             var yyyy = today.getFullYear();
             this.todayDate = mm + '/' + dd + '/' + yyyy;
         }
+
         getUserData() {
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
@@ -83,6 +93,7 @@
                 }
             });
         }
+
         getUsers() {
             var users = firebase.usersCollection
             users.get().then(snapshot => {
@@ -91,6 +102,7 @@
                 })
             })
         }
+
         getBalance(transactionDoc: Array<any>) {
             // Express balance as sum of transactions
             var startBalance = 0;
@@ -100,10 +112,16 @@
             }
             return startBalance;
         }
+
         reward(Notification: any, type: string) {
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
             var senduser = firebase.usersCollection.doc(Notification.sentfrom);
+
+            if (this.friends.includes(Notification.sentfrom) == false) {
+                this.denyFriend(Notification)
+                return
+            }
 
            // Check whether or not the notification is a friend/red envelope request
             if (type == 'friend') {
@@ -221,14 +239,17 @@
                 this.modalConfirm();
             }
         }
+
         denyFriend(Notification: object) {
             this.removeNotif(Notification);
         }
+
         approveTransaction(Notification: any) {
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
             
             var senduser = firebase.usersCollection.doc(Notification.sentfrom);
+
             for (var i=0;i<this.userDataList.length;i++){
                 var userData = this.userDataList[i]
                 if (userData.id == Notification.sentfrom) {
@@ -237,9 +258,12 @@
                     break
                 }
             }
+
             this.removeNotif(Notification);
+
             var senduserTransactionDescription = "Exchange with " + this.name;
             var userTransactionDescription = "Exchange with " + this.sendusername;
+
             if (this.balance >= Number(Notification.transferAmount)) {
                 //Take away your account money
                 this.transactions.unshift({date: this.todayDate,
@@ -273,9 +297,11 @@
                 this.modalDeny();
             }
         }
+
         denyTransaction(Notification: object) {
             this.removeNotif(Notification);
         }
+
         removeNotif(Notification: object) {
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
@@ -286,17 +312,7 @@
                 unreadNotif: this.unreadNotif
             });
         }
-        /*archiveNotif(Notification: object) {
-            //Add deleted, removed notifications to archives
-            var allNotifs = firebase.notifCollection.doc('allNotifs')
-                allNotifs.get().then(doc => {
-                    var allNotifItems = doc.data().notifList
-                    allNotifItems.push(Notification)
-                    allNotifs.update({
-                    notifList: allNotifItems
-                })
-            })
-        }*/
+
         modalConfirm() {
             return this.$ionic.modalController
                     .create({
@@ -305,6 +321,7 @@
             m => m.present()
                     )
         }
+
         modalDeny() {
             return this.$ionic.modalController
                     .create({
@@ -313,6 +330,7 @@
             m => m.present()
                     )
         }
+
         modalRedEnvelope() {
             return this.$ionic.modalController
                     .create({

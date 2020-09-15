@@ -1,3 +1,5 @@
+<!-- Page containing all Users -->
+
 <template>
 	<div class="ion-page">
     <ion-header>
@@ -6,8 +8,7 @@
       </ion-toolbar>
     </ion-header>
 		<ion-content class="ion-padding">
-      <!-- Instructions -->
-
+      <!-- Instructions Card -->
       <ion-card id="intro-card" mode="md" type="button" @click="moreInfo()">
           <ion-card-header>
             <ion-card-title>Welcome to the LAcoin Community!</ion-card-title>
@@ -15,10 +16,10 @@
           <ion-card-content>
             <img id="lacoin-logo" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
             <p>Click on any user's name to reach out, make a transaction, and more!</p>
-            <p><b>Click here for more info!</b></p>
+            <p><b>Click here for LAcoin Tutorial</b></p>
           </ion-card-content>
         </ion-card>
-      <!-- Admin Card ADD v-if later!!!!!-->
+        <!-- LAcoin Admin Card -->
         <ion-card id="admin-info-card" mode="md" type="button" @click="requestGift()">
             <ion-card-header>
                 <ion-card-title>{{ adminInfo.data.name }}</ion-card-title>
@@ -30,20 +31,15 @@
                 <p class="admin-bio" v-if="isSelected == false">{{ adminInfo.data.bio }}</p>
                 <p class="admin-bio" v-else>{{ adminInfo.data.selectedBio }}</p>
               </div>
-              <!--div class="card-description">
-                <p class="bio" v-if="isSelected == false">{{ adminInfo.data.bio }}</p>
-                <p class="bio" v-else>{{ adminInfo.data.selectedBio }}</p>
-              </div-->
             </ion-card-content>
-        </ion-card>
-
+        </ion-card> 
+      <!-- Toggle between Friends and All Users -->
       <ion-buttons id="button-container">
         <ion-button class="select-user-opt-button" mode="md" color="primary" v-if="checkFriends == true" @click="checkFriends = false" fill="solid" expand="block">All Users</ion-button>
         <ion-button class="select-user-opt-button" mode="md" color="success" v-else fill="solid" expand="block">All Users</ion-button>
         <ion-button class="select-user-opt-button" mode="md" color="primary" v-if="checkFriends == false" @click="checkFriends = true" fill="solid" expand="block">Friends</ion-button>
         <ion-button class="select-user-opt-button" mode="md" color="success" v-else fill="solid" expand="block">Friends</ion-button>
       </ion-buttons>
-
       <!-- List of your Friends-->
       <ion-list style="padding: 0;" v-if="friends.length > 0 && checkFriends == true">
         <h1>Your friends</h1>
@@ -65,13 +61,10 @@
           </router-link>
         </ion-card>
       </ion-list>
-
       <ion-list v-if="checkFriends == false">
-        <!-- List of all users, no friends yet-->
         <h1>Users</h1>
+        <!-- Searchbar -->
         <ion-item>
-          <!--ion-searchbar @change="searchUsers" :v-model="searchName" show-cancel-button="never"></ion-searchbar-->
-
           <ion-input mode="md" :v-model="searchName" @input="searchName = $event.target.value" placeholder="Search User (Blank for All)" ></ion-input>
           <i id="search-icon" class="ion-md-arrow-round-down" v-on:click="searchUsers"></i>
         </ion-item>
@@ -82,11 +75,11 @@
           <ion-card-content mode="md">
             <img class="profile-icon" v-bind:src="adminInfo.data.profilePhoto">
             <div class="card-description">
-              <p class="bio">No users showed up in this search.</p>
+              <p class="admin-bio">No users showed up in this search.</p>
             </div>
           </ion-card-content>
         </ion-card> 
-
+        <!-- List of all users-->
         <ion-card class="info-card" mode="md" v-for="person in selectedPeople" v-bind:key="person">
           <ion-card-header>
             <router-link :to="{name: 'profile', params: person}">
@@ -146,7 +139,7 @@
     created() {
       this.getPeople();
     }
-    // Get data of all users
+
     getPeople() {
         var userList = firebase.usersCollection
         var userId = firebase.auth.currentUser.uid;
@@ -171,14 +164,9 @@
                   this.friends.push(userInfo)
                 }
             })
-          /*this.selectedPeople = this.selectedPeople.sort(function(a, b) {
-            return Math.random()-0.5;
-          })
-          if (this.selectedPeople.length > 50) {
-            this.selectedPeople = this.selectedPeople.slice(0, 50)
-          }*/
           })
     }
+
     getBalance(transactionDoc: Array<any>) {
       var startBalance = 0;
       for (var i = 0; i < transactionDoc.length; i++) {
@@ -187,6 +175,7 @@
       }
       return startBalance;
     }
+
     requestGift(e: Event) {
       return this.$ionic.modalController
         .create({
@@ -196,6 +185,7 @@
       )
       e.preventDefault();
     }
+
     moreInfo(e: Event) {
       return this.$ionic.modalController
         .create({
@@ -204,6 +194,7 @@
           m => m.present()
       )
     }
+    
     searchUsers(e: Event) {
       // Take searchbar input and sort through all users
       e.preventDefault()

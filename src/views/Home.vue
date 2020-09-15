@@ -1,3 +1,5 @@
+<!-- Page containing Welcome and User Registration Info -->
+
 <template>
   <div class="ion-page">
 	  	<ion-header v-if="notSignedIn == true">
@@ -6,7 +8,6 @@
 			</ion-toolbar>
     	</ion-header>
 		<ion-content class="ion-padding">
-
 			<!-- Welcome icon and description -->
 			<div id="home-container">
 				<h1>LAcoin</h1>
@@ -15,10 +16,10 @@
 				<h3 v-if="notSignedIn == true">Tutorial on App Store!<br>Get Started Below</h3>
 			</div>
 		</ion-content>
-
 		<!-- Log in, Sign in Buttons -->
 		<ion-footer class="ion-padding">
 			<ion-list>
+				<ion-button v-if="notSignedIn == true" mode="md" expand="block" color="dark" fill="outline" @click="confirm()">Confirm your account</ion-button>
 				<ion-button v-if="notSignedIn == true && accountCreated == false" mode="md" expand="block" color="dark" fill="outline" onclick="location.href='#/signup'">Get Started!</ion-button>
 				<ion-button v-if="notSignedIn == true && accountCreated == true" mode="md" expand="block" color="dark" onclick="location.href='#/login'">Login</ion-button>
 			</ion-list>
@@ -31,6 +32,7 @@
 	import Component from 'vue-class-component'
 	import firebase from '@/firebase.config'
 	import Navbar from "@/components/Navbar.vue";
+	import MoreInfo from "@/components/MoreInfo.vue";
 
 	@Component({
 		components: {
@@ -41,10 +43,35 @@
 	export default class Home extends Vue{
 		notSignedIn: boolean = false;
 		accountCreated: boolean = false;
+		shouldShowTutorial: boolean;
+
+		hasStartedSignupProcess: boolean; //vuex data (this don't work)
+
+		mounted() {
+			this.hasStartedSignupProcess = this.$store.getters.returnIfStartedSignupProcess
+		}
+
 		created() {
+			console.log('home created')
+			console.log(this.$store.getters.returnIfStartedSignupProcess)
+			//this.hasStartedSignupProcess = this.$store.getters.returnIfStartedSignupProcess
+			this.$store.state.todayDate = this.getDate()
 			var self = this
+			
 			firebase.auth.onAuthStateChanged(function(user) {
 				if (user && user.emailVerified == true) {
+					var checkUser = firebase.usersCollection.doc(user.uid)
+					checkUser.get().then(doc => {
+						self.shouldShowTutorial = doc.data().showTutorial
+						if (self.shouldShowTutorial == true) {
+							return self.$ionic.modalController
+								.create({
+								component: MoreInfo
+								}).then(
+								m => m.present()
+							)
+						}
+					})
 					self.$router.push('/account');
 				} 
 				else if (user && user.emailVerified == false) {
@@ -52,12 +79,28 @@
 					self.accountCreated == false;
 				}
 				else {
-					console.log('HI')
 					self.notSignedIn = true;
-					console.log(self.notSignedIn)
 					// No user is signed in.
 				}
 			});
+		}
+
+		confirm() {
+			try {
+				firebase.auth.currentUser.reload()
+				this.$router.push('/termsConditions');
+			} catch {
+				alert('Account does not exist')
+			}
+		}
+
+		getDate() {
+			var today = new Date();
+			var dd = String(today.getDate()).padStart(2, '0');
+			var mm = String(today.getMonth() + 1).padStart(2, '0');
+			var yyyy = today.getFullYear();
+			var todayDate = mm + '/' + dd + '/' + yyyy;
+			return todayDate
 		}
 	}
 </script>

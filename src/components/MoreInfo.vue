@@ -1,3 +1,5 @@
+<!-- Informational Modal on how to use app -->
+
 <template>
     <ion-card mode="md">
         <ion-card-header>
@@ -11,9 +13,10 @@
             </ion-toolbar>
         </ion-card-header>
         <ion-card-content>
+            <h3 style="color: gray; padding-bottom: 2vw; font-weight: bold;">Can be found at top of People Page</h3>
             <img class="info-image" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/Gift.png?alt=media&token=b53fccbe-f5bf-4b9a-9f51-3393c8e345ee">
             <h1 style="color: gray;">Gift</h1>
-            <p>Every week, one user is selected to choose a gift. The more LAcoin you have, the better your chances to win big!</p>
+            <p>Every 3 weeks, one user is selected to choose a gift. The more LAcoin you have, the better your chances to win big!</p>
             <img class="info-image" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/RedEnvelope.png?alt=media&token=b1169843-707d-402f-a2ca-b6cbdda534dd">
             <h1 style="color: darkred;">Red Envelope</h1>
             <p>Every day, each user receives a Red Envelope to give to a friend or user they choose. Use it daily for a sweet boost in points!</p>
@@ -37,6 +40,15 @@
     
     export default class MoreInfo extends Vue {
         exit() {
+            try {
+                var userId = firebase.auth.currentUser.uid;
+                var user = firebase.usersCollection.doc(userId);
+                user.update({
+                    showTutorial: false
+                })
+            } catch {
+                console.log('error')
+            }
             this.$ionic.modalController.dismiss()
         }
     }
@@ -44,11 +56,10 @@
 
 <style scoped>
 ion-card {
-    /*background-image: linear-gradient(to bottom right, rgb(85, 255, 241), rgb(151, 199, 255));*/ /*In the Red*/
     font-family: 'Nunito', sans-serif;
     text-align: center;
     padding-bottom: 1em;
-    height: 100vh;
+    height: 75vh;
     width: auto;
     overflow: scroll;
 }

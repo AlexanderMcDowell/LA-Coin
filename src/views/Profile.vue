@@ -1,5 +1,8 @@
+<!-- Page containing specific User Profile -->
+
 <template>
 	<div class="ion-page">
+        <!-- Header with back button-->
         <ion-header>
         <ion-toolbar mode="ios">
       		<ion-buttons slot="start">
@@ -10,17 +13,15 @@
       		<ion-title>Profile</ion-title>
     	</ion-toolbar>
         </ion-header>
-
+        <!-- Page Content -->
         <ion-content>
             <!-- Profile Icon & Name -->
             <div id="profile">
                 <img id="profile-icon" v-bind:src="UserData.data.profilePhoto">
                 <h1 id="profile-username">{{ UserData.data.name }}</h1>
             </div>
-
             <!-- Profile Overview -->
             <div class="info-block">
-                <!--span class="vertical-line"></span-->
                 <div id="info-content">
                     <h1 id="balance">💰{{ UserData.data.balance }}.00</h1>
                     <br><i id="bio-field">{{ UserData.data.bio }}</i><br>
@@ -33,7 +34,6 @@
                 <div id="friend-list" v-if="UserData.data.friends.length == 0">
                     <ion-label id="friend-title-label">No Friends Yet!</ion-label>
                 </div>
-
                 <!-- Friends List -->
                 <div id="friend-list" v-else>
                     <ion-label id="friend-title-label"><b>Friends:</b></ion-label>
@@ -47,12 +47,12 @@
                 <!-- Friend Button -->
                 <ion-button mode="md" id="friend" color="success" fill="solid" @click="friend(UserData.id)" v-if="UserData.data.name != name && friends.includes(UserData.id) == false && userCanFriend == true">Friend {{UserData.data.name}}?</ion-button>
                 <form id="transfer-form" v-if="UserData.data.name != name" @submit="transfer">
-                    <ion-button mode="md" id="transfer" color="medium" fill="solid" type="submit" expand="block" >Transfer LAcoin to {{UserData.data.name}}?</ion-button>
+                    <ion-button mode="md" id="transfer" color="medium" fill="solid" type="submit" expand="block" >Transfer to {{UserData.data.name}}?</ion-button>
                     <ion-grid>
                         <ion-row>
                             <ion-col class="input-col">
                                 <ion-label mode="md" style="margin-left: 8px;"><b>Select amount</b></ion-label>
-                                <ion-input mode="md" @input="transferAmount = $event.target.value" name="transferAmount" placeholder="Transaction amount"></ion-input>
+                                <ion-input mode="md" @input="transferAmount = $event.target.value" name="transferAmount" placeholder="Negative Gives!"></ion-input>
                             </ion-col>
                             <ion-col class="input-col">
                                 <ion-label mode="md" style="margin-left: 8px;"><b>Select message</b></ion-label>
@@ -64,8 +64,7 @@
                     </ion-grid>
                     <ion-button mode="md" class="red-envelope-set" v-if="lastRedEnvelope != todayDate && setRedEnvelope == false" color="danger" fill="solid" expand="block" @click="setRedEnvelope = true">Red Envelope?</ion-button>
                     <ion-button mode="md" class="red-envelope-set" v-if="lastRedEnvelope != todayDate && setRedEnvelope == true" color="success" fill="solid" expand="block" @click="setRedEnvelope = false">Reset Red Envelope?</ion-button>
-                </form>
-                
+                </form> 
                 <!-- Transaction fillout-->
             </div>
         </ion-content>
@@ -118,6 +117,7 @@
             this.getUserData();
             this.getDate();
         }
+
         getBalance(transactionDoc: Array<any>) {
             var startBalance = 0;
             for (var i = 0; i < transactionDoc.length; i++) {
@@ -126,6 +126,7 @@
             }
             return startBalance;
         }
+
         getProfileFriends(friendIds: string[]){
             // Get friends for a weird reason
             for (var i=0;i<friendIds.length;i++) {
@@ -139,6 +140,7 @@
             }
             return this.userFriendsPlaceholder
         }
+
         getDate() {
             var today = new Date();
             var dd = String(today.getDate()).padStart(2, '0');
@@ -146,6 +148,7 @@
             var yyyy = today.getFullYear();
             this.todayDate = mm + '/' + dd + '/' + yyyy;
         }
+
         getUserData() {
             // Set up Firebase User calling
             var userId = firebase.auth.currentUser.uid;
@@ -169,6 +172,7 @@
             })
 
         }
+
         verifyFriendReq(recipientUnreadNotif: Array<any>) {
             var userId = firebase.auth.currentUser.uid;
             //Make sure request has not previously been sent
@@ -181,6 +185,7 @@
             }​
             this.userCanFriend = true;
         }
+
         sendReq(reqType: string, userId: string, recipientId:string) {
             var recipientUser = firebase.usersCollection.doc(recipientId);
             // If friend notif received, send without transfer amount
@@ -253,12 +258,14 @@
                 }
             }
         }
+
         friend(recipientId:string) {
             var userId = firebase.auth.currentUser.uid;
             var reqType = 'friend';
             this.sendReq(reqType, userId, recipientId);
             this.$router.push('/people');
         }
+
         transfer(e: Event) {
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
@@ -268,6 +275,7 @@
             this.$router.push('/people');
             e.preventDefault();
         }
+        
         eventChange() {
             this.$router.push('/people')
         }

@@ -1,9 +1,10 @@
+<!-- Alert modal whenever red envelope received -->
+
 <template>
     <ion-card>
         <h1>Extra Gift Waiting for you.</h1>
         <img id="envelope-logo" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/RedEnvelope.png?alt=media&token=b1169843-707d-402f-a2ca-b6cbdda534dd"/>
         <p>Red Envelope Transfer!</p>
-        <!--ion-button mode="md" fill="outline" @click="exit()">Exit</ion-button-->
         <i class="ion-ios-close-circle-outline" type="button" @click="exit()"></i>
     </ion-card>
 </template>

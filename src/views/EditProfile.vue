@@ -1,12 +1,15 @@
+<!-- Page where User Settings can be changed -->
+
 <template>
 	<div class="ion-page">
+    <!-- Page Header -->
     <ion-header>
       <ion-toolbar mode="ios">
         <ion-title>Settings</ion-title>
       </ion-toolbar>
     </ion-header>
+    <!-- Page Content -->
     <ion-content class="ion-padding">
-
       <!-- Card to change photo of user-->
       <ion-card mode="md" v-if="changePhoto == true">
         <ion-card-header @click="changePhoto = false">Photos ❌</ion-card-header>
@@ -51,10 +54,12 @@
   import Component from 'vue-class-component'
   import firebase from '@/firebase.config'
   import Navbar from "@/components/Navbar.vue";
+  import ConfirmModal from "@/components/ConfirmModal.vue";
 
   @Component({
     components: {
-      Navbar
+      Navbar,
+      ConfirmModal
     }
   })
   
@@ -76,12 +81,14 @@
       this.getProfilePhotos() // Get all available profile photo options
       this.getUserData()
     }
+
     getProfilePhotos() {
       var photoList = firebase.photosCollection.doc('photoList')
       photoList.get().then(doc => {
         this.profileLinks = this.parseURLs(doc.data().urls)
       })
     }
+
     parseURLs(urlList: string[]) {
       // Reshape url list into a 2 column list
       var newUrlList = []
@@ -94,6 +101,7 @@
       }
       return newUrlList
     }
+
     getUserData() {
       var userId = firebase.auth.currentUser.uid;
       var user = firebase.usersCollection.doc(userId);
@@ -104,6 +112,7 @@
           this.graphSpec = doc.data().graphSpec;
         });
     }
+
     changeProfile(e: Event) {
       var userId = firebase.auth.currentUser.uid;
       var user = firebase.usersCollection.doc(userId);
@@ -125,6 +134,12 @@
         });
       }
       this.$router.push('/account')
+      /*return this.$ionic.modalController
+        .create({
+          component: ConfirmModal
+        }).then(
+          m => m.present()
+        )*/
       e.preventDefault();
     }
     setNewPhoto(link: string) {
@@ -138,6 +153,7 @@
       this.changePhoto = false;
     }
   }
+
 </script>
 
 <style scoped>

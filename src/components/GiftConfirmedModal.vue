@@ -1,10 +1,10 @@
-<!-- Confirmation modal whenever action succeeds-->
+<!-- Alert modal when gift approved -->
 
 <template>
     <ion-card>
-        <h1>Success!</h1>
-        <h2>Click below to continue.</h2>
-        <img id="lacoin-logo" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
+        <h1>Check your Email!</h1>
+        <h2>Within 48 hours, we will confirm your gift! Thanks for using LACoin.</h2>
+        <img id="email-logo" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/gold-eagle.png?alt=media&token=055d7ec1-0a95-4836-97c4-015f29643363"/>
         <i class="ion-ios-close-circle-outline" type="button" @click="exit()"></i>
     </ion-card>
 </template>
@@ -16,7 +16,7 @@
 
     @Component
     
-    export default class EventModal extends Vue {
+    export default class GiftConfirmedModal extends Vue {
         exit() {
             this.$ionic.modalController.dismiss()
         }
@@ -39,9 +39,9 @@ h1 {
 h2 {
     color: gray;
     margin: 0 0 1em 0;
-    font-size: 5vw;
+    font-size: 4vw;
 }
-#lacoin-logo {
+#email-logo {
     border: solid 2px;
     border-color: rgb(185, 143, 2);
     background-color: rgb(255, 214, 80);

@@ -5,12 +5,20 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-
+    todayDate: '',
+    hasStartedSignupProcess: false
   },
   mutations: {
-
+    trueify(state) {
+      state.hasStartedSignupProcess = true
+    }
   },
-  actions: {
-
+  getters: {
+    returnTodayDate: state => {
+      return state.todayDate
+    },
+    returnIfStartedSignupProcess: state => {
+      return state.hasStartedSignupProcess
+    }
   }
 })
