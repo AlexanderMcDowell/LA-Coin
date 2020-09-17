@@ -17,9 +17,9 @@
                 <!-- Accept/Delete Notification Buttons -->
                 <div id="notif-button">
                     <i class="ion-md-checkmark-circle" v-if="notification.type != 'friend' && notification.type != 'transfer'" @click="removeNotif(notification)"></i>
-                    <i class="ion-md-checkmark-circle" v-if="notification.type == 'friend'" @click="reward(notification, 'friend')"></i>
+                    <i class="ion-md-checkmark-circle" v-if="notification.type == 'friend'" @click="getUsersBeforeReward(notification, 'friend')"></i>
                     <i class="ion-md-close-circle-outline" v-if="notification.type == 'friend'" @click="denyFriend(notification)"></i>
-                    <i class="ion-md-checkmark-circle" v-if="notification.type == 'transfer'" @click="approveTransaction(notification)"></i>
+                    <i class="ion-md-checkmark-circle" v-if="notification.type == 'transfer'" @click="getUsersBeforeExchange(notification)"></i>
                     <i class="ion-md-close-circle-outline" v-if="notification.type == 'transfer'" @click="denyTransaction(notification)"></i>
                 </div>
             </ion-item>
@@ -65,7 +65,6 @@
         created() {
             this.getDate(); // Get today's date
             this.getUserData();
-            this.getUsers(); // Get list of all users
         }
 
         getDate() {
@@ -94,12 +93,23 @@
             });
         }
 
-        getUsers() {
+        getUsersBeforeReward(Notification: any, type: string) {
             var users = firebase.usersCollection
             users.get().then(snapshot => {
                 snapshot.forEach(doc => {
-                    this.userDataList.push({id: doc.id, data: doc.data()})
+                    this.userDataList.push({id: doc.id, data: {friends: doc.data().friends, name: doc.data().name, transactions: doc.data().transactions, unreadNotif: doc.data().unreadNotif}})
                 })
+                this.reward(Notification, type)
+            })
+        }
+
+        getUsersBeforeExchange(Notification: any) {
+            var users = firebase.usersCollection
+            users.get().then(snapshot => {
+                snapshot.forEach(doc => {
+                    this.userDataList.push({id: doc.id, data: {friends: doc.data().friends, name: doc.data().name, transactions: doc.data().transactions, unreadNotif: doc.data().unreadNotif}})
+                })
+                this.approveTransaction(Notification)
             })
         }
 
@@ -118,17 +128,17 @@
             var user = firebase.usersCollection.doc(userId);
             var senduser = firebase.usersCollection.doc(Notification.sentfrom);
 
-            if (this.friends.includes(Notification.sentfrom) == false) {
-                this.denyFriend(Notification)
-                return
-            }
-
            // Check whether or not the notification is a friend/red envelope request
             if (type == 'friend') {
                 var friendReturn = 10;
+                // If friend request while already a friend
+                if (this.friends.includes(Notification.sentfrom) == true) {
+                    this.denyFriend(Notification)
+                    return
+                }
             }
             else {
-                var friendReturn = Number(Notification.redEnvelope);
+                var friendReturn = Number(Math.round(Notification.redEnvelope));
             }
 
             // Set up info on share
@@ -157,23 +167,25 @@
                         var outsideMessage = "Some users friended";
                     }
                     else {
-                        var outsideMessage = "Red Envelope";
+                        var outsideMessage = "Red Envelope sent between friends";
                     }
                     var userBalance = this.getBalance(userData.data.transactions);
                     var subtractBalance = Math.round(userBalance*percentOfTotalCoin);
                     recordTotalAmtRetracted = recordTotalAmtRetracted + subtractBalance;
-
-                    userData.data.transactions.unshift({date: this.todayDate,
-                        amount: -1*subtractBalance,
-                        description: outsideMessage,
-                        fromId: "admin", 
-                        toId: userData.id,
-                        type: 'deduction'
-                        })
-                    var outsideUser = firebase.usersCollection.doc(userData.id);
-                    outsideUser.update({
-                        transactions: userData.data.transactions
-                    });
+                    
+                    if (subtractBalance !=0) {
+                        userData.data.transactions.unshift({date: this.todayDate,
+                            amount: -1*subtractBalance,
+                            description: outsideMessage,
+                            fromId: "admin", 
+                            toId: userData.id,
+                            type: 'deduction'
+                            })
+                        var outsideUser = firebase.usersCollection.doc(userData.id);
+                        outsideUser.update({
+                            transactions: userData.data.transactions
+                        });
+                    }
                 }
             }
             //Set up notif
@@ -193,7 +205,8 @@
                     unreadNotif: this.unreadNotif
                 });
             }
-            friendReturn = Math.round(recordTotalAmtRetracted/2);
+            //friendReturn = Math.round(recordTotalAmtRetracted/2);
+            
             //console.log(friendReturn)
             //Give user 10 la coin
             if (type == 'friend') {
@@ -204,7 +217,8 @@
                 var userDescription = "Red Envelope with  " + this.sendusername
                 var transactionType = 'red envelope'
             }
-            this.transactions.unshift({date: this.todayDate,
+            this.transactions.unshift({
+                date: this.todayDate,
                 amount: friendReturn,
                 description: userDescription,
                 fromId: "admin", //admin means you take from everyone elses
@@ -245,6 +259,7 @@
         }
 
         approveTransaction(Notification: any) {
+            //this.getUsers(); // Get list of all users
             var userId = firebase.auth.currentUser.uid;
             var user = firebase.usersCollection.doc(userId);
             

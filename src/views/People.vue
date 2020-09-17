@@ -65,8 +65,8 @@
         <h1>Users</h1>
         <!-- Searchbar -->
         <ion-item>
-          <ion-input mode="md" :v-model="searchName" @input="searchName = $event.target.value" placeholder="Search User (Blank for All)" ></ion-input>
-          <i id="search-icon" class="ion-md-arrow-round-down" v-on:click="searchUsers"></i>
+          <ion-input mode="md" :v-model="searchName" @input="searchName = $event.target.value" placeholder="Search User (Blank for All), Click Arrow" ></ion-input>
+          <i id="search-icon" class="ion-ios-arrow-dropright" v-on:click="searchUsers"></i>
         </ion-item>
         <ion-card v-if="selectedPeople.length == 0" class="info-card" mode="md">
           <ion-card-header>
@@ -151,7 +151,7 @@
         // List and categorize users
         userList.get().then(snapshot => {
             snapshot.forEach(doc => {
-                var userInfo = {id: doc.id, data: doc.data()};
+                var userInfo = {id: doc.id, data: {balance: 0, bio: doc.data().bio, transactions: doc.data().transactions, profilePhoto: doc.data().profilePhoto, name: doc.data().name, signOnDate: doc.data().signOnDate, friends: doc.data().friends}};
                 if (userInfo.id == 'admin') {
                   this.adminInfo = userInfo;
                 }

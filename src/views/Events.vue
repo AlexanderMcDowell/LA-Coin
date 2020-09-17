@@ -151,7 +151,7 @@
         var users = firebase.usersCollection
         users.get().then(snapshot => {
           snapshot.forEach(doc => {
-          this.userDataList.push({id: doc.id, data: doc.data()})
+          this.userDataList.push({id: doc.id, data: {transactions: doc.data().transactions}})
           })
         })
       }
@@ -174,7 +174,8 @@
                   // Check if events are open and will be happening
                   if (eventDoc.data.isActive == true && this.todayTimestamp <= eventDoc.data.timestamp) {
                     this.events.push(eventDoc);
-                    this.allAvailableEventTypes.push(doc.data().type)
+                    if (this.allAvailableEventTypes.includes(doc.data().type) == false)
+                      this.allAvailableEventTypes.push(doc.data().type)
                   }
               })
               this.events = this.events.sort(function(a, b) {
@@ -259,16 +260,18 @@
               var userData = this.userDataList[i]
               if (userData.id != userId && userData.id != 'admin') {
                 // 3rd party users receive a deduction
-                userData.data.transactions.unshift({date: this.todayDate,
-                  amount: Math.round(-1*event.data.coinReturn/this.userDataList.length),
-                  description: "Other User Attendance",
-                  fromId: "admin", //admin means you take from everyone elses
-                  toId: userData.id,
-                  type: 'deduction'})
-                var outsideUser = firebase.usersCollection.doc(userData.id);
-                  outsideUser.update({
-                    transactions: userData.data.transactions
-                  });
+                if (Math.round(-1*event.data.coinReturn/this.userDataList.length) != 0) {
+                  userData.data.transactions.unshift({date: this.todayDate,
+                    amount: Math.round(-1*event.data.coinReturn/this.userDataList.length),
+                    description: "Other User Attendance",
+                    fromId: "admin", //admin means you take from everyone elses
+                    toId: userData.id,
+                    type: 'deduction'})
+                  var outsideUser = firebase.usersCollection.doc(userData.id);
+                    outsideUser.update({
+                      transactions: userData.data.transactions
+                    });
+                }
               }
             }
             // Failsafe if event price deflated
@@ -278,7 +281,7 @@
             }
                 
             this.transactions.unshift({date: this.todayDate,
-              amount: Number(realreturn),
+              amount: event.data.coinReturn,
               description: "Event Attended",
               fromId: "admin", //admin means you take from everyone elses
               toId: userId,

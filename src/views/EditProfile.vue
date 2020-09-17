@@ -78,6 +78,7 @@
     profileLinks: Array<any> = []
 
     created() {
+      console.log(this.$store.getters.returnTodayDate)
       this.getProfilePhotos() // Get all available profile photo options
       this.getUserData()
     }

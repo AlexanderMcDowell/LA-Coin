@@ -60,24 +60,27 @@
                 /* If the transaction list greater than or equal to 75 item, 
                 shift info for the second-to-last transaction onto a "closing" cap transaction
                 */
-                if (this.transactions.length >= 76 && this.transactions[75].type == 'Closing') {
-                    this.transactions[75].amount = this.transactions[75].amount + this.transactions[74].amount
-                    this.transactions[75].date = this.transactions[74].date
-                    this.transactions[74] = this.transactions[75]
+                if (this.transactions.length >= 60) {
+                    var length = this.transactions.length-1;
+                    //this.transactions[length-1] = this.transactions[length]
+                    this.transactions[length-1].amount = this.transactions[length].amount + this.transactions[length-1].amount
+                    //this.transactions[length].date = this.transactions[length-1].date
+                    this.transactions[length-1].description = 'Limit Reached'
+                    this.transactions[length-1].sentfrom = 'admin'
                     this.transactions.pop()
                     user.update({
                         transactions: this.transactions
                     })
                 }
                 // If transaction list length reaches 75, create closing cap transaction
-                else if (this.transactions.length >= 75) {
-                    this.transactions[74].type = 'Closing'
-                    this.transactions[74].sentfrom = 'admin'
-                    this.transactions[74].description = 'No previous transactions are available! Sorry for the inconvenience.'
+                /*else if (this.transactions.length >= 17) {
+                    this.transactions[16].type = 'Closing'
+                    this.transactions[16].sentfrom = 'admin'
+                    this.transactions[16].description = 'No previous transactions are available! Sorry for the inconvenience.'
                     user.update({
                         transactions: this.transactions
                     })
-                }
+                }*/
 
                 // If amt of data pts user wants is greater than transaction list length, reset
                 if (this.graphSpec >= this.transactions.length) {

@@ -19,13 +19,19 @@
             <p>Every 3 weeks, one user is selected to choose a gift. The more LAcoin you have, the better your chances to win big!</p>
             <img class="info-image" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/RedEnvelope.png?alt=media&token=b1169843-707d-402f-a2ca-b6cbdda534dd">
             <h1 style="color: darkred;">Red Envelope</h1>
-            <p>Every day, each user receives a Red Envelope to give to a friend or user they choose. Use it daily for a sweet boost in points!</p>
+            <p>Every day, each user receives a Red Envelope to give to a friend or user they choose. Use it daily for a sweet boost in points by toggling it (button should glow green)!</p>
             <img class="info-image" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/Social.png?alt=media&token=91725371-7ebc-4a4b-bcde-03bad199f5c9">
             <h1 style="color: skyblue">Friend</h1>
-            <p>Friend anyone in the app for a slight boost in LACoin!</p>
+            <p>Friend anyone in the app for a slight boost in points!</p>
             <img class="info-image" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/Connect.png?alt=media&token=fc2b5711-5c73-4773-b203-02728a7d1c66">
             <h1 style="color: green">Transfer</h1>
-            <p>Ask any user or friend for some LAcoin. Type in a negative amount to give, positive to gain.</p>
+            <p>Ask any user or friend for some points. Type in a negative amount to give, positive to gain.</p>
+            <img class="info-image" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/Calendar.png?alt=media&token=44619cef-071c-4755-bc1c-07713ec1b69f">
+            <h1 style="color: darkred;">Events</h1>
+            <p>Register for events before they happen! Click blue add button to add yourself. At the event, get the code from the organizer and submit.</p>
+            <img class="info-image" src="https://firebasestorage.googleapis.com/v0/b/wuffee-app.appspot.com/o/Question.png?alt=media&token=8b67f6b9-6e13-48a5-b109-7dcfa82e7364">
+            <h1 style="color: darkred;">Questions</h1>
+            <p>Follow at la.coin or message at lacoinapp@gmail.com!</p>
             <i id="bottom-icon" class="ion-ios-close-circle-outline" type="button" @click="exit()"></i>
         </ion-card-content>
     </ion-card>

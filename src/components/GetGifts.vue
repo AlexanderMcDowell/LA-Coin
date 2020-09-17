@@ -23,7 +23,7 @@
                     <div class="description-container">
                         <!-- Product photo -->
                         <img v-if="userSelectedForGift == false" class="choice-img" v-bind:src="product.data.photo">
-                        <img v-if="userSelectedForGift == true" class="choice-img" v-bind:src="product.data.photo" @click="select(product)"/>
+                        <img v-if="userSelectedForGift == true" class="choice-img" v-bind:src="product.data.photo" @click="getUsersBeforeSelection(product)"/>
                         <!-- Product Description -->
                         <div class="description-tags">
                             <p v-if="userSelectedForGift == true">{{product.data.description}}</p>
@@ -71,7 +71,7 @@
             this.getUserAdminData(); // Get User data, Admin notifictions
             this.getDate(); // Get today's date
             this.getProducts(); // Get list of all products
-            this.getUsers();
+            //this.getUsers();
         }
 
         getDate() {
@@ -92,12 +92,13 @@
             })
         }
 
-        getUsers() {
+        getUsersBeforeSelection(product: any) {
             var userList = firebase.usersCollection;
             userList.get().then(snapshot => {
                 snapshot.forEach(doc => {
-                    this.userDataList.push({id: doc.id, data: doc.data()});
+                    this.userDataList.push({id: doc.id, data: {transactions: doc.data().transactions}});
                 })
+                this.select(product)
             })
         }
 

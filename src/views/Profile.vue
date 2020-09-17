@@ -56,7 +56,7 @@
                             </ion-col>
                             <ion-col class="input-col">
                                 <ion-label mode="md" style="margin-left: 8px;"><b>Select message</b></ion-label>
-                                <ion-select mode="md" style="margin-left: -8px;" :value="transferDescription">
+                                <ion-select mode="md" style="margin-left: -8px;" :value="transferDescription" @ionChange="changeDescription($event.target.value)">
                                     <ion-select-option mode="md" v-for="type in allTransferDescriptions" v-bind:key="type" :value="type">{{type}}</ion-select-option>
                                 </ion-select>
                             </ion-col>
@@ -108,7 +108,7 @@
         allTransferDescriptions: string[] = [];
         
         transferAmount: number = 0;
-        transferDescription: string = "[No Message]";
+        transferDescription: string = "";
         userFriendsPlaceholder: Array<any> = [];
 
         created() {
@@ -116,6 +116,10 @@
             this.UserData.data.friends = this.getProfileFriends(this.UserData.data.friends)
             this.getUserData();
             this.getDate();
+        }
+
+        changeDescription(value: string) {
+            this.transferDescription = value;
         }
 
         getBalance(transactionDoc: Array<any>) {
@@ -211,7 +215,7 @@
             // If transfer notif received, send with transfer amount
             if (reqType == 'transfer') {
                 var notifdescription = this.name + " " + this.transferAmount + " LACoin Request";
-                if (this.transferDescription != 'No Message') {
+                if (this.transferDescription != '[No Message]') {
                     notifdescription = notifdescription + " - " + this.transferDescription
                 }
                 // Check if transfer amt is a number, send
